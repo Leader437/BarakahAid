@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { HiMail, HiPhone, HiLocationMarker, HiClock, HiCheckCircle, HiQuestionMarkCircle } from 'react-icons/hi';
 import { FaFacebookF, FaTwitter, FaLinkedinIn } from 'react-icons/fa';
 import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import Input from '../components/ui/Input';
 import TextArea from '../components/ui/TextArea';
 import Select from '../components/ui/Select';
@@ -151,7 +151,7 @@ const Contact = () => {
                 <h2 className="mb-6 text-2xl font-bold text-secondary-900">Send Us a Message</h2>
                 
                 {submitted && (
-                  <div className="p-4 mb-6 border rounded-lg bg-green-50 border-green-200">
+                  <div className="p-4 mb-6 border border-green-200 rounded-lg bg-green-50">
                     <div className="flex items-center gap-2">
                       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

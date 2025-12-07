@@ -186,7 +186,7 @@ const FAQ = () => {
 
   const filteredFAQs = faqs.filter(faq => {
     const matchesCategory = activeCategory === 'all' || faq.category === activeCategory;
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = !searchQuery || 
       faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -225,7 +225,7 @@ const FAQ = () => {
       {/* Category Filter */}
       <section className="py-8 bg-white border-b border-secondary-200">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap justify-center gap-3">
             {categories.map((category) => (
               <button
                 key={category.id}
@@ -245,13 +245,13 @@ const FAQ = () => {
 
       {/* FAQ List */}
       <section className="py-12">
-        <div className="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
+        <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
           {filteredFAQs.length > 0 ? (
             <div className="space-y-4">
               {filteredFAQs.map((faq, index) => (
                 <Card key={index} className="overflow-hidden">
                   <details className="cursor-pointer group">
-                    <summary className="flex items-center justify-between p-6 text-lg font-bold text-secondary-900 list-none">
+                    <summary className="flex items-center justify-between p-6 text-lg font-bold list-none text-secondary-900">
                       <span className="flex-1 pr-4">{faq.question}</span>
                       <HiChevronDown className="flex-shrink-0 w-5 h-5 transition-transform transform text-primary-600 group-open:rotate-180" />
                     </summary>
@@ -274,7 +274,7 @@ const FAQ = () => {
 
       {/* Still Need Help Section */}
       <section className="py-16 bg-white">
-        <div className="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
+        <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
           <Card className="p-8 text-center bg-gradient-to-br from-primary-50 to-white border-primary-200">
             <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary-100 text-primary-600">
               <HiSupport className="w-8 h-8" />

@@ -1,7 +1,7 @@
 // Landing Page
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { HiHeart, HiStar, HiChevronRight, HiCheckCircle } from 'react-icons/hi';
+import { HiHeart, HiStar, HiChevronRight, HiCheckCircle, HiUserAdd, HiCreditCard, HiUserGroup } from 'react-icons/hi';
 import PrimaryButton from "../components/ui/PrimaryButton";
 import SecondaryButton from "../components/ui/SecondaryButton";
 import Footer from "../components/layout/Footer";
@@ -283,7 +283,7 @@ const LandingPage = () => {
             {/* Step 1 */}
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 mb-4 bg-white rounded-lg bg-opacity-20">
-                <HiCheckCircle className="w-12 h-12 text-primary-600" />
+                <HiUserAdd className="w-12 h-12 text-primary-600" />
               </div>
               <h3 className="mb-2 text-lg font-bold text-white">
                 Enter wallet, passport info
@@ -296,7 +296,7 @@ const LandingPage = () => {
             {/* Step 2 */}
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 mb-4 bg-white rounded-lg bg-opacity-20">
-                <HiHeart className="w-12 h-12 text-primary-600" />
+                <HiCreditCard className="w-12 h-12 text-primary-600" />
               </div>
               <h3 className="mb-2 text-lg font-bold text-white">
                 Citizen all accessed info
@@ -309,7 +309,7 @@ const LandingPage = () => {
             {/* Step 3 */}
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 mb-4 bg-white rounded-lg bg-opacity-20">
-                <HiHeart className="w-12 h-12 text-primary-600" />
+                <HiUserGroup className="w-12 h-12 text-primary-600" />
               </div>
               <h3 className="mb-2 text-lg font-bold text-white">
                 Create or Join incidences
@@ -366,7 +366,7 @@ const LandingPage = () => {
                   <h3 className="mb-2 text-xl font-bold text-secondary-900">
                     {story.title}
                   </h3>
-                  <p className="mb-4 text-secondary-600">{story.description}</p>
+                  <p className="block mt-auto mb-4 text-secondary-600">{story.description}</p>
                   <div className="flex items-center justify-between pt-4 border-t border-secondary-200">
                     <div>
                       <p className="text-sm text-secondary-600">Raised</p>
@@ -492,7 +492,7 @@ const LandingPage = () => {
 
           <div className="mt-12 text-center">
             <p className="mb-4 text-secondary-600">Still have questions?</p>
-            <Link to="/register">
+            <Link to="/contact">
               <SecondaryButton>Contact Support</SecondaryButton>
             </Link>
           </div>
@@ -522,9 +522,11 @@ const LandingPage = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="relative flex items-center justify-center w-full h-80 bg-gradient-to-br from-primary-200 to-primary-400 rounded-2xl">
-                <HiHeart className="w-32 h-32 text-white opacity-50" />
-              </div>
+              <img
+                src="https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&h=400&fit=crop&q=80"
+                alt="Disaster Recovery"
+                className="object-cover w-full shadow-lg rounded-2xl h-80"
+              />
             </div>
           </div>
         </div>
