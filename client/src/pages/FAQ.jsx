@@ -5,8 +5,11 @@ import Card from '../components/ui/Card';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import SecondaryButton from '../components/ui/SecondaryButton';
 import { Link } from 'react-router-dom';
+import useTextAnimation from '../hooks/useTextAnimation';
 
 const FAQ = () => {
+  useTextAnimation();
+  
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -198,7 +201,7 @@ const FAQ = () => {
       <section className="py-16 bg-gradient-to-br from-primary-50 to-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="mb-4 text-4xl font-bold text-secondary-900 md:text-5xl">
+            <h1 className="mb-4 text-4xl font-bold text-secondary-900 md:text-5xl" data-text-split data-letters-slide-up>
               Frequently Asked Questions
             </h1>
             <p className="max-w-2xl mx-auto mb-8 text-xl text-secondary-600">
@@ -279,7 +282,7 @@ const FAQ = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary-100 text-primary-600">
               <HiSupport className="w-8 h-8" />
             </div>
-            <h2 className="mb-4 text-2xl font-bold text-secondary-900">Still Need Help?</h2>
+            <h2 className="mb-4 text-2xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Still Need Help?</h2>
             <p className="max-w-2xl mx-auto mb-6 text-lg text-secondary-600">
               Can't find what you're looking for? Our support team is here to assist you.
             </p>

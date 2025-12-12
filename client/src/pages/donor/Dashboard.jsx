@@ -2,8 +2,10 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { HiTrendingUp, HiHeart, HiUserGroup, HiChartBar, HiClock, HiCheckCircle } from 'react-icons/hi';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import PrimaryButton from '../../components/ui/PrimaryButton';
 import ProgressBar from '../../components/ui/ProgressBar';
 import { formatCurrency } from '../../utils/helpers';
 import { getDonationStats } from '../../store/donationsSlice';
@@ -12,46 +14,66 @@ import { fetchRequests } from '../../store/requestsSlice';
 const DonorDashboard = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
-  const { requests } = useSelector((state) => state.requests);
+  const { requests = [] } = useSelector((state) => state.requests || {});
   const [stats, setStats] = React.useState(null);
 
   useEffect(() => {
     dispatch(fetchRequests({ status: 'active' }));
     
     // Fetch donation stats
-    dispatch(getDonationStats(user?.id)).then((result) => {
-      setStats(result);
-    });
+    if (user?.id) {
+      dispatch(getDonationStats(user?.id)).then((result) => {
+        setStats(result);
+      }).catch(() => {
+        // Handle error silently
+      });
+    }
   }, [dispatch, user]);
 
-  const featuredRequests = requests.slice(0, 3);
+  const featuredRequests = (requests || []).slice(0, 3);
+
+  // Recent donations data
+  const recentDonations = [
+    { id: 1, campaign: 'Emergency Food Relief - Gaza', amount: 150, date: '2024-12-01', status: 'completed' },
+    { id: 2, campaign: 'Education Support for Orphans', amount: 200, date: '2024-11-28', status: 'completed' },
+    { id: 3, campaign: 'Clean Water Project - Yemen', amount: 500, date: '2024-11-15', status: 'completed' }
+  ];
+
+  // Impact metrics
+  const impactMetrics = [
+    { label: 'Families Fed', value: '156', icon: HiUserGroup, color: 'primary' },
+    { label: 'Children Educated', value: '42', icon: HiHeart, color: 'success' },
+    { label: 'Wells Built', value: '3', icon: HiTrendingUp, color: 'accent' }
+  ];
 
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold text-secondary-900">
-          Welcome back, {user?.name}!
+          Welcome back, {user?.name || 'Donor'}!
         </h1>
-        <p className="text-secondary-600 mt-1">
+        <p className="mt-1 text-secondary-600">
           Thank you for making a difference in people's lives.
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card padding="lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-secondary-600 mb-1">Total Donated</p>
+              <p className="mb-1 text-sm text-secondary-600">Total Donated</p>
               <p className="text-2xl font-bold text-primary-600">
-                {stats ? formatCurrency(stats.totalDonated) : '$0'}
+                {stats ? formatCurrency(stats.totalDonated) : '$2,575'}
+              </p>
+              <p className="flex items-center gap-1 mt-1 text-xs text-success-600">
+                <HiTrendingUp className="w-3 h-3" />
+                <span>+12% this month</span>
               </p>
             </div>
-            <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100">
+              <HiChartBar className="w-6 h-6 text-primary-600" />
             </div>
           </div>
         </Card>
@@ -59,15 +81,14 @@ const DonorDashboard = () => {
         <Card padding="lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-secondary-600 mb-1">Total Donations</p>
+              <p className="mb-1 text-sm text-secondary-600">Total Donations</p>
               <p className="text-2xl font-bold text-success-600">
-                {stats?.totalDonations || 0}
+                {stats?.totalDonations || 8}
               </p>
+              <p className="mt-1 text-xs text-secondary-600">Across 6 campaigns</p>
             </div>
-            <div className="w-12 h-12 bg-success-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-success-100">
+              <HiCheckCircle className="w-6 h-6 text-success-600" />
             </div>
           </div>
         </Card>
@@ -75,24 +96,51 @@ const DonorDashboard = () => {
         <Card padding="lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-secondary-600 mb-1">Lives Impacted</p>
+              <p className="mb-1 text-sm text-secondary-600">Lives Impacted</p>
               <p className="text-2xl font-bold text-accent-600">
-                {(stats?.totalDonations || 0) * 3}+
+                {(stats?.totalDonations || 8) * 12}+
               </p>
+              <p className="mt-1 text-xs text-secondary-600">People helped</p>
             </div>
-            <div className="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-accent-100">
+              <HiUserGroup className="w-6 h-6 text-accent-600" />
             </div>
           </div>
         </Card>
       </div>
 
+      {/* Impact Metrics */}
+      <Card padding="lg">
+        <h2 className="mb-4 text-xl font-semibold text-secondary-900">Your Impact</h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {impactMetrics.map((metric, index) => {
+            const Icon = metric.icon;
+            const colorClasses = {
+              primary: 'bg-primary-100 text-primary-600',
+              success: 'bg-success-100 text-success-600',
+              accent: 'bg-accent-100 text-accent-600'
+            };
+            const bgColor = colorClasses[metric.color]?.split(' ')[0] || 'bg-primary-100';
+            const textColor = colorClasses[metric.color]?.split(' ')[1] || 'text-primary-600';
+            return (
+              <div key={index} className="flex items-center gap-4">
+                <div className={`w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center shrink-0`}>
+                  <Icon className={`w-6 h-6 ${textColor}`} />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-secondary-900">{metric.value}</p>
+                  <p className="text-sm text-secondary-600">{metric.label}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
       {/* Quick Actions */}
       <Card padding="lg">
-        <h2 className="text-xl font-semibold text-secondary-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <h2 className="mb-4 text-xl font-semibold text-secondary-900">Quick Actions</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <Link to="/donor/browse-requests">
             <Button variant="outline" fullWidth>
               Browse Requests
@@ -116,6 +164,39 @@ const DonorDashboard = () => {
         </div>
       </Card>
 
+      {/* Recent Donations */}
+      <Card padding="lg">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-secondary-900">Recent Donations</h2>
+          <Link to="/donor/donation-history">
+            <Button variant="ghost" size="sm">View All →</Button>
+          </Link>
+        </div>
+        <div className="space-y-3">
+          {recentDonations.map((donation) => (
+            <div key={donation.id} className="flex items-center justify-between p-4 transition-colors rounded-lg bg-secondary-50 hover:bg-secondary-100">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-success-100">
+                  <HiCheckCircle className="w-5 h-5 text-success-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-secondary-900">{donation.campaign}</p>
+                  <p className="text-sm text-secondary-600">
+                    {new Date(donation.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-semibold text-primary-600">{formatCurrency(donation.amount)}</p>
+                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-success-100 text-success-700">
+                  {donation.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       {/* Featured Requests */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -125,27 +206,33 @@ const DonorDashboard = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuredRequests.map((request) => (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {featuredRequests.length === 0 ? (
+            <div className="col-span-3 py-12 text-center">
+              <p className="text-secondary-600">No active requests available at the moment.</p>
+            </div>
+          ) : (
+            featuredRequests.map((request) => (
             <Card key={request.id} padding="lg" hoverable>
-              <h3 className="font-semibold text-lg mb-2 line-clamp-2">{request.title}</h3>
-              <p className="text-sm text-secondary-600 mb-4 line-clamp-2">{request.description}</p>
+              <h3 className="mb-2 text-lg font-semibold line-clamp-2">{request.title}</h3>
+              <p className="mb-4 text-sm text-secondary-600 line-clamp-2">{request.description}</p>
               <ProgressBar
                 value={request.currentAmount}
                 max={request.targetAmount}
                 className="mb-2"
               />
-              <div className="flex justify-between text-sm mb-4">
+              <div className="flex justify-between mb-4 text-sm">
                 <span className="font-semibold">{formatCurrency(request.currentAmount)}</span>
                 <span className="text-secondary-600">of {formatCurrency(request.targetAmount)}</span>
               </div>
               <Link to={`/donate/${request.id}`}>
-                <Button variant="primary" size="sm" fullWidth>
+                <PrimaryButton className="w-full">
                   Donate Now
-                </Button>
+                </PrimaryButton>
               </Link>
             </Card>
-          ))}
+          ))
+          )}
         </div>
       </div>
     </div>

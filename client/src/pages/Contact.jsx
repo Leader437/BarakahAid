@@ -7,8 +7,11 @@ import PrimaryButton from '../components/ui/PrimaryButton';
 import Input from '../components/ui/Input';
 import TextArea from '../components/ui/TextArea';
 import Select from '../components/ui/Select';
+import useTextAnimation from '../hooks/useTextAnimation';
 
 const Contact = () => {
+  useTextAnimation();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -109,7 +112,7 @@ const Contact = () => {
       <section className="py-16 bg-gradient-to-br from-primary-50 to-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="mb-4 text-4xl font-bold text-secondary-900 md:text-5xl">
+            <h1 className="mb-4 text-4xl font-bold text-secondary-900 md:text-5xl" data-text-split data-letters-slide-up>
               Contact Us
             </h1>
             <p className="max-w-2xl mx-auto text-xl text-secondary-600">
@@ -148,7 +151,7 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="lg:col-span-2">
               <Card className="p-8">
-                <h2 className="mb-6 text-2xl font-bold text-secondary-900">Send Us a Message</h2>
+                <h2 className="mb-6 text-2xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Send Us a Message</h2>
                 
                 {submitted && (
                   <div className="p-4 mb-6 border border-green-200 rounded-lg bg-green-50">
@@ -293,21 +296,21 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Map Section (Placeholder) */}
+      {/* Map Section */}
       <section className="py-12 bg-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <Card className="overflow-hidden">
-            <div className="h-96 bg-secondary-200">
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <svg className="w-16 h-16 mx-auto mb-4 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <p className="text-lg font-semibold text-secondary-600">3002 Suter Avenue, San Diego, CA 92103</p>
-                  <p className="text-sm text-secondary-500">Map integration coming soon</p>
-                </div>
-              </div>
+            <div className="h-96">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3318.8111050880016!2d73.02207907441515!3d33.713836435525636!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfbe5967d48243%3A0xcb2c90c562c4687e!2sAir%20University%20Islamabad!5e0!3m2!1sen!2s!4v1765554939843!5m2!1sen!2s" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen="" 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Air University Islamabad Location"
+              />
             </div>
           </Card>
         </div>

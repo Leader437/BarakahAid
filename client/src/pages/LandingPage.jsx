@@ -5,9 +5,13 @@ import { HiHeart, HiStar, HiChevronRight, HiCheckCircle, HiUserAdd, HiCreditCard
 import PrimaryButton from "../components/ui/PrimaryButton";
 import SecondaryButton from "../components/ui/SecondaryButton";
 import Footer from "../components/layout/Footer";
+import useTextAnimation from "../hooks/useTextAnimation";
 
 const LandingPage = () => {
   const [email, setEmail] = useState("");
+  
+  // Initialize text animations
+  useTextAnimation();
 
   // Statistics data
   const stats = [
@@ -172,7 +176,7 @@ const LandingPage = () => {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Left Content */}
             <div>
-              <h1 className="mb-6 text-4xl font-bold leading-tight text-secondary-900 md:text-5xl lg:text-6xl">
+              <h1 className="mb-6 text-4xl font-bold leading-tight text-secondary-900 md:text-5xl lg:text-6xl" data-text-split data-letters-slide-up>
                 Make changes and help change the world
               </h1>
               <p className="mb-8 text-lg leading-relaxed text-secondary-600">
@@ -275,7 +279,7 @@ const LandingPage = () => {
       {/* How It Works Section */}
       <section id="how-it-works" className="py-16 bg-primary-700">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-3xl font-bold text-center text-white md:text-4xl">
+          <h2 className="mb-12 text-3xl font-bold text-center text-white md:text-4xl" data-text-split data-letters-slide-up>
             How it works
           </h2>
 
@@ -339,7 +343,7 @@ const LandingPage = () => {
       <section id="impact" className="py-16 bg-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl" data-text-split data-letters-slide-up>
               Real Impact Stories
             </h2>
             <p className="max-w-2xl mx-auto text-lg text-secondary-600">
@@ -397,7 +401,7 @@ const LandingPage = () => {
       <section className="py-16 bg-gradient-to-br from-secondary-50 to-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl" data-text-split data-letters-slide-up>
               What Our Community Says
             </h2>
             <p className="text-lg text-secondary-600">
@@ -464,7 +468,7 @@ const LandingPage = () => {
       <section id="faq" className="py-16 bg-white">
         <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl" data-text-split data-letters-slide-up>
               Frequently Asked Questions
             </h2>
             <p className="text-lg text-secondary-600">
@@ -504,7 +508,7 @@ const LandingPage = () => {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 md:grid-cols-2">
             <div>
-              <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl">
+              <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl" data-text-split data-letters-slide-up>
                 Disaster Recovery
               </h2>
               <p className="mb-8 text-lg leading-relaxed text-secondary-600">
@@ -535,7 +539,7 @@ const LandingPage = () => {
       {/* News Section */}
       <section className="py-16 bg-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-3xl font-bold text-center text-secondary-900 md:text-4xl">
+          <h2 className="mb-12 text-3xl font-bold text-center text-secondary-900 md:text-4xl" data-text-split data-letters-slide-up>
             News
           </h2>
 
@@ -575,7 +579,7 @@ const LandingPage = () => {
               <HiHeart className="w-12 h-12 text-primary-600" />
             </div>
           </div>
-          <h2 className="mb-4 text-3xl font-bold text-secondary-900">
+          <h2 className="mb-4 text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>
             Get incredible stories, promotions,
             <br />& offers in your inbox
           </h2>
@@ -599,7 +603,7 @@ const LandingPage = () => {
       {/* Final CTA Section */}
       <section className="py-20 bg-primary-600">
         <div className="max-w-4xl px-4 mx-auto text-center sm:px-6 lg:px-8">
-          <h2 className="mb-6 text-3xl font-bold text-white md:text-4xl">
+          <h2 className="mb-6 text-3xl font-bold text-white md:text-4xl" data-text-split data-letters-slide-up>
             Ready to Make a Difference?
           </h2>
           <p className="max-w-2xl mx-auto mb-8 text-lg text-primary-100">

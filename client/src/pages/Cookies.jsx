@@ -2,14 +2,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../components/ui/Card';
+import useTextAnimation from '../hooks/useTextAnimation';
 
 const Cookies = () => {
+  useTextAnimation();
+  
   return (
     <div className="min-h-screen py-12 bg-secondary-50">
       <div className="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-secondary-900">Cookie Policy</h1>
+          <h1 className="mb-4 text-4xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Cookie Policy</h1>
           <p className="text-lg text-secondary-600">Last updated: December 6, 2025</p>
         </div>
 

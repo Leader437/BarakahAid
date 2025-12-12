@@ -5,8 +5,10 @@ import { HiShieldCheck, HiUsers, HiGlobeAlt, HiAdjustments } from 'react-icons/h
 import Card from '../components/ui/Card';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import SecondaryButton from '../components/ui/SecondaryButton';
+import useTextAnimation from '../hooks/useTextAnimation';
 
 const About = () => {
+  useTextAnimation();
   const stats = [
     { value: '21+', label: 'Years of Service' },
     { value: '$877M', label: 'Funds Raised' },
@@ -72,7 +74,7 @@ const About = () => {
       <section className="py-16 bg-gradient-to-br from-primary-50 to-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="mb-6 text-4xl font-bold text-secondary-900 md:text-5xl">
+            <h1 className="mb-6 text-4xl font-bold text-secondary-900 md:text-5xl" data-text-split data-letters-slide-up>
               About BarakahAid
             </h1>
             <p className="max-w-3xl mx-auto mb-8 text-xl leading-relaxed text-secondary-600">
@@ -112,7 +114,7 @@ const About = () => {
       {/* Our Story */}
       <section className="py-16">
         <div className="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-3xl font-bold text-center text-secondary-900">Our Story</h2>
+          <h2 className="mb-8 text-3xl font-bold text-center text-secondary-900" data-text-split data-letters-slide-up>Our Story</h2>
           <Card className="p-8">
             <div className="space-y-4 text-lg leading-relaxed text-secondary-700">
               <p>
@@ -143,7 +145,7 @@ const About = () => {
       <section className="py-16 bg-secondary-50">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-secondary-900">Our Core Values</h2>
+            <h2 className="mb-4 text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Our Core Values</h2>
             <p className="max-w-2xl mx-auto text-lg text-secondary-600">
               These principles guide everything we do and shape our commitment to making a difference
             </p>
@@ -166,7 +168,7 @@ const About = () => {
       <section className="py-16">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-secondary-900">Meet Our Leadership Team</h2>
+            <h2 className="mb-4 text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Meet Our Leadership Team</h2>
             <p className="max-w-2xl mx-auto text-lg text-secondary-600">
               Experienced professionals dedicated to our mission of transparent, impactful giving
             </p>

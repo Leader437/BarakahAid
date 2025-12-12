@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DashboardLayout from './components/layout/DashboardLayout';
+import ScrollToTop from './components/ScrollToTop';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -23,6 +24,15 @@ import Register from './pages/auth/Register';
 
 // Donor Pages
 import DonorDashboard from './pages/donor/Dashboard';
+import DonationHistory from './pages/donor/DonationHistory';
+
+// Browse Requests and Campaigns
+import BrowseRequests from './pages/BrowseRequests';
+import Campaigns from './pages/Campaigns';
+import Donate from './pages/Donate';
+
+// Profile Page
+import Profile from './pages/Profile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -75,6 +85,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         {/* Show Navbar on all pages except login and register */}
         <Routes>
@@ -89,28 +100,30 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/campaigns" element={<Campaigns />} />
+          <Route path="/browse-requests" element={<BrowseRequests />} />
+          <Route path="/donate/:id" element={<Donate />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<Cookies />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to="/donor/dashboard" /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to="/donor/dashboard" /> : <Register />} />
 
           {/* Donor Routes */}
           <Route
-            path="/donor/*"
+            path="/donor"
             element={
               <ProtectedRoute allowedRoles={['donor']}>
-                <DashboardLayout menuItems={donorMenuItems}>
-                  <Routes>
-                    <Route path="dashboard" element={<DonorDashboard />} />
-                    <Route path="browse-requests" element={<div className="p-8 text-center"><h2 className="text-2xl font-bold">Browse Requests - Coming Soon</h2></div>} />
-                    <Route path="donation-history" element={<div className="p-8 text-center"><h2 className="text-2xl font-bold">Donation History - Coming Soon</h2></div>} />
-                  </Routes>
-                </DashboardLayout>
+                <DashboardLayout menuItems={donorMenuItems} />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="dashboard" element={<DonorDashboard />} />
+            <Route path="browse-requests" element={<BrowseRequests />} />
+            <Route path="donation-history" element={<DonationHistory />} />
+          </Route>
 
           {/* Recipient Routes - Placeholder */}
           <Route

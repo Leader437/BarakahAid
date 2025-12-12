@@ -1,0 +1,358 @@
+import React, { useState } from 'react';
+import { HiDownload, HiEye, HiClock, HiCheckCircle, HiXCircle, HiSearch, HiFilter } from 'react-icons/hi';
+import Card from '../../components/ui/Card';
+import SecondaryButton from '../../components/ui/SecondaryButton';
+import { formatCurrency } from '../../utils/helpers';
+
+const DonationHistory = () => {
+  const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Mock donation data
+  const donations = [
+    {
+      id: 'DN-2024-001',
+      campaignName: 'Emergency Food Relief - Gaza',
+      amount: 150,
+      date: '2024-12-01',
+      status: 'completed',
+      category: 'Emergency Relief',
+      paymentMethod: 'Credit Card',
+      taxReceiptId: 'TR-2024-001',
+      impact: 'Fed 15 families for a week'
+    },
+    {
+      id: 'DN-2024-002',
+      campaignName: 'Education Support for Orphans',
+      amount: 200,
+      date: '2024-11-28',
+      status: 'completed',
+      category: 'Education',
+      paymentMethod: 'PayPal',
+      taxReceiptId: 'TR-2024-002',
+      impact: 'Provided school supplies for 10 children'
+    },
+    {
+      id: 'DN-2024-003',
+      campaignName: 'Clean Water Project - Yemen',
+      amount: 500,
+      date: '2024-11-15',
+      status: 'completed',
+      category: 'Water & Sanitation',
+      paymentMethod: 'Bank Transfer',
+      taxReceiptId: 'TR-2024-003',
+      impact: 'Provided clean water access to 50 people'
+    },
+    {
+      id: 'DN-2024-004',
+      campaignName: 'Medical Aid for Syria',
+      amount: 300,
+      date: '2024-11-10',
+      status: 'processing',
+      category: 'Healthcare',
+      paymentMethod: 'Credit Card',
+      taxReceiptId: null,
+      impact: 'Medical supplies for 30 patients'
+    },
+    {
+      id: 'DN-2024-005',
+      campaignName: 'Winter Clothing Drive',
+      amount: 100,
+      date: '2024-10-28',
+      status: 'completed',
+      category: 'Clothing',
+      paymentMethod: 'Credit Card',
+      taxReceiptId: 'TR-2024-004',
+      impact: 'Warm clothing for 8 families'
+    },
+    {
+      id: 'DN-2024-006',
+      campaignName: 'Orphan Sponsorship Program',
+      amount: 75,
+      date: '2024-10-15',
+      status: 'recurring',
+      category: 'Orphan Care',
+      paymentMethod: 'Credit Card',
+      taxReceiptId: 'TR-2024-005',
+      impact: 'Monthly support for 1 orphan'
+    },
+    {
+      id: 'DN-2024-007',
+      campaignName: 'Ramadan Food Parcels',
+      amount: 250,
+      date: '2024-09-20',
+      status: 'completed',
+      category: 'Food Aid',
+      paymentMethod: 'PayPal',
+      taxReceiptId: 'TR-2024-006',
+      impact: 'Food for 25 families during Ramadan'
+    },
+    {
+      id: 'DN-2024-008',
+      campaignName: 'Mosque Construction Fund',
+      amount: 1000,
+      date: '2024-09-05',
+      status: 'completed',
+      category: 'Infrastructure',
+      paymentMethod: 'Bank Transfer',
+      taxReceiptId: 'TR-2024-007',
+      impact: 'Contributed to community mosque building'
+    }
+  ];
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      completed: 'bg-success-100 text-success-700',
+      processing: 'bg-warning-100 text-warning-700',
+      recurring: 'bg-primary-100 text-primary-700',
+      failed: 'bg-error-100 text-error-700'
+    };
+
+    const icons = {
+      completed: <HiCheckCircle className="w-4 h-4" />,
+      processing: <HiClock className="w-4 h-4" />,
+      recurring: <HiClock className="w-4 h-4" />,
+      failed: <HiXCircle className="w-4 h-4" />
+    };
+
+    return (
+      <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${styles[status]}`}>
+        {icons[status]}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
+  const filteredDonations = donations.filter(donation => {
+    if (filter !== 'all' && donation.status !== filter) return false;
+    if (searchQuery && !donation.campaignName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
+
+  const totalDonated = donations
+    .filter(d => d.status === 'completed' || d.status === 'recurring')
+    .reduce((sum, d) => sum + d.amount, 0);
+
+  const totalDonations = donations.filter(d => d.status === 'completed' || d.status === 'recurring').length;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-secondary-900">Donation History</h1>
+        <p className="mt-1 text-secondary-600">
+          Track all your contributions and their impact
+        </p>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <Card padding="lg">
+          <div className="text-center">
+            <p className="mb-1 text-sm text-secondary-600">Total Donated</p>
+            <p className="text-2xl font-bold text-primary-600">{formatCurrency(totalDonated)}</p>
+          </div>
+        </Card>
+        <Card padding="lg">
+          <div className="text-center">
+            <p className="mb-1 text-sm text-secondary-600">Total Donations</p>
+            <p className="text-2xl font-bold text-success-600">{totalDonations}</p>
+          </div>
+        </Card>
+        <Card padding="lg">
+          <div className="text-center">
+            <p className="mb-1 text-sm text-secondary-600">This Month</p>
+            <p className="text-2xl font-bold text-accent-600">{formatCurrency(650)}</p>
+          </div>
+        </Card>
+        <Card padding="lg">
+          <div className="text-center">
+            <p className="mb-1 text-sm text-secondary-600">Recurring</p>
+            <p className="text-2xl font-bold text-secondary-900">
+              {donations.filter(d => d.status === 'recurring').length}
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <Card padding="lg">
+        <div className="flex flex-col gap-4 md:flex-row">
+          {/* Search */}
+          <div className="flex-1">
+            <div className="relative">
+              <HiSearch className="absolute w-5 h-5 transform -translate-y-1/2 left-3 top-1/2 text-secondary-400" />
+              <input
+                type="text"
+                placeholder="Search campaigns..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full py-2 pl-10 pr-4 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'all'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter('completed')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'completed'
+                  ? 'bg-success-600 text-white'
+                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+              }`}
+            >
+              Completed
+            </button>
+            <button
+              onClick={() => setFilter('processing')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'processing'
+                  ? 'bg-warning-600 text-white'
+                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+              }`}
+            >
+              Processing
+            </button>
+            <button
+              onClick={() => setFilter('recurring')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'recurring'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+              }`}
+            >
+              Recurring
+            </button>
+          </div>
+
+          {/* Download Button */}
+          <SecondaryButton className="whitespace-nowrap">
+            <HiDownload className="w-4 h-4 mr-2" />
+            Export
+          </SecondaryButton>
+        </div>
+      </Card>
+
+      {/* Donations Table */}
+      <Card padding="none">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="border-b bg-secondary-50 border-secondary-200">
+              <tr>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Donation ID
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Campaign
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Amount
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-secondary-200">
+              {filteredDonations.map((donation) => (
+                <tr key={donation.id} className="transition-colors hover:bg-secondary-50">
+                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-secondary-900">
+                    {donation.id}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-secondary-900">
+                    <div>
+                      <div className="font-medium">{donation.campaignName}</div>
+                      <div className="text-xs text-secondary-500">{donation.impact}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm whitespace-nowrap text-secondary-600">
+                    {donation.category}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-secondary-900">
+                    {formatCurrency(donation.amount)}
+                  </td>
+                  <td className="px-6 py-4 text-sm whitespace-nowrap text-secondary-600">
+                    {new Date(donation.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(donation.status)}
+                  </td>
+                  <td className="px-6 py-4 text-sm whitespace-nowrap">
+                    <div className="flex gap-2">
+                      <button
+                        className="font-medium text-primary-600 hover:text-primary-700"
+                        title="View Details"
+                      >
+                        <HiEye className="w-5 h-5" />
+                      </button>
+                      {donation.taxReceiptId && (
+                        <button
+                          className="font-medium text-success-600 hover:text-success-700"
+                          title="Download Receipt"
+                        >
+                          <HiDownload className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredDonations.length === 0 && (
+          <div className="py-12 text-center">
+            <p className="text-secondary-600">No donations found matching your criteria.</p>
+          </div>
+        )}
+      </Card>
+
+      {/* Tax Information */}
+      <Card padding="lg" className="border bg-primary-50 border-primary-200">
+        <div className="flex items-start gap-4">
+          <div className="flex items-center justify-center shrink-0 w-12 h-12 rounded-lg bg-primary-100">
+            <HiCheckCircle className="w-6 h-6 text-primary-600" />
+          </div>
+          <div>
+            <h3 className="mb-2 font-semibold text-secondary-900">Tax-Deductible Donations</h3>
+            <p className="mb-3 text-sm text-secondary-700">
+              All your donations are tax-deductible. You can download tax receipts for completed donations.
+              Keep these receipts for your records when filing taxes.
+            </p>
+            <SecondaryButton>
+              <HiDownload className="w-4 h-4 mr-2" />
+              Download All Tax Receipts
+            </SecondaryButton>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default DonationHistory;

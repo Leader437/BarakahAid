@@ -274,7 +274,10 @@ label {
   text-transform: uppercase;
   text-decoration: none;
   padding: 0.6em 1.8em;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
   cursor: pointer;
   border-radius: 0.5em;
   transition: all 0.2s;
@@ -337,7 +340,10 @@ label {
   --button-color: #1e8449; /* primary-500 */
   --button-hover-color: #145a32; /* primary-700 */
   font-family: inherit;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
   min-width: 8em;
   height: 2.6em;
   line-height: 2.5em;
@@ -419,6 +425,29 @@ label {
 
 .secondary-animated-button.secondary-type:disabled:hover {
   color: var(--button-color);
+}
+
+/* Text Animation Styles */
+[data-text-split] .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+[data-text-split] .char {
+  display: inline-block;
+  font-family: 'Tajawal', sans-serif !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  color: inherit !important;
+  text-transform: inherit !important;
+}
+
+[data-letters-slide-up] .char {
+  transform: translateY(0);
 }
 
 /* Print Styles */

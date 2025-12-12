@@ -10,7 +10,7 @@ const DashboardLayout = ({ menuItems }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="flex min-h-screen bg-secondary-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -21,7 +21,7 @@ const DashboardLayout = ({ menuItems }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto ${
+        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -29,7 +29,7 @@ const DashboardLayout = ({ menuItems }) => {
       </div>
 
       {/* Main Content */}
-      <div className="lg:ml-0 flex flex-col min-h-screen">
+      <div className="flex flex-col flex-1 min-h-screen">
         {/* Top bar for mobile */}
         <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-secondary-200 px-4 py-3">
           <button
