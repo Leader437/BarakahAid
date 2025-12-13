@@ -14,14 +14,14 @@ const DashboardLayout = ({ menuItems }) => {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 xl:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${
+        className={`fixed top-16 bottom-0 left-0 z-100 transform transition-transform duration-300 xl:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -29,9 +29,9 @@ const DashboardLayout = ({ menuItems }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 min-h-screen">
+      <div className="flex flex-col flex-1 min-h-screen xl:ml-70">
         {/* Top bar for mobile */}
-        <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-secondary-200 px-4 py-3">
+        <div className="sticky top-0 z-30 px-4 py-3 bg-white border-b xl:hidden border-secondary-200">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 text-secondary-600 hover:text-secondary-900"
@@ -48,7 +48,7 @@ const DashboardLayout = ({ menuItems }) => {
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-8">
+        <main className="flex-1">
           <Outlet />
         </main>
       </div>

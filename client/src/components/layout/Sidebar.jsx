@@ -15,14 +15,14 @@ const Sidebar = ({ menuItems, onClose }) => {
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-secondary-200 min-h-screen">
+    <aside className="flex flex-col h-full overflow-hidden bg-white border-r w-70 border-secondary-200">
       <div className="p-6">
         {/* User Info */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-secondary-500 uppercase tracking-wider mb-2">
+          <h3 className="mb-2 text-sm font-semibold tracking-wider uppercase text-secondary-500">
             {user?.role} Dashboard
           </h3>
-          <p className="text-secondary-900 font-medium">{user?.name}</p>
+          <p className="font-medium text-secondary-900">{user?.name}</p>
         </div>
 
         {/* Navigation Menu */}

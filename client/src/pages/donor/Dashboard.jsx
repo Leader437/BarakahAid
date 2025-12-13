@@ -47,12 +47,14 @@ const DonorDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-secondary-900">
-          Welcome back, {user?.name || 'Donor'}!
-        </h1>
+    <div className="min-h-screen py-8 bg-secondary-50">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          {/* Welcome Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-secondary-900">
+              Welcome back, {user?.name || 'Donor'}!
+            </h1>
         <p className="mt-1 text-secondary-600">
           Thank you for making a difference in people's lives.
         </p>
@@ -233,6 +235,8 @@ const DonorDashboard = () => {
             </Card>
           ))
           )}
+        </div>
+      </div>
         </div>
       </div>
     </div>

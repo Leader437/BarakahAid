@@ -69,7 +69,7 @@ export const loginUser = (credentials) => async (dispatch) => {
   
   if (user) {
     dispatch(loginSuccess(user));
-    return { success: true };
+    return { success: true, user };
   } else {
     dispatch(loginFailure('Invalid email or password'));
     return { success: false, error: 'Invalid email or password' };
@@ -91,7 +91,7 @@ export const registerUser = (userData) => async (dispatch) => {
   };
   
   dispatch(registerSuccess(newUser));
-  return { success: true };
+  return { success: true, user: newUser };
 };
 
 export const {

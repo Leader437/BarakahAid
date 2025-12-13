@@ -14,8 +14,8 @@ const useAuth = () => {
 
   const login = async (credentials) => {
     const result = await dispatch(loginUser(credentials));
-    if (result.success) {
-      const dashboardPath = getDashboardPath(user?.role || 'donor');
+    if (result.success && result.user) {
+      const dashboardPath = getDashboardPath(result.user.role);
       navigate(dashboardPath);
     }
     return result;
@@ -23,8 +23,8 @@ const useAuth = () => {
 
   const register = async (userData) => {
     const result = await dispatch(registerUser(userData));
-    if (result.success) {
-      const dashboardPath = getDashboardPath(userData.role);
+    if (result.success && result.user) {
+      const dashboardPath = getDashboardPath(result.user.role);
       navigate(dashboardPath);
     }
     return result;

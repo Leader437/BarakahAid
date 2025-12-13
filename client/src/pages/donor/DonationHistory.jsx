@@ -136,10 +136,12 @@ const DonationHistory = () => {
   const totalDonations = donations.filter(d => d.status === 'completed' || d.status === 'recurring').length;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-secondary-900">Donation History</h1>
+    <div className="min-h-screen py-8 bg-secondary-50">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-secondary-900">Donation History</h1>
         <p className="mt-1 text-secondary-600">
           Track all your contributions and their impact
         </p>
@@ -244,93 +246,129 @@ const DonationHistory = () => {
         </div>
       </Card>
 
-      {/* Donations Table */}
-      <Card padding="none">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b bg-secondary-50 border-secondary-200">
-              <tr>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Donation ID
-                </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Campaign
-                </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-secondary-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-secondary-200">
-              {filteredDonations.map((donation) => (
-                <tr key={donation.id} className="transition-colors hover:bg-secondary-50">
-                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-secondary-900">
-                    {donation.id}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-secondary-900">
-                    <div>
-                      <div className="font-medium">{donation.campaignName}</div>
-                      <div className="text-xs text-secondary-500">{donation.impact}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm whitespace-nowrap text-secondary-600">
-                    {donation.category}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-secondary-900">
-                    {formatCurrency(donation.amount)}
-                  </td>
-                  <td className="px-6 py-4 text-sm whitespace-nowrap text-secondary-600">
-                    {new Date(donation.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(donation.status)}
-                  </td>
-                  <td className="px-6 py-4 text-sm whitespace-nowrap">
-                    <div className="flex gap-2">
-                      <button
-                        className="font-medium text-primary-600 hover:text-primary-700"
-                        title="View Details"
-                      >
-                        <HiEye className="w-5 h-5" />
+      {/* Donations List - Card View for Mobile, Table for Desktop */}
+      <div className="space-y-3 md:hidden">
+        {filteredDonations.map((donation) => (
+          <Card key={donation.id} padding="md">
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-secondary-500">{donation.id}</p>
+                  <p className="mt-1 text-sm font-semibold text-secondary-900">{donation.campaignName}</p>
+                  <p className="text-xs text-secondary-600">{donation.category}</p>
+                </div>
+                {getStatusBadge(donation.status)}
+              </div>
+              <div className="pt-2 border-t border-secondary-100">
+                <p className="text-xs text-secondary-600">{donation.impact}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-lg font-bold text-secondary-900">{formatCurrency(donation.amount)}</p>
+                  <div className="flex gap-2">
+                    <button className="p-1.5 transition-colors text-primary-600 hover:text-primary-700" title="View Details">
+                      <HiEye className="w-5 h-5" />
+                    </button>
+                    {donation.taxReceiptId && (
+                      <button className="p-1.5 transition-colors text-success-600 hover:text-success-700" title="Download Receipt">
+                        <HiDownload className="w-5 h-5" />
                       </button>
-                      {donation.taxReceiptId && (
-                        <button
-                          className="font-medium text-success-600 hover:text-success-700"
-                          title="Download Receipt"
-                        >
-                          <HiDownload className="w-5 h-5" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-secondary-600">
+                  <span className="font-medium">Date:</span> {new Date(donation.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
 
-        {filteredDonations.length === 0 && (
-          <div className="py-12 text-center">
+      {/* Donations Table - Desktop Only */}
+      <div className="hidden md:block">
+        <Card padding="none">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b bg-secondary-50 border-secondary-200">
+                <tr>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    ID
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    Campaign
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    Amount
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-secondary-200">
+                {filteredDonations.map((donation) => (
+                  <tr key={donation.id} className="hover:bg-secondary-50">
+                    <td className="px-4 py-3 text-sm font-medium text-secondary-900">
+                      {donation.id}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-secondary-900">
+                      <div className="max-w-[200px]">
+                        <div className="font-medium truncate">{donation.campaignName}</div>
+                        <div className="text-xs truncate text-secondary-500">{donation.impact}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-secondary-600">
+                      <div className="max-w-[120px] truncate">{donation.category}</div>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-semibold text-secondary-900">
+                      {formatCurrency(donation.amount)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-secondary-600">
+                      {new Date(donation.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </td>
+                    <td className="px-4 py-3">
+                      {getStatusBadge(donation.status)}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <div className="flex gap-2">
+                        <button className="transition-colors text-primary-600 hover:text-primary-700" title="View Details">
+                          <HiEye className="w-5 h-5" />
+                        </button>
+                        {donation.taxReceiptId && (
+                          <button className="transition-colors text-success-600 hover:text-success-700" title="Download Receipt">
+                            <HiDownload className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      {filteredDonations.length === 0 && (
+        <Card padding="lg">
+          <div className="py-8 text-center">
             <p className="text-secondary-600">No donations found matching your criteria.</p>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
+
 
       {/* Tax Information */}
       <Card padding="lg" className="border bg-primary-50 border-primary-200">
@@ -351,6 +389,8 @@ const DonationHistory = () => {
           </div>
         </div>
       </Card>
+        </div>
+      </div>
     </div>
   );
 };
