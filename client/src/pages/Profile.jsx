@@ -48,7 +48,7 @@ const Profile = () => {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900">My Profile</h1>
+          <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>My Profile</h1>
           <p className="mt-1 text-secondary-600">
             Manage your personal information and preferences
           </p>
@@ -64,7 +64,7 @@ const Profile = () => {
                   <div className="flex items-center justify-center w-32 h-32 mx-auto rounded-full bg-primary-100">
                     <HiUser className="w-16 h-16 text-primary-600" />
                   </div>
-                  <button className="absolute bottom-0 right-0 flex items-center justify-center w-10 h-10 transition-colors border-4 border-white rounded-full bg-primary-600 hover:bg-primary-700 text-white">
+                  <button className="absolute bottom-0 right-0 flex items-center justify-center w-10 h-10 text-white transition-colors border-4 border-white rounded-full bg-primary-600 hover:bg-primary-700">
                     <HiCamera className="w-5 h-5" />
                   </button>
                 </div>

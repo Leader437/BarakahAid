@@ -93,6 +93,10 @@
   border-color: var(--color-secondary-200);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Poppins', var(--font-family-display);
   color: var(--color-secondary-900);

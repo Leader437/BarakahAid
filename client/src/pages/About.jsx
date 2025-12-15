@@ -5,6 +5,7 @@ import { HiShieldCheck, HiUsers, HiGlobeAlt, HiAdjustments } from 'react-icons/h
 import Card from '../components/ui/Card';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import SecondaryButton from '../components/ui/SecondaryButton';
+import StatCounter from '../components/ui/StatCounter';
 import useTextAnimation from '../hooks/useTextAnimation';
 
 const About = () => {
@@ -102,10 +103,12 @@ const About = () => {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="mb-2 text-3xl font-bold text-white md:text-4xl">{stat.value}</div>
-                <div className="text-sm text-primary-100">{stat.label}</div>
-              </div>
+              <StatCounter 
+                key={index} 
+                value={stat.value} 
+                label={stat.label}
+                duration={2000}
+              />
             ))}
           </div>
         </div>
@@ -113,7 +116,7 @@ const About = () => {
 
       {/* Our Story */}
       <section className="py-16">
-        <div className="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
+        <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
           <h2 className="mb-8 text-3xl font-bold text-center text-secondary-900" data-text-split data-letters-slide-up>Our Story</h2>
           <Card className="p-8">
             <div className="space-y-4 text-lg leading-relaxed text-secondary-700">
@@ -197,7 +200,7 @@ const About = () => {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 md:grid-cols-2">
             <div>
-              <h2 className="mb-6 text-3xl font-bold text-secondary-900">Creating Real Impact</h2>
+              <h2 className="mb-6 text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Creating Real Impact</h2>
               <div className="space-y-4 text-lg leading-relaxed text-secondary-700">
                 <p>
                   Every donation on BarakahAid creates tangible change. From building schools in rural communities 
@@ -249,8 +252,8 @@ const About = () => {
 
       {/* CTA Section */}
       <section className="py-16 bg-primary-600">
-        <div className="px-4 mx-auto text-center max-w-4xl sm:px-6 lg:px-8">
-          <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
+        <div className="max-w-4xl px-4 mx-auto text-center sm:px-6 lg:px-8">
+          <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl" data-text-split data-letters-slide-up>
             Join Us in Making a Difference
           </h2>
           <p className="max-w-2xl mx-auto mb-8 text-lg text-primary-100">
@@ -259,12 +262,12 @@ const About = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/register">
-              <PrimaryButton>
+              <PrimaryButton buttonType='secondary'>
                 Get Started Today
               </PrimaryButton>
             </Link>
             <Link to="/contact">
-              <SecondaryButton>
+              <SecondaryButton buttonType='secondary'>
                 Contact Our Team
               </SecondaryButton>
             </Link>

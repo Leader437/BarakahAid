@@ -151,7 +151,7 @@ const Campaigns = () => {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900">Active Campaigns</h1>
+          <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Active Campaigns</h1>
           <p className="mt-1 text-secondary-600">
             Support ongoing initiatives making a real difference worldwide
           </p>
@@ -235,7 +235,7 @@ const Campaigns = () => {
                         of {formatCurrency(campaign.targetAmount)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between pb-4 mb-4 text-xs text-secondary-600 border-b border-secondary-200">
+                    <div className="flex items-center justify-between pb-4 mb-4 text-xs border-b text-secondary-600 border-secondary-200">
                       <div className="flex items-center gap-1">
                         <HiUserGroup className="w-4 h-4" />
                         <span>{campaign.donors} donors</span>
@@ -276,7 +276,7 @@ const Campaigns = () => {
                   <span className="inline-block px-2 py-1 mb-2 text-xs font-medium rounded-full bg-primary-100 text-primary-700">
                     {campaign.type}
                   </span>
-                  <h3 className="mb-2 text-lg font-semibold text-secondary-900 line-clamp-2">
+                  <h3 className="mb-2 text-lg font-semibold text-secondary-900 line-clamp-2 min-h-[3em]">
                     {campaign.title}
                   </h3>
                   <p className="mb-3 text-sm text-secondary-600 line-clamp-2">
@@ -295,7 +295,7 @@ const Campaigns = () => {
                       of {formatCurrency(campaign.targetAmount)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pb-3 mb-3 text-xs text-secondary-600 border-b border-secondary-200">
+                  <div className="flex items-center justify-between pb-3 mb-3 text-xs border-b text-secondary-600 border-secondary-200">
                     <span>{campaign.donors} donors</span>
                     <span>{campaign.daysLeft}d left</span>
                   </div>

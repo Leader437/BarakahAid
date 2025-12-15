@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { HiHeart, HiStar, HiChevronRight, HiCheckCircle, HiUserAdd, HiCreditCard, HiUserGroup } from 'react-icons/hi';
 import PrimaryButton from "../components/ui/PrimaryButton";
 import SecondaryButton from "../components/ui/SecondaryButton";
+import StatCounter from "../components/ui/StatCounter";
 import Footer from "../components/layout/Footer";
 import useTextAnimation from "../hooks/useTextAnimation";
 
@@ -328,12 +329,12 @@ const LandingPage = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-6 pt-8 border-t md:grid-cols-6 border-primary-600">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="mb-1 text-2xl font-bold text-white md:text-3xl">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-primary-100">{stat.label}</div>
-              </div>
+              <StatCounter 
+                key={index} 
+                value={stat.value} 
+                label={stat.label}
+                duration={2000}
+              />
             ))}
           </div>
         </div>
@@ -367,7 +368,7 @@ const LandingPage = () => {
                   <span className="inline-block px-3 py-1 mb-3 text-xs font-medium rounded-full bg-primary-100 text-primary-700">
                     {story.category}
                   </span>
-                  <h3 className="mb-2 text-xl font-bold text-secondary-900">
+                  <h3 className="mb-2 text-xl font-bold text-secondary-900 min-h-[3em]">
                     {story.title}
                   </h3>
                   <p className="block mt-auto mb-4 text-secondary-600">{story.description}</p>

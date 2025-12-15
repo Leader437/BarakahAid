@@ -81,9 +81,6 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <a href="/#projects" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
-                  Project
-                </a>
                 <a href="/#how-it-works" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
                   How it works
                 </a>

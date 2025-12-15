@@ -118,7 +118,7 @@ const BrowseRequests = () => {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900">Browse Donation Requests</h1>
+          <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Browse Donation Requests</h1>
           <p className="mt-1 text-secondary-600">
             Find causes that matter to you and make a difference
           </p>
