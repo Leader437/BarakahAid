@@ -149,7 +149,7 @@ const ManageCampaigns = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-secondary-900">Manage Campaigns</h1>
+            <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Manage Campaigns</h1>
             <p className="mt-1 text-secondary-600">
               Create and manage your fundraising campaigns
             </p>

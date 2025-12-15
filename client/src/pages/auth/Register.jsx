@@ -17,7 +17,7 @@ const Register = () => {
 
   const roleOptions = [
     { value: ROLES.DONOR, label: 'Donor - I want to donate' },
-    { value: ROLES.RECIPIENT, label: 'Recipient - I need help' },
+    // { value: ROLES.RECIPIENT, label: 'Recipient - I need help' },
     { value: ROLES.VOLUNTEER, label: 'Volunteer - I want to help' },
     { value: ROLES.NGO, label: 'NGO - Organization' },
   ];
@@ -56,22 +56,22 @@ const Register = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center p-4">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-primary-50 to-accent-50">
       <div className="w-full max-w-2xl">
-        <div className="text-center mb-8">
+        <div className="mb-8 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
             <div className="flex items-center justify-center w-12 h-12">
               <img src={logo} alt="BarakahAid Logo" />
             </div>
             <span className="text-3xl font-bold font-logo text-primary-600">BarakahAid</span>
           </Link>
-          <h1 className="text-2xl font-bold text-secondary-900 mt-4">Create Your Account</h1>
-          <p className="text-secondary-600 mt-2">Join us in making a difference</p>
+          <h1 className="mt-4 text-2xl font-bold text-secondary-900">Create Your Account</h1>
+          <p className="mt-2 text-secondary-600">Join us in making a difference</p>
         </div>
 
         <Card padding="lg">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Full Name"
                 name="name"
@@ -108,7 +108,7 @@ const Register = () => {
               required
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Phone Number"
                 name="phone"
@@ -130,7 +130,7 @@ const Register = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Password"
                 type={showPassword ? 'text' : 'password'}
@@ -188,9 +188,9 @@ const Register = () => {
           </form>
         </Card>
 
-        <p className="text-center text-secondary-600 mt-6">
+        <p className="mt-6 text-center text-secondary-600">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+          <Link to="/login" className="font-medium text-primary-600 hover:text-primary-700">
             Sign in
           </Link>
         </p>

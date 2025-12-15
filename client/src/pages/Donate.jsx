@@ -265,7 +265,7 @@ const Donate = () => {
 
           {/* Sidebar - Campaign Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 space-y-6">
+            <div className="sticky space-y-6 top-8">
               {/* Campaign Card */}
               <Card padding="lg">
                 <h2 className="mb-4 text-lg font-bold text-secondary-900">You're Supporting</h2>
@@ -338,7 +338,7 @@ const Donate = () => {
               {/* Security Notice */}
               <Card padding="md" className="bg-success-50">
                 <div className="flex items-start gap-3">
-                  <HiCheckCircle className="shrink-0 w-6 h-6 text-success-600" />
+                  <HiCheckCircle className="w-6 h-6 shrink-0 text-success-600" />
                   <div className="text-sm">
                     <p className="font-semibold text-success-900">Secure Donation</p>
                     <p className="text-success-700">Your payment information is encrypted and secure</p>

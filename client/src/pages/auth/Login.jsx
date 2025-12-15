@@ -127,7 +127,7 @@ const Login = () => {
               >
                 Donor
               </SecondaryButton>
-              <SecondaryButton
+              {/* <SecondaryButton
                 onClick={() => {
                   values.email = 'recipient@example.com';
                   values.password = 'password';
@@ -136,7 +136,7 @@ const Login = () => {
                 className="!text-xs !py-2"
               >
                 Recipient
-              </SecondaryButton>
+              </SecondaryButton> */}
               <SecondaryButton
                 onClick={() => {
                   values.email = 'volunteer@example.com';

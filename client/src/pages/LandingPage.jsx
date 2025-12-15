@@ -186,10 +186,10 @@ const LandingPage = () => {
                 and worldwide.
               </p>
               <div className="flex gap-4">
-                <Link to="/register">
+                <Link to="/campaigns">
                   <PrimaryButton>Donate now!</PrimaryButton>
                 </Link>
-                <Link to="/login">
+                <Link to="/about">
                   <SecondaryButton>Learn more</SecondaryButton>
                 </Link>
               </div>

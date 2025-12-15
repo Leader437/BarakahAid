@@ -88,7 +88,7 @@ const ForgotPassword = () => {
                 {isSubmitting ? 'Sending...' : 'Send Reset Link'}
               </PrimaryButton>
 
-              <Link
+              <div className="text-center">
                 <Link to="/login" className="text-sm text-primary-600 hover:text-primary-700">
                   ← Back to Login
                 </Link>

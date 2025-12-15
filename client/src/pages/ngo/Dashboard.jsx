@@ -149,7 +149,7 @@ const NgoDashboard = () => {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900">
+          <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>
             Welcome back, {user?.name || 'Organization'}! 👋
           </h1>
           <p className="mt-1 text-secondary-600">

@@ -139,7 +139,7 @@ const DonationsReceived = () => {
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl font-bold sm:text-3xl text-secondary-900">Donations Received</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl text-secondary-900" data-text-split data-letters-slide-up>Donations Received</h1>
           <p className="mt-1 text-sm sm:text-base text-secondary-600">
             Track and manage all donations received by your organization
           </p>

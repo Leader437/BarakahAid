@@ -81,14 +81,14 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <a href="/#how-it-works" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
+                <a href="/how-it-works" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
                   How it works
                 </a>
-                <a href="/#impact" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
-                  Impact
+                <a href="/campaigns" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
+                  Campaigns
                 </a>
-                <a href="/#faq" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
-                  FAQs
+                <a href="/contact" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
+                  Contact Us
                 </a>
               </>
             )}

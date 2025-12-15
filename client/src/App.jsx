@@ -22,6 +22,7 @@ import Cookies from './pages/Cookies';
 // Auth Pages
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
 // Donor Pages
 import DonorDashboard from './pages/donor/Dashboard';
@@ -211,6 +212,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Donor Routes */}
           <Route

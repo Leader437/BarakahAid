@@ -52,7 +52,7 @@ const DonorDashboard = () => {
         <div className="space-y-6">
           {/* Welcome Header */}
           <div>
-            <h1 className="text-3xl font-bold text-secondary-900">
+            <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>
               Welcome back, {user?.name || 'Donor'}!
             </h1>
         <p className="mt-1 text-secondary-600">
@@ -216,7 +216,7 @@ const DonorDashboard = () => {
           ) : (
             featuredRequests.map((request) => (
             <Card key={request.id} padding="lg" hoverable>
-              <h3 className="mb-2 text-lg font-semibold line-clamp-2">{request.title}</h3>
+              <h3 className="mb-2 text-lg font-semibold line-clamp-2 min-h-[3em]">{request.title}</h3>
               <p className="mb-4 text-sm text-secondary-600 line-clamp-2">{request.description}</p>
               <ProgressBar
                 value={request.currentAmount}

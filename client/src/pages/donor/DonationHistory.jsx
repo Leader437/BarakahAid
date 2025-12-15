@@ -141,7 +141,7 @@ const DonationHistory = () => {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-secondary-900">Donation History</h1>
+            <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Donation History</h1>
         <p className="mt-1 text-secondary-600">
           Track all your contributions and their impact
         </p>

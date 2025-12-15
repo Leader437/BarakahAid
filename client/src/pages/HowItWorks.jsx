@@ -120,7 +120,7 @@ const HowItWorks = () => {
       <section className="py-16 bg-gradient-to-br from-primary-700 to-primary-900 sm:py-20">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl fade-in">
+            <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl fade-in" data-text-split data-letters-slide-up>
               How BarakahAid Works
             </h1>
             <p className="max-w-3xl mx-auto mt-6 text-lg text-primary-100 sm:text-xl fade-in-delay-1">

@@ -86,7 +86,7 @@ const OrganizationProfile = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-secondary-900">Organization Profile</h1>
+            <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Organization Profile</h1>
             <p className="mt-1 text-secondary-600">
               Manage your organization's information and settings
             </p>
