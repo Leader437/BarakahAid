@@ -13,6 +13,7 @@ import ScrollToTop from './components/ScrollToTop';
 import LandingPage from './pages/LandingPage';
 import About from './pages/About';
 import HowItWorks from './pages/HowItWorks';
+import Volunteer from './pages/Volunteer';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -201,6 +202,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/browse-requests" element={<BrowseRequests />} />

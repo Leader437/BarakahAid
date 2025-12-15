@@ -84,6 +84,9 @@ const Navbar = () => {
                 <a href="/how-it-works" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
                   How it works
                 </a>
+                <a href="/volunteer" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
+                  Volunteer
+                </a>
                 <a href="/campaigns" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
                   Campaigns
                 </a>
@@ -220,8 +223,11 @@ const Navbar = () => {
                 <a href="/#projects" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   Project
                 </a>
-                <a href="/#how-it-works" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
+                <a href="/how-it-works" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   How it works
+                </a>
+                <a href="/volunteer" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
+                  Volunteer
                 </a>
                 <a href="/#impact" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   Impact
