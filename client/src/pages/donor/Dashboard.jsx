@@ -48,7 +48,7 @@ const DonorDashboard = () => {
 
   return (
     <div className="min-h-screen py-8 bg-secondary-50">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div className="px-4 mx-auto max-w-[100vw] lg:max-w-7xl sm:px-6 lg:px-8">
         <div className="space-y-6">
           {/* Welcome Header */}
           <div>
@@ -142,24 +142,24 @@ const DonorDashboard = () => {
       {/* Quick Actions */}
       <Card padding="lg">
         <h2 className="mb-4 text-xl font-semibold text-secondary-900">Quick Actions</h2>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
           <Link to="/donor/browse-requests">
-            <Button variant="outline" fullWidth>
+            <Button variant="outline" fullWidth className="whitespace-nowrap">
               Browse Requests
             </Button>
           </Link>
           <Link to="/donor/donation-history">
-            <Button variant="outline" fullWidth>
+            <Button variant="outline" fullWidth className="whitespace-nowrap">
               My Donations
             </Button>
           </Link>
           <Link to="/campaigns">
-            <Button variant="outline" fullWidth>
+            <Button variant="outline" fullWidth className="whitespace-nowrap">
               View Campaigns
             </Button>
           </Link>
           <Link to="/donor/donation-tracking">
-            <Button variant="outline" fullWidth>
+            <Button variant="outline" fullWidth className="whitespace-nowrap">
               Track Impact
             </Button>
           </Link>

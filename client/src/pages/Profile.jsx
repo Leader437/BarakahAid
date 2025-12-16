@@ -97,11 +97,11 @@ const Profile = () => {
           {/* Profile Details */}
           <div className="lg:col-span-2">
             <Card padding="lg">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-xl font-semibold text-secondary-900">Profile Information</h3>
                 {!isEditing ? (
                   <SecondaryButton onClick={() => setIsEditing(true)}>
-                    <HiPencil className="w-4 h-4 mr-2" />
+                    <HiPencil className="w-4 h-4 mr-2 shrink-0" />
                     Edit Profile
                   </SecondaryButton>
                 ) : (
@@ -110,7 +110,7 @@ const Profile = () => {
                       Cancel
                     </SecondaryButton>
                     <PrimaryButton onClick={handleSave}>
-                      Save Changes
+                      Save
                     </PrimaryButton>
                   </div>
                 )}
@@ -227,22 +227,23 @@ const Profile = () => {
             <Card padding="lg" className="mt-6">
               <h3 className="mb-6 text-xl font-semibold text-secondary-900">Security Settings</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-secondary-50">
+                <div className="flex flex-col gap-3 p-4 rounded-lg sm:flex-row sm:items-center sm:justify-between bg-secondary-50">
                   <div>
                     <p className="font-medium text-secondary-900">Password</p>
                     <p className="text-sm text-secondary-600">Last changed 3 months ago</p>
                   </div>
-                  <SecondaryButton>
-                    Change Password
+                  <SecondaryButton className="w-full sm:w-auto">
+                    <span className="sm:hidden">Change</span>
+                    <span className="hidden sm:inline">Change Password</span>
                   </SecondaryButton>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-secondary-50">
+                <div className="flex flex-col gap-3 p-4 rounded-lg sm:flex-row sm:items-center sm:justify-between bg-secondary-50">
                   <div>
                     <p className="font-medium text-secondary-900">Two-Factor Authentication</p>
                     <p className="text-sm text-secondary-600">Add an extra layer of security</p>
                   </div>
-                  <SecondaryButton>
+                  <SecondaryButton className="w-full sm:w-auto">
                     Enable
                   </SecondaryButton>
                 </div>
@@ -253,23 +254,23 @@ const Profile = () => {
             <Card padding="lg" className="mt-6">
               <h3 className="mb-6 text-xl font-semibold text-secondary-900">Preferences</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-secondary-50">
-                  <div>
+                <div className="flex items-start justify-between gap-4 p-4 rounded-lg sm:items-center bg-secondary-50">
+                  <div className="min-w-0">
                     <p className="font-medium text-secondary-900">Email Notifications</p>
                     <p className="text-sm text-secondary-600">Receive updates about your donations</p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input type="checkbox" className="sr-only peer" defaultChecked />
                     <div className="w-11 h-6 bg-secondary-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-secondary-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-secondary-50">
-                  <div>
+                <div className="flex items-start justify-between gap-4 p-4 rounded-lg sm:items-center bg-secondary-50">
+                  <div className="min-w-0">
                     <p className="font-medium text-secondary-900">Monthly Newsletter</p>
                     <p className="text-sm text-secondary-600">Get impact stories and updates</p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input type="checkbox" className="sr-only peer" defaultChecked />
                     <div className="w-11 h-6 bg-secondary-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-secondary-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                   </label>

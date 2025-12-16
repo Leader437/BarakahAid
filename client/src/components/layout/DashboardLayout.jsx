@@ -14,7 +14,7 @@ const DashboardLayout = ({ menuItems }) => {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 xl:hidden"
+          className="fixed inset-x-0 top-16 bottom-0 z-40 bg-black/30 xl:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

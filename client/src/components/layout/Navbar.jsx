@@ -133,13 +133,6 @@ const Navbar = () => {
                       >
                         Profile
                       </Link>
-                      <Link
-                        to="/settings"
-                        className="block px-4 py-2 text-sm text-secondary-700 hover:text-primary-600"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Settings
-                      </Link>
                       <hr className="my-1 border-secondary-200" />
                       <button
                         onClick={handleLogout}
@@ -165,17 +158,19 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className="p-2 lg:hidden text-secondary-600 hover:text-secondary-900"
-          >
-            {showMobileMenu ? (
-              <HiX className="w-6 h-6" />
-            ) : (
-              <HiMenu className="w-6 h-6" />
-            )}
-          </button>
+          {/* Mobile menu button - only show when not authenticated */}
+          {!isAuthenticated && (
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 lg:hidden text-secondary-600 hover:text-secondary-900"
+            >
+              {showMobileMenu ? (
+                <HiX className="w-6 h-6" />
+              ) : (
+                <HiMenu className="w-6 h-6" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Mobile Menu */}

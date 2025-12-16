@@ -252,7 +252,7 @@ const DonationHistory = () => {
           <Card key={donation.id} padding="md">
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-secondary-500">{donation.id}</p>
                   <p className="mt-1 text-sm font-semibold text-secondary-900">{donation.campaignName}</p>
                   <p className="text-xs text-secondary-600">{donation.category}</p>
@@ -372,19 +372,20 @@ const DonationHistory = () => {
 
       {/* Tax Information */}
       <Card padding="lg" className="border bg-primary-50 border-primary-200">
-        <div className="flex items-start gap-4">
-          <div className="flex items-center justify-center shrink-0 w-12 h-12 rounded-lg bg-primary-100">
+        <div className="flex flex-col items-start gap-4 sm:flex-row">
+          <div className="flex items-center justify-center w-12 h-12 rounded-lg shrink-0 bg-primary-100">
             <HiCheckCircle className="w-6 h-6 text-primary-600" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h3 className="mb-2 font-semibold text-secondary-900">Tax-Deductible Donations</h3>
             <p className="mb-3 text-sm text-secondary-700">
               All your donations are tax-deductible. You can download tax receipts for completed donations.
               Keep these receipts for your records when filing taxes.
             </p>
             <SecondaryButton>
-              <HiDownload className="w-4 h-4 mr-2" />
-              Download All Tax Receipts
+              <HiDownload className="w-4 h-4 mr-2 shrink-0" />
+              <span className="sm:hidden whitespace-nowrap">Download Receipts</span>
+              <span className="hidden sm:inline">Download All Tax Receipts</span>
             </SecondaryButton>
           </div>
         </div>
