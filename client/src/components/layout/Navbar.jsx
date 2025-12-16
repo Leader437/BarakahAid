@@ -55,7 +55,7 @@ const Navbar = () => {
           </Link>
           
           {/* Desktop Nav Links */}
-          <div className="items-center hidden gap-8 md:flex">
+          <div className="items-center hidden gap-8 lg:flex">
             {isAuthenticated ? (
               <>
                 <Link
@@ -97,7 +97,7 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {isAuthenticated ? (
               <div className="relative">
                 <button
@@ -105,7 +105,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 p-2 transition-colors rounded-lg hover:bg-secondary-50"
                 >
                   <Avatar src={user?.avatar} name={user?.name} size="sm" />
-                  <span className="text-sm font-medium text-secondary-900">
+                  <span className="hidden text-sm font-medium sm:inline text-secondary-900">
                     {user?.name}
                   </span>
                   <HiChevronDown className="w-4 h-4 text-secondary-600" />
@@ -153,10 +153,10 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="hidden font-medium transition-colors text-secondary-700 hover:text-primary-600 md:block">
+                <Link to="/login" className="hidden font-medium transition-colors text-secondary-700 hover:text-primary-600 lg:block">
                   Sign in
                 </Link>
-                <Link to="/register">
+                <Link to="/register" className="hidden lg:block">
                   <PrimaryButton>
                     Get started
                   </PrimaryButton>
@@ -168,7 +168,7 @@ const Navbar = () => {
           {/* Mobile menu button */}
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className="p-2 md:hidden text-secondary-600 hover:text-secondary-900"
+            className="p-2 lg:hidden text-secondary-600 hover:text-secondary-900"
           >
             {showMobileMenu ? (
               <HiX className="w-6 h-6" />
@@ -179,8 +179,12 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu */}
-        {showMobileMenu && (
-          <div className="py-4 border-t md:hidden border-secondary-200">
+        <div 
+          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            showMobileMenu ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="py-4 border-t border-secondary-200">
             {isAuthenticated ? (
               <>
                 <Link
@@ -220,20 +224,17 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <a href="/#projects" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
-                  Project
-                </a>
                 <a href="/how-it-works" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   How it works
                 </a>
                 <a href="/volunteer" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   Volunteer
                 </a>
-                <a href="/#impact" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
-                  Impact
+                <a href="/campaigns" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
+                  Campaigns
                 </a>
-                <a href="/#faq" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
-                  FAQs
+                <a href="/contact" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
+                  Contact Us
                 </a>
                 <Link
                   to="/login"
@@ -244,15 +245,17 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="block py-2 font-medium text-primary-600 hover:text-primary-700"
+                  className="block mt-2"
                   onClick={() => setShowMobileMenu(false)}
                 >
-                  Get started
+                  <PrimaryButton className="w-full">
+                    Get started
+                  </PrimaryButton>
                 </Link>
               </>
             )}
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );

@@ -330,7 +330,7 @@ const Volunteer = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-primary-600 to-accent-600 sm:py-20">
+      <section className="py-20 bg-primary-600">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white sm:text-4xl" data-text-split data-letters-slide-up>
@@ -341,12 +341,12 @@ const Volunteer = () => {
             </p>
             <div className="flex flex-col justify-center gap-4 mt-8 sm:flex-row">
               <Link to="/register">
-                <PrimaryButton  buttonType='secondary' size="lg">
+                <PrimaryButton buttonType='secondary' size="lg">
                   Register Now
                 </PrimaryButton>
               </Link>
               <Link to="/contact">
-                <SecondaryButton  buttonType='secondary' size="lg">
+                <SecondaryButton buttonType='secondary' size="lg">
                   Have Questions?
                 </SecondaryButton>
               </Link>
@@ -354,7 +354,6 @@ const Volunteer = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );

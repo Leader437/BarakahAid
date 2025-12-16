@@ -7,6 +7,7 @@ import SecondaryButton from "../components/ui/SecondaryButton";
 import StatCounter from "../components/ui/StatCounter";
 import Footer from "../components/layout/Footer";
 import useTextAnimation from "../hooks/useTextAnimation";
+import heroBg from "../assets/hero-bg.png";
 
 const LandingPage = () => {
   const [email, setEmail] = useState("");
@@ -172,31 +173,43 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="py-12 bg-gradient-to-br from-secondary-50 to-white md:py-16">
-        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <section 
+        className="relative py-16 md:py-24 lg:pt-10 lg:pb-32"
+        style={{
+          backgroundImage: `url(${heroBg})`,
+          backgroundAttachment: 'fixed',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/60"></div>
+        
+        <div className="relative z-10 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Left Content */}
             <div>
-              <h1 className="mb-6 text-4xl font-bold leading-tight text-secondary-900 md:text-5xl lg:text-6xl" data-text-split data-letters-slide-up>
+              <h1 className="mb-6 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl lg:text-6xl" data-text-split data-letters-slide-up>
                 Make changes and help change the world
               </h1>
-              <p className="mb-8 text-lg leading-relaxed text-secondary-600">
+              <p className="mb-8 text-base leading-relaxed sm:text-lg text-white/90">
                 Hope for tomorrow relies upon gentle organizations that
                 collaborates with champion on delivery every level both domestic
                 and worldwide.
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <Link to="/campaigns">
-                  <PrimaryButton>Donate now!</PrimaryButton>
+                  <PrimaryButton className="w-full sm:w-auto">Donate now!</PrimaryButton>
                 </Link>
                 <Link to="/about">
-                  <SecondaryButton>Learn more</SecondaryButton>
+                  <SecondaryButton className="w-full sm:w-auto ">Learn more</SecondaryButton>
                 </Link>
               </div>
             </div>
 
             {/* Right Content - Project Cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-4">
                 <div className="p-4 transition-shadow bg-white rounded-xl shadow-card hover:shadow-card-hover">
                   <img
@@ -275,6 +288,9 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
+        
+        {/* Gradient transition to next section */}
+        <div className="absolute bottom-0 left-0 right-0 h-42 bg-gradient-to-b from-transparent to-primary-700"></div>
       </section>
 
       {/* How It Works Section */}
@@ -327,7 +343,7 @@ const LandingPage = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 pt-8 border-t md:grid-cols-6 border-primary-600">
+          <div className="grid grid-cols-2 gap-4 pt-8 border-t sm:grid-cols-3 md:grid-cols-6 sm:gap-6 border-primary-600">
             {stats.map((stat, index) => (
               <StatCounter 
                 key={index} 
@@ -486,7 +502,7 @@ const LandingPage = () => {
               >
                 <summary className="flex items-center justify-between text-lg font-bold text-secondary-900">
                   {faq.question}
-                  <HiChevronRight className="w-5 h-5 transition-transform transform text-primary-600 group-open:rotate-180" />
+                  <HiChevronRight className="flex-shrink-0 w-6 h-6 ml-4 transition-transform transform sm:w-5 sm:h-5 text-primary-600 group-open:rotate-90" />
                 </summary>
                 <p className="mt-4 leading-relaxed text-secondary-600">
                   {faq.answer}
@@ -507,22 +523,22 @@ const LandingPage = () => {
       {/* Disaster Recovery Section */}
       <section className="py-16 bg-gradient-to-br from-primary-50 to-white">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="grid items-center gap-12 md:grid-cols-2">
+          <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
             <div>
-              <h2 className="mb-4 text-3xl font-bold text-secondary-900 md:text-4xl" data-text-split data-letters-slide-up>
+              <h2 className="mb-4 text-2xl font-bold sm:text-3xl md:text-4xl text-secondary-900" data-text-split data-letters-slide-up>
                 Disaster Recovery
               </h2>
-              <p className="mb-8 text-lg leading-relaxed text-secondary-600">
+              <p className="mb-8 text-base leading-relaxed sm:text-lg text-secondary-600">
                 Support immediate relief for disaster-stricken regions while
                 helping communities build toward lasting recovery and
                 resilience.
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <Link to="/register">
-                  <PrimaryButton>Donate now!</PrimaryButton>
+                  <PrimaryButton className="w-full sm:w-auto">Donate now!</PrimaryButton>
                 </Link>
                 <Link to="/login">
-                  <SecondaryButton>Learn more</SecondaryButton>
+                  <SecondaryButton className="w-full sm:w-auto">Learn more</SecondaryButton>
                 </Link>
               </div>
             </div>
@@ -544,16 +560,16 @@ const LandingPage = () => {
             News
           </h2>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
             {news.map((article, index) => (
               <div
                 key={index}
-                className="flex gap-4 p-4 transition-shadow bg-white border rounded-xl border-secondary-200 hover:shadow-card"
+                className="flex flex-col gap-4 p-4 transition-shadow bg-white border sm:flex-row rounded-xl border-secondary-200 hover:shadow-card"
               >
                 <img
                   src={article.image}
                   alt={article.title}
-                  className="flex-shrink-0 object-cover w-32 h-32 rounded-lg"
+                  className="flex-shrink-0 object-cover w-full h-48 rounded-lg sm:w-32 sm:h-32"
                 />
                 <div className="flex-1">
                   <h3 className="mb-2 text-lg font-bold text-secondary-900 line-clamp-2">
@@ -580,13 +596,13 @@ const LandingPage = () => {
               <HiHeart className="w-12 h-12 text-primary-600" />
             </div>
           </div>
-          <h2 className="mb-4 text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>
+          <h2 className="mb-4 text-2xl font-bold sm:text-3xl text-secondary-900" data-text-split data-letters-slide-up>
             Get incredible stories, promotions,
-            <br />& offers in your inbox
+            <br className="hidden sm:block" />& offers in your inbox
           </h2>
           <form
             onSubmit={handleNewsletterSubmit}
-            className="flex max-w-md gap-3 mx-auto mt-8"
+            className="flex flex-col max-w-md gap-3 mx-auto mt-8 sm:flex-row"
           >
             <input
               type="email"
@@ -596,28 +612,28 @@ const LandingPage = () => {
               required
               className="flex-1 px-4 py-3 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
-            <PrimaryButton type="submit">Subscribe</PrimaryButton>
+            <PrimaryButton type="submit" className="w-full sm:w-auto">Subscribe</PrimaryButton>
           </form>
         </div>
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-primary-600">
+      <section className="py-16 bg-primary-600 sm:py-20">
         <div className="max-w-4xl px-4 mx-auto text-center sm:px-6 lg:px-8">
-          <h2 className="mb-6 text-3xl font-bold text-white md:text-4xl" data-text-split data-letters-slide-up>
+          <h2 className="mb-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl" data-text-split data-letters-slide-up>
             Ready to Make a Difference?
           </h2>
-          <p className="max-w-2xl mx-auto mb-8 text-lg text-primary-100">
+          <p className="max-w-2xl mx-auto mb-8 text-base sm:text-lg text-primary-100">
             Join thousands of compassionate individuals making the world a
             better place. Your contribution, no matter the size, creates lasting
             change.
           </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
             <Link to="/register">
-              <PrimaryButton buttonType="secondary">Start Donating Today!</PrimaryButton>
+              <PrimaryButton buttonType="secondary" className="w-full sm:w-auto">Start Donating Today!</PrimaryButton>
             </Link>
             <Link to="/campaigns">
-              <SecondaryButton buttonType="secondary">Browser Campaigns</SecondaryButton>
+              <SecondaryButton buttonType="secondary" className="w-full sm:w-auto">Browser Campaigns</SecondaryButton>
             </Link>
           </div>
         </div>

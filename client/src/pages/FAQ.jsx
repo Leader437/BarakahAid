@@ -278,27 +278,27 @@ const FAQ = () => {
       {/* Still Need Help Section */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
-          <Card className="p-8 text-center bg-gradient-to-br from-primary-50 to-white border-primary-200">
+          <Card className="p-6 text-center sm:p-8 bg-gradient-to-br from-primary-50 to-white border-primary-200">
             <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary-100 text-primary-600">
               <HiSupport className="w-8 h-8" />
             </div>
-            <h2 className="mb-4 text-2xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Still Need Help?</h2>
-            <p className="max-w-2xl mx-auto mb-6 text-lg text-secondary-600">
+            <h2 className="mb-4 text-xl font-bold sm:text-2xl text-secondary-900" data-text-split data-letters-slide-up>Still Need Help?</h2>
+            <p className="max-w-2xl mx-auto mb-6 text-base sm:text-lg text-secondary-600">
               Can't find what you're looking for? Our support team is here to assist you.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
               <Link to="/contact">
-                <PrimaryButton>
+                <PrimaryButton className="w-full sm:w-auto">
                   Contact Support
                 </PrimaryButton>
               </Link>
               <a href="mailto:support@barakahaid.com">
-                <SecondaryButton>
+                <SecondaryButton className="w-full sm:w-auto">
                   Email Us
                 </SecondaryButton>
               </a>
             </div>
-            <div className="flex items-center justify-center gap-6 mt-8 text-sm text-secondary-600">
+            <div className="flex flex-col items-center justify-center gap-3 mt-8 text-sm sm:flex-row sm:gap-6 text-secondary-600">
               <div className="flex items-center gap-2">
                 <HiClock className="w-5 h-5 text-primary-600" />
                 <span>Response within 12-24 hours</span>
