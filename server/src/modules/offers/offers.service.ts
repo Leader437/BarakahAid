@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DonationOffer } from './entities/donation-offer.entity';
 import { CreateOfferDto } from './dto/create-offer.dto';
-import { UpdateOfferDto } from './dto/update-offer.dto';
 import { DonationOfferStatus } from '../../common/enums/status.enum';
 import { FileUploadUtil } from '../../utils/file-upload.util';
 import { Role } from '../../common/enums/role.enum';

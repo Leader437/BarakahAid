@@ -63,14 +63,14 @@ export class User {
     emergency?: boolean;
   };
 
-  @Column({ nullable: true })
-  refreshToken: string;
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken: string | null;
 
-  @Column({ nullable: true })
-  resetPasswordToken: string;
+  @Column({ type: 'varchar', nullable: true })
+  resetPasswordToken: string | null;
 
-  @Column({ nullable: true })
-  resetPasswordExpiry: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpiry: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;

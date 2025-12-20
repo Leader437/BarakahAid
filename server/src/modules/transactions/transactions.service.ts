@@ -38,7 +38,7 @@ export class TransactionsService {
 
     if (paymentResult.success) {
       savedTransaction.status = TransactionStatus.COMPLETED;
-      savedTransaction.paymentReference = paymentResult.reference;
+      savedTransaction.paymentReference = paymentResult.reference || '';
 
       const receiptBuffer = await PdfGeneratorUtil.generateDonationReceipt({
         receiptId: savedTransaction.id,

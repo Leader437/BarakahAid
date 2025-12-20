@@ -35,8 +35,8 @@ export class Campaign {
   @Column({ type: 'timestamp' })
   endDate: Date;
 
-  @Column({ nullable: true })
-  image: string;
+  @Column({ type: 'varchar', nullable: true })
+  image: string | null;
 
   @ManyToOne(() => User, (user) => user.campaigns)
   @JoinColumn()
