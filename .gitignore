@@ -11,7 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
-
+DEEP_DIVE_VERIFICATION_REPORT.md
+readme
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

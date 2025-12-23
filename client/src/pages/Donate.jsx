@@ -1,18 +1,34 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { HiCheckCircle, HiCreditCard, HiClock, HiHeart, HiArrowLeft } from 'react-icons/hi';
+import { 
+  HiCheckCircle, 
+  HiCreditCard, 
+  HiHeart, 
+  HiArrowLeft, 
+  HiShieldCheck, 
+  HiUser, 
+  HiMail, 
+  HiPhone 
+} from 'react-icons/hi';
+import { SiPaypal, SiGooglepay } from 'react-icons/si';
 import Card from '../components/ui/Card';
 import ProgressBar from '../components/ui/ProgressBar';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import SecondaryButton from '../components/ui/SecondaryButton';
 import { formatCurrency } from '../utils/helpers';
+import DemoPaymentForm from '../components/payment/DemoPaymentForm';
+import PayPalDemoForm from '../components/payment/PayPalDemoForm';
+import GooglePayDemoForm from '../components/payment/GooglePayDemoForm';
+import DonationSuccessModal from '../components/payment/DonationSuccessModal';
 
 const Donate = () => {
   const { id } = useParams();
-  const [selectedAmount, setSelectedAmount] = useState(null);
+  const [selectedAmount, setSelectedAmount] = useState(100);
   const [customAmount, setCustomAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const [isRecurring, setIsRecurring] = useState(false);
+  const [selectedPaymentGateway, setSelectedPaymentGateway] = useState('stripe');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successData, setSuccessData] = useState(null);
   const [donorInfo, setDonorInfo] = useState({
     name: '',
     email: '',
@@ -62,295 +78,376 @@ const Donate = () => {
     return selectedAmount || parseInt(customAmount) || 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle donation submission
-    console.log('Donation submitted:', {
-      campaign: campaign.id,
+  const handleSuccess = (method, transactionPrefix) => {
+    setSuccessData({
       amount: getTotalAmount(),
-      paymentMethod,
-      isRecurring,
-      donorInfo
+      campaign: campaign,
+      donorName: donorInfo.name || 'Anonymous',
+      paymentMethod: method,
+      transactionId: `${transactionPrefix}-${Date.now()}`,
     });
+    setShowSuccessModal(true);
+    // Reset form
+    setSelectedAmount(100);
+    setCustomAmount('');
+    setDonorInfo({ name: '', email: '', phone: '', anonymous: false });
+    setIsRecurring(false);
   };
 
   return (
-    <div className="min-h-screen py-8 bg-secondary-50">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <Link to="/campaigns" className="inline-flex items-center gap-2 mb-6 text-primary-600 hover:text-primary-700">
-          <HiArrowLeft className="w-5 h-5" />
-          <span>Back to Campaigns</span>
-        </Link>
+    <>
+      <div className="min-h-screen bg-gray-50 font-sans pb-12">
+        {/* Header / Breadcrumb */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <Link to="/campaigns" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary-600 transition-colors font-medium text-sm">
+              <HiArrowLeft className="w-4 h-4" />
+              Back to Campaign
+            </Link>
+            <div className="text-sm font-medium text-gray-900">
+              Donating to <span className="text-primary-600">{campaign.title}</span>
+            </div>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Main Donation Form */}
-          <div className="lg:col-span-2">
-            <Card padding="lg">
-              <h1 className="mb-6 text-2xl font-bold text-secondary-900">Make a Donation</h1>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Donation Amount */}
-                <div>
-                  <label className="block mb-3 text-lg font-semibold text-secondary-900">
-                    Select Amount
-                  </label>
-                  <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* LEFT COLUMN: Donation Form */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* STEP 1: Amount */}
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+                  <h2 className="text-lg font-heading font-bold text-gray-900 flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary-600 text-white text-xs">1</span>
+                    Choose Donation Amount
+                  </h2>
+                </div>
+                
+                <div className="p-6">
+                  <div className="grid grid-cols-3 sm:grid-cols-3 gap-4 mb-6">
                     {presetAmounts.map((amount) => (
                       <button
                         key={amount}
                         type="button"
                         onClick={() => handleAmountSelect(amount)}
-                        className={`py-3 px-4 rounded-lg border-2 font-semibold transition-all ${
-                          selectedAmount === amount
-                            ? 'border-primary-600 bg-primary-50 text-primary-700'
-                            : 'border-secondary-300 bg-white text-secondary-700 hover:border-primary-400'
-                        }`}
+                        className={`relative py-4 px-2 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-1
+                          ${selectedAmount === amount
+                            ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm ring-1 ring-primary-600'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-primary-300 hover:bg-gray-50'
+                          }`}
                       >
-                        ${amount}
+                        <span className="text-lg font-bold">${amount}</span>
+                        {selectedAmount === amount && (
+                          <div className="absolute -top-2 -right-2 bg-primary-600 text-white rounded-full p-0.5 shadow-sm">
+                            <HiCheckCircle className="w-4 h-4" />
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
+
                   <div className="relative">
-                    <span className="absolute text-lg font-semibold transform -translate-y-1/2 left-4 top-1/2 text-secondary-700">$</span>
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <span className="text-gray-500 font-bold text-lg">$</span>
+                    </div>
                     <input
                       type="text"
                       placeholder="Enter custom amount"
                       value={customAmount}
                       onChange={handleCustomAmountChange}
-                      className={`w-full py-3 pl-10 pr-4 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                        customAmount ? 'border-primary-600 bg-primary-50' : 'border-secondary-300'
-                      }`}
+                      className={`w-full pl-10 pr-4 py-4 rounded-xl border-2 font-medium text-lg transition-colors focus:outline-none focus:ring-0
+                        ${customAmount 
+                          ? 'border-primary-600 bg-primary-50 text-primary-900' 
+                          : 'border-gray-200 text-gray-900 focus:border-primary-500'
+                        }`}
                     />
                   </div>
-                </div>
 
-                {/* Recurring Donation */}
-                <div className="p-4 rounded-lg bg-secondary-50">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isRecurring}
-                      onChange={(e) => setIsRecurring(e.target.checked)}
-                      className="w-5 h-5 rounded text-primary-600 focus:ring-primary-500"
-                    />
-                    <div>
-                      <span className="font-semibold text-secondary-900">Make this a monthly donation</span>
-                      <p className="text-sm text-secondary-600">Your support will help us plan better and sustain our programs</p>
+                  {/* Recurring Toggle */}
+                  <div className="mt-6 p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-4">
+                    <div className="flex items-center h-5 mt-1">
+                      <input
+                        id="recurring"
+                        type="checkbox"
+                        checked={isRecurring}
+                        onChange={(e) => setIsRecurring(e.target.checked)}
+                        className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
+                      />
                     </div>
-                  </label>
-                </div>
-
-                {/* Payment Method */}
-                <div>
-                  <label className="block mb-3 text-lg font-semibold text-secondary-900">
-                    Payment Method
-                  </label>
-                  <div className="space-y-3">
-                    <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      paymentMethod === 'card' ? 'border-primary-600 bg-primary-50' : 'border-secondary-300 bg-white'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="card"
-                        checked={paymentMethod === 'card'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-primary-600"
-                      />
-                      <HiCreditCard className="w-6 h-6 text-secondary-700" />
-                      <span className="font-medium text-secondary-900">Credit/Debit Card</span>
-                    </label>
-                    <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      paymentMethod === 'paypal' ? 'border-primary-600 bg-primary-50' : 'border-secondary-300 bg-white'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="paypal"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-primary-600"
-                      />
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#00457C">
-                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .76-.653h8.16c2.713 0 4.64.926 5.415 2.607.246.53.359 1.093.359 1.704 0 3.096-1.978 4.956-5.244 4.956h-2.66a.77.77 0 0 0-.76.653l-.797 5.09a.641.641 0 0 1-.633.74z"/>
-                      </svg>
-                      <span className="font-medium text-secondary-900">PayPal</span>
-                    </label>
-                    <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      paymentMethod === 'bank' ? 'border-primary-600 bg-primary-50' : 'border-secondary-300 bg-white'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="bank"
-                        checked={paymentMethod === 'bank'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-primary-600"
-                      />
-                      <svg className="w-6 h-6 text-secondary-700" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L2 7v2h20V7l-10-5zM4 11v8h2v-8H4zm4 0v8h2v-8H8zm4 0v8h2v-8h-2zm4 0v8h2v-8h-2zm4 0v8h2v-8h-2zM2 21h20v2H2v-2z"/>
-                      </svg>
-                      <span className="font-medium text-secondary-900">Bank Transfer</span>
+                    <label htmlFor="recurring" className="cursor-pointer">
+                      <span className="block text-sm font-bold text-blue-900">Make this a monthly donation</span>
+                      <span className="block text-sm text-blue-700 mt-0.5">
+                        Monthly gifts help us plan for the future and sustain our impact.
+                      </span>
                     </label>
                   </div>
                 </div>
+              </section>
 
-                {/* Donor Information */}
-                <div>
-                  <label className="block mb-3 text-lg font-semibold text-secondary-900">
+              {/* STEP 2: Donor Info */}
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+                  <h2 className="text-lg font-heading font-bold text-gray-900 flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary-600 text-white text-xs">2</span>
                     Your Information
-                  </label>
-                  <div className="space-y-3">
-                    <div>
+                  </h2>
+                </div>
+                
+                <div className="p-6 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                        <HiUser className="text-gray-400" /> Full Name
+                      </label>
                       <input
                         type="text"
                         name="name"
-                        placeholder="Full Name"
                         value={donorInfo.name}
                         onChange={handleDonorInfoChange}
                         disabled={donorInfo.anonymous}
-                        className="w-full px-4 py-3 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100"
-                        required={!donorInfo.anonymous}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow disabled:bg-gray-100 disabled:text-gray-400"
+                        placeholder="John Doe"
                       />
                     </div>
-                    <div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                        <HiMail className="text-gray-400" /> Email Address
+                      </label>
                       <input
                         type="email"
                         name="email"
-                        placeholder="Email Address"
                         value={donorInfo.email}
                         onChange={handleDonorInfoChange}
-                        className="w-full px-4 py-3 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
+                        placeholder="john@example.com"
                         required
                       />
                     </div>
-                    <div>
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Phone Number (Optional)"
-                        value={donorInfo.phone}
-                        onChange={handleDonorInfoChange}
-                        className="w-full px-4 py-3 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    </div>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="anonymous"
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                      <HiPhone className="text-gray-400" /> Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={donorInfo.phone}
+                      onChange={handleDonorInfoChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                      <input 
+                        type="checkbox" 
+                        name="anonymous" 
+                        id="anonymous" 
                         checked={donorInfo.anonymous}
                         onChange={handleDonorInfoChange}
-                        className="w-5 h-5 rounded text-primary-600 focus:ring-primary-500"
+                        className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 right-5"
+                        style={{ right: donorInfo.anonymous ? '0' : 'auto', left: donorInfo.anonymous ? 'auto' : '0' }}
                       />
-                      <span className="text-sm text-secondary-700">Make my donation anonymous</span>
+                      <label 
+                        htmlFor="anonymous" 
+                        className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${donorInfo.anonymous ? 'bg-primary-600' : 'bg-gray-300'}`}
+                      ></label>
+                    </div>
+                    <label htmlFor="anonymous" className="text-sm text-gray-700 cursor-pointer select-none">
+                      Make my donation anonymous
                     </label>
                   </div>
                 </div>
+              </section>
 
-                {/* Submit Button */}
-                <div className="pt-4">
-                  <PrimaryButton
-                    type="submit"
-                    className="w-full"
-                    disabled={getTotalAmount() === 0}
-                  >
-                    <HiHeart className="w-5 h-5" />
-                    Complete Donation {getTotalAmount() > 0 && `- ${formatCurrency(getTotalAmount())}`}
-                  </PrimaryButton>
+              {/* STEP 3: Payment */}
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+                  <h2 className="text-lg font-heading font-bold text-gray-900 flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary-600 text-white text-xs">3</span>
+                    Payment Details
+                  </h2>
                 </div>
-              </form>
-            </Card>
-          </div>
 
-          {/* Sidebar - Campaign Summary */}
-          <div className="lg:col-span-1">
-            <div className="sticky space-y-6 top-8">
-              {/* Campaign Card */}
-              <Card padding="lg">
-                <h2 className="mb-4 text-lg font-bold text-secondary-900">You're Supporting</h2>
-                <div className="mb-4">
-                  <img
-                    src={campaign.image}
-                    alt={campaign.title}
-                    className="object-cover w-full h-40 rounded-lg"
-                  />
-                </div>
-                <div className="mb-2">
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-success-700">
-                    {campaign.verified && (
-                      <>
-                        <HiCheckCircle className="w-4 h-4" />
-                        Verified
-                      </>
+                <div className="p-6">
+                  {/* Payment Method Tabs */}
+                  <div className="grid grid-cols-3 gap-4 mb-8">
+                    <PaymentMethodTab
+                      id="stripe"
+                      label="Card"
+                      icon={<HiCreditCard className="w-6 h-6" />}
+                      selected={selectedPaymentGateway === 'stripe'}
+                      onClick={() => setSelectedPaymentGateway('stripe')}
+                    />
+                    <PaymentMethodTab
+                      id="paypal"
+                      label="PayPal"
+                      icon={<SiPaypal className="w-5 h-5" />}
+                      selected={selectedPaymentGateway === 'paypal'}
+                      onClick={() => setSelectedPaymentGateway('paypal')}
+                    />
+                    <PaymentMethodTab
+                      id="googlepay"
+                      label="Google Pay"
+                      icon={<SiGooglepay className="w-6 h-6" />}
+                      selected={selectedPaymentGateway === 'googlepay'}
+                      onClick={() => setSelectedPaymentGateway('googlepay')}
+                    />
+                  </div>
+
+                  {/* Active Payment Form */}
+                  <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 transition-all duration-300">
+                    {selectedPaymentGateway === 'stripe' && (
+                      <DemoPaymentForm
+                        amount={getTotalAmount() * 100}
+                        campaignId={campaign.id}
+                        donorEmail={donorInfo.email}
+                        donorName={donorInfo.name}
+                        onSuccess={() => handleSuccess('Stripe', 'STR')}
+                        onError={() => {}}
+                      />
                     )}
-                  </span>
-                </div>
-                <h3 className="mb-2 text-base font-semibold text-secondary-900">{campaign.title}</h3>
-                <p className="mb-4 text-sm text-secondary-600 line-clamp-3">{campaign.description}</p>
-                
-                <div className="pt-4 border-t border-secondary-200">
-                  <ProgressBar
-                    value={campaign.currentAmount}
-                    max={campaign.targetAmount}
-                    className="mb-3"
-                  />
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-secondary-600">Raised</span>
-                      <span className="font-semibold text-secondary-900">{formatCurrency(campaign.currentAmount)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-secondary-600">Goal</span>
-                      <span className="font-semibold text-secondary-900">{formatCurrency(campaign.targetAmount)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-secondary-600">Donors</span>
-                      <span className="font-semibold text-secondary-900">{campaign.donors}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-secondary-600">Days Left</span>
-                      <span className="font-semibold text-secondary-900">{campaign.daysLeft}</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
 
-              {/* Impact Info */}
-              <Card padding="lg" className="bg-primary-50">
-                <h3 className="mb-3 font-semibold text-secondary-900">Your Impact</h3>
-                <div className="space-y-2 text-sm text-secondary-700">
-                  <div className="flex items-start gap-2">
-                    <HiCheckCircle className="shrink-0 w-5 h-5 mt-0.5 text-primary-600" />
-                    <span>$25 provides food for a family for one week</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <HiCheckCircle className="shrink-0 w-5 h-5 mt-0.5 text-primary-600" />
-                    <span>$50 includes fresh produce and protein items</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <HiCheckCircle className="shrink-0 w-5 h-5 mt-0.5 text-primary-600" />
-                    <span>$100 supports two families for a week</span>
-                  </div>
-                </div>
-              </Card>
+                    {selectedPaymentGateway === 'paypal' && (
+                      <PayPalDemoForm
+                        amount={getTotalAmount() * 100}
+                        campaignId={campaign.id}
+                        donorEmail={donorInfo.email}
+                        donorName={donorInfo.name}
+                        onSuccess={() => handleSuccess('PayPal', 'PPL')}
+                        onError={() => {}}
+                      />
+                    )}
 
-              {/* Security Notice */}
-              <Card padding="md" className="bg-success-50">
-                <div className="flex items-start gap-3">
-                  <HiCheckCircle className="w-6 h-6 shrink-0 text-success-600" />
-                  <div className="text-sm">
-                    <p className="font-semibold text-success-900">Secure Donation</p>
-                    <p className="text-success-700">Your payment information is encrypted and secure</p>
+                    {selectedPaymentGateway === 'googlepay' && (
+                      <GooglePayDemoForm
+                        amount={getTotalAmount() * 100}
+                        campaignId={campaign.id}
+                        donorEmail={donorInfo.email}
+                        donorName={donorInfo.name}
+                        onSuccess={() => handleSuccess('Google Pay', 'GPY')}
+                        onError={() => {}}
+                      />
+                    )}
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500">
+                    <HiShieldCheck className="w-4 h-4 text-green-600" />
+                    <span>Payments are secure and encrypted</span>
                   </div>
                 </div>
-              </Card>
+              </section>
+
             </div>
+
+            {/* RIGHT COLUMN: Summary Sidebar */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-24 space-y-6">
+                
+                {/* Campaign Summary Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="relative h-48">
+                    <img
+                      src={campaign.image}
+                      alt={campaign.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <h3 className="font-bold text-lg leading-tight shadow-black drop-shadow-md">{campaign.title}</h3>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 space-y-6">
+                    {/* Progress */}
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-gray-600">Raised: <span className="font-semibold text-gray-900">{formatCurrency(campaign.currentAmount)}</span></span>
+                        <span className="text-gray-500">{Math.round((campaign.currentAmount / campaign.targetAmount) * 100)}%</span>
+                      </div>
+                      <ProgressBar value={campaign.currentAmount} max={campaign.targetAmount} height="h-2" />
+                    </div>
+
+                    {/* Donation Summary */}
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Donation Summary</h4>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-gray-600 text-sm">Amount</span>
+                        <span className="font-semibold text-gray-900">{formatCurrency(getTotalAmount())}</span>
+                      </div>
+                      {isRecurring && (
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-gray-600 text-sm">Frequency</span>
+                          <span className="font-medium text-primary-600 text-sm">Monthly</span>
+                        </div>
+                      )}
+                      <div className="border-t border-gray-200 my-2 pt-2 flex justify-between items-center">
+                        <span className="font-bold text-gray-900">Total</span>
+                        <span className="font-bold text-xl text-primary-600">{formatCurrency(getTotalAmount())}</span>
+                      </div>
+                    </div>
+
+                    {/* Impact Note */}
+                    <div className="flex gap-3 items-start text-sm text-gray-600 bg-green-50 p-3 rounded-lg border border-green-100">
+                      <HiHeart className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                      <p className="leading-snug">
+                        Your <strong>{formatCurrency(getTotalAmount())}</strong> donation can provide essential food supplies for a family in need.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trust Badges */}
+                <div className="flex justify-center gap-6 grayscale opacity-60">
+                  {/* Placeholders for trust badges if needed */}
+                </div>
+
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
-    </div>
+
+      <DonationSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          setSuccessData(null);
+        }}
+        campaign={successData?.campaign}
+        amount={successData?.amount}
+        donorName={successData?.donorName}
+        paymentMethod={successData?.paymentMethod}
+        transactionId={successData?.transactionId}
+      />
+    </>
   );
 };
+
+// Helper Component for Payment Tabs
+const PaymentMethodTab = ({ id, label, icon, selected, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-200
+      ${selected 
+        ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm' 
+        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+      }`}
+  >
+    <div className={`transition-transform duration-200 ${selected ? 'scale-110' : ''}`}>
+      {icon}
+    </div>
+    <span className="text-xs font-bold">{label}</span>
+    {selected && (
+      <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary-600"></div>
+    )}
+  </button>
+);
 
 export default Donate;

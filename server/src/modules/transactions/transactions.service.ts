@@ -6,6 +6,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionStatus } from '../../common/enums/status.enum';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { PaymentService } from '../payments/payment.service';
 import { PdfGeneratorUtil } from '../../utils/pdf-generator.util';
 import { FileUploadUtil } from '../../utils/file-upload.util';
 
@@ -16,6 +17,7 @@ export class TransactionsService {
     private readonly transactionRepository: Repository<Transaction>,
     private readonly campaignsService: CampaignsService,
     private readonly notificationsService: NotificationsService,
+    private readonly paymentService: PaymentService,
   ) {}
 
   async create(userId: string, createDto: CreateTransactionDto): Promise<Transaction> {
@@ -34,50 +36,45 @@ export class TransactionsService {
 
     const savedTransaction = await this.transactionRepository.save(transaction);
 
-    const paymentResult = await this.processPayment(savedTransaction);
-
-    if (paymentResult.success) {
-      savedTransaction.status = TransactionStatus.COMPLETED;
-      savedTransaction.paymentReference = paymentResult.reference || '';
-
-      const receiptBuffer = await PdfGeneratorUtil.generateDonationReceipt({
-        receiptId: savedTransaction.id,
-        date: savedTransaction.createdAt,
-        donorName: 'Donor',
-        campaignTitle: campaign.title,
-        amount: savedTransaction.amount,
-        paymentMethod: savedTransaction.paymentGateway,
+    try {
+      // Create Stripe payment intent using the PaymentService
+      const paymentIntent = await this.paymentService.createPaymentIntent({
+        amount: createDto.amount,
+        currency: createDto.currency || 'usd',
+        campaignId: createDto.campaignId,
+        donorId: userId,
+        donorEmail: createDto.donorEmail || 'donor@example.com',
+        donorName: createDto.donorName || 'Donor',
       });
 
-      await this.campaignsService.updateRaisedAmount(
-        createDto.campaignId,
-        createDto.amount,
-      );
+      // Update transaction with payment intent ID
+      savedTransaction.paymentReference = paymentIntent.paymentIntentId;
+      savedTransaction.status = TransactionStatus.PENDING;
 
-      await this.notificationsService.createDonationNotification(
+      // In a real scenario, wait for webhook confirmation
+      // For now, we'll update to PENDING and let webhook handle completion
+      await this.transactionRepository.save(savedTransaction);
+
+      // Send notification about pending payment
+      await this.notificationsService.create(
         userId,
-        campaign,
-        savedTransaction.amount,
+        'PAYMENT_INITIATED',
+        `Payment initiated for ${campaign.title}. Amount: ${createDto.amount}`,
+        {
+          campaignId: campaign.id,
+          paymentIntentId: paymentIntent.paymentIntentId,
+        },
       );
-    } else {
+
+      return {
+        ...savedTransaction,
+        paymentIntent: paymentIntent,
+      } as any;
+    } catch (error) {
       savedTransaction.status = TransactionStatus.FAILED;
+      await this.transactionRepository.save(savedTransaction);
+      throw new BadRequestException(`Payment initiation failed: ${error.message}`);
     }
-
-    return this.transactionRepository.save(savedTransaction);
-  }
-
-  private async processPayment(transaction: Transaction): Promise<{
-    success: boolean;
-    reference?: string;
-  }> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: Math.random() > 0.1,
-          reference: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        });
-      }, 2000);
-    });
   }
 
   async findByDonor(donorId: string): Promise<Transaction[]> {
@@ -139,5 +136,93 @@ export class TransactionsService {
         date: t.createdAt,
       })),
     });
+  }
+
+  /**
+   * Handle webhook event when payment succeeds
+   * Called from PaymentController webhook handler
+   */
+  async handlePaymentSucceeded(paymentIntentId: string, metadata: any) {
+    try {
+      // Find transaction by payment reference
+      const transaction = await this.transactionRepository.findOne({
+        where: { paymentReference: paymentIntentId },
+        relations: ['donor', 'campaign'],
+      });
+
+      if (!transaction) {
+        throw new NotFoundException(`Transaction not found for payment ${paymentIntentId}`);
+      }
+
+      // Update transaction status to completed
+      transaction.status = TransactionStatus.COMPLETED;
+      await this.transactionRepository.save(transaction);
+
+      // Update campaign raised amount
+      await this.campaignsService.updateRaisedAmount(
+        transaction.campaign.id,
+        transaction.amount,
+      );
+
+      // Generate receipt
+      const receiptBuffer = await PdfGeneratorUtil.generateDonationReceipt({
+        receiptId: transaction.id,
+        date: transaction.createdAt,
+        donorName: transaction.donor.firstName + ' ' + transaction.donor.lastName,
+        campaignTitle: transaction.campaign.title,
+        amount: transaction.amount,
+        paymentMethod: transaction.paymentGateway,
+      });
+
+      // Send success notification
+      await this.notificationsService.create(
+        transaction.donor.id,
+        'PAYMENT_SUCCESS',
+        `Payment successful for ${transaction.campaign.title}. Thank you for your donation!`,
+        {
+          campaignId: transaction.campaign.id,
+          transactionId: transaction.id,
+          amount: transaction.amount,
+        },
+      );
+
+      return transaction;
+    } catch (error) {
+      throw new BadRequestException(`Failed to process payment webhook: ${error.message}`);
+    }
+  }
+
+  /**
+   * Handle webhook event when payment fails
+   */
+  async handlePaymentFailed(paymentIntentId: string, error: string) {
+    try {
+      const transaction = await this.transactionRepository.findOne({
+        where: { paymentReference: paymentIntentId },
+        relations: ['donor', 'campaign'],
+      });
+
+      if (!transaction) {
+        throw new NotFoundException(`Transaction not found for payment ${paymentIntentId}`);
+      }
+
+      transaction.status = TransactionStatus.FAILED;
+      await this.transactionRepository.save(transaction);
+
+      // Send failure notification
+      await this.notificationsService.create(
+        transaction.donor.id,
+        'PAYMENT_FAILED',
+        `Payment failed for ${transaction.campaign.title}. Error: ${error}`,
+        {
+          campaignId: transaction.campaign.id,
+          transactionId: transaction.id,
+        },
+      );
+
+      return transaction;
+    } catch (error) {
+      throw new BadRequestException(`Failed to process payment failure: ${error.message}`);
+    }
   }
 }
