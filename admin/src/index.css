@@ -1,0 +1,390 @@
+/* Google Fonts Import - Must be first */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* Theme Configuration - Tailwind v4 CSS-based approach */
+@theme {
+  /* Color Palette - Main Green Theme */
+  --color-primary-50: #e8f8f5;
+  --color-primary-100: #d1f2eb;
+  --color-primary-200: #a3e4d7;
+  --color-primary-300: #76d7c4;
+  --color-primary-400: #48c9b0;
+  --color-primary-500: #1e8449;
+  --color-primary-600: #196f3d;
+  --color-primary-700: #145a32;
+  --color-primary-800: #0e4429;
+  --color-primary-900: #092e1f;
+
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+
+  --color-warning-50: #fefce8;
+  --color-warning-100: #fef9c3;
+  --color-warning-200: #fef08a;
+  --color-warning-300: #fde047;
+  --color-warning-400: #facc15;
+  --color-warning-500: #eab308;
+  --color-warning-600: #ca8a04;
+  --color-warning-700: #a16207;
+  --color-warning-800: #854d0e;
+  --color-warning-900: #713f12;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  --color-accent-50: #e8f8f5;
+  --color-accent-100: #d1f2eb;
+  --color-accent-200: #a3e4d7;
+  --color-accent-300: #76d7c4;
+  --color-accent-400: #48c9b0;
+  --color-accent-500: #27ae60;
+  --color-accent-600: #229954;
+  --color-accent-700: #1e8449;
+  --color-accent-800: #186a3b;
+  --color-accent-900: #145a32;
+
+  /* Font Families */
+  --font-family-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-family-display: 'Tajawal', sans-serif;
+  --font-family-logo: 'Tajawal', sans-serif;
+
+  /* Border Radius */
+  --radius-card: 12px;
+  --radius-button: 8px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Global Styles */
+* {
+  border-color: var(--color-secondary-200);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', var(--font-family-display);
+  color: var(--color-secondary-900);
+  background-color: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Tajawal', var(--font-family-display);
+  font-weight: 700;
+}
+
+p, span, div {
+  font-family: 'Poppins', var(--font-family-display);
+}
+
+button {
+  font-family: 'Poppins', var(--font-family-display);
+  font-weight: 500;
+}
+
+input, select, textarea {
+  font-family: 'Poppins', var(--font-family-display);
+  font-weight: 400;
+}
+
+a {
+  font-family: 'Poppins', var(--font-family-display);
+}
+
+label {
+  font-family: 'Poppins', var(--font-family-display);
+  font-weight: 500;
+}
+
+.font-heading {
+  font-family: 'Tajawal', var(--font-family-display);
+  font-weight: 700;
+}
+
+.font-sans {
+  font-family: 'Poppins', var(--font-family-sans);
+}
+
+.font-logo {
+  font-family: 'Tajawal', var(--font-family-logo);
+  font-weight: 700;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-secondary-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary-400);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary-200);
+  color: var(--color-primary-900);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from { 
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+/* Utility Classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, var(--color-secondary-100) 4%, var(--color-secondary-200) 25%, var(--color-secondary-100) 36%);
+  background-size: 1000px 100%;
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.shadow-card-hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.shadow-modal {
+  box-shadow: var(--shadow-modal);
+}
+
+.rounded-card {
+  border-radius: var(--radius-card);
+}
+
+.rounded-button {
+  border-radius: var(--radius-button);
+}
+
+/* Primary Animated Button */
+.primary-animated-button {
+  --button-color: #1e8449;
+  --button-hover-color: #145a32;
+  position: relative;
+  font-size: 16px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.6em 1.8em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  cursor: pointer;
+  border-radius: 0.5em;
+  transition: all 0.2s;
+  border: none;
+  font-family: inherit;
+  font-weight: 500;
+  color: white;
+  background-color: var(--button-color);
+}
+
+.primary-animated-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(30, 132, 73, 0.3);
+  background-color: var(--button-hover-color);
+}
+
+.primary-animated-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 10px rgba(30, 132, 73, 0.3);
+}
+
+.primary-animated-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.primary-animated-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+  background-color: var(--button-color);
+}
+
+/* Secondary Animated Button */
+.secondary-animated-button {
+  --button-color: #1e8449;
+  --button-hover-color: #145a32;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-width: 8em;
+  height: 2.6em;
+  line-height: 2.5em;
+  padding: 0 1.5em;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px solid var(--button-color);
+  transition: color 0.5s;
+  z-index: 1;
+  font-size: 17px;
+  border-radius: 6px;
+  font-weight: 500;
+  color: var(--button-color);
+  background: transparent;
+}
+
+.secondary-animated-button:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  background: var(--button-color);
+  height: 150px;
+  width: 17em;
+  border-radius: 50%;
+  top: 100%;
+  left: 100%;
+  transition: all 0.7s;
+}
+
+.secondary-animated-button:hover {
+  color: #fff;
+}
+
+.secondary-animated-button:hover:before {
+  top: -30px;
+  left: -30px;
+}
+
+.secondary-animated-button:active:before {
+  background: var(--button-hover-color);
+  transition: background 0s;
+}
+
+.secondary-animated-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-animated-button:disabled:hover {
+  color: var(--button-color);
+}
+
+.secondary-animated-button:disabled:hover:before {
+  top: 100%;
+  left: 100%;
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
