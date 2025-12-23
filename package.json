@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "client": "npm start --prefix client",
+    "admin": "npm run dev --prefix admin",
+    "client": "npm run dev --prefix client",
     "server": "npm run start:dev --prefix server",
-    "dev": "concurrently \"npm run client\" \"npm run server\""
+    "dev": "concurrently \"npm run admin\" \"npm run client\" \"npm run server\""
   },
   "keywords": [],
   "author": "",
