@@ -9,5 +9,12 @@ export const getTypeOrmConfig = (
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: configService.get('NODE_ENV') !== 'production',
   logging: configService.get('NODE_ENV') === 'development',
-  ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  extra: {
+    // Connection pooling settings for Supabase
+    max: 10,
+    connectionTimeoutMillis: 10000,
+  },
 });
