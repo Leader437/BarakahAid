@@ -45,6 +45,9 @@ import BrowseRequests from './pages/BrowseRequests';
 import Campaigns from './pages/Campaigns';
 import Donate from './pages/Donate';
 
+// Emergency Module
+import Emergency from './pages/Emergency';
+
 // Profile Page
 import Profile from './pages/Profile';
 
@@ -205,6 +208,7 @@ function App() {
           <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/campaigns" element={<Campaigns />} />
+          <Route path="/emergency" element={<Emergency />} />
           <Route path="/browse-requests" element={<BrowseRequests />} />
           <Route path="/donate/:id" element={<Donate />} />
           <Route path="/faq" element={<FAQ />} />

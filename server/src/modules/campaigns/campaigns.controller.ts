@@ -78,4 +78,10 @@ export class CampaignsController {
     await this.campaignsService.remove(id, userId, userRole);
     return { message: 'Campaign deleted successfully' };
   }
+
+  // Create emergency campaign from disaster alert
+  @Post('emergency/auto-create')
+  async createEmergencyCampaign(@Body() disasterData: any) {
+    return this.campaignsService.createEmergencyCampaign(disasterData);
+  }
 }

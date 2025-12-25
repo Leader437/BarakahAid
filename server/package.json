@@ -30,6 +30,7 @@
     "@nestjs/schedule": "^6.1.0",
     "@nestjs/typeorm": "^11.0.0",
     "@types/stripe": "^8.0.416",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
@@ -46,7 +47,8 @@
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "stripe": "^20.1.0",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

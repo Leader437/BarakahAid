@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { HiChevronDown, HiMenu, HiX } from 'react-icons/hi';
+import { HiChevronDown, HiMenu, HiX, HiExclamation } from 'react-icons/hi';
 import logo from "../../assets/logo-main.png";
 import Avatar from '../ui/Avatar';
 import PrimaryButton from '../ui/PrimaryButton';
@@ -70,6 +70,13 @@ const Navbar = () => {
                 >
                   Campaigns
                 </Link>
+                <Link
+                  to="/emergency"
+                  className="inline-flex items-center gap-1 font-medium transition-colors text-secondary-700 hover:text-primary-600"
+                >
+                  <HiExclamation className="w-5 h-5" />
+                  Emergency
+                </Link>
                 {user?.role === 'volunteer' && (
                   <Link
                     to="/volunteer/browse-events"
@@ -89,6 +96,10 @@ const Navbar = () => {
                 </a>
                 <a href="/campaigns" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
                   Campaigns
+                </a>
+                <a href="/emergency" className="inline-flex items-center gap-1 font-medium transition-colors text-secondary-700 hover:text-primary-600">
+                  <HiExclamation className="w-5 h-5" />
+                  Emergency
                 </a>
                 <a href="/contact" className="font-medium transition-colors text-secondary-700 hover:text-primary-600">
                   Contact Us
@@ -204,6 +215,14 @@ const Navbar = () => {
                   Campaigns
                 </Link>
                 <Link
+                  to="/emergency"
+                  className="inline-flex items-center gap-2 py-2 font-medium text-secondary-700 hover:text-primary-600"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <HiExclamation className="w-5 h-5" />
+                  Emergency
+                </Link>
+                <Link
                   to="/profile"
                   className="block py-2 font-medium text-secondary-700 hover:text-primary-600"
                   onClick={() => setShowMobileMenu(false)}
@@ -227,6 +246,10 @@ const Navbar = () => {
                 </a>
                 <a href="/campaigns" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   Campaigns
+                </a>
+                <a href="/emergency" className="inline-flex items-center gap-2 py-2 font-medium text-secondary-700 hover:text-primary-600">
+                  <HiExclamation className="w-5 h-5" />
+                  Emergency
                 </a>
                 <a href="/contact" className="block py-2 font-medium text-secondary-700 hover:text-primary-600">
                   Contact Us
