@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionStatus } from '../../common/enums/status.enum';
+import { TransactionStatus, NotificationType } from '../../common/enums/status.enum';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PaymentService } from '../payments/payment.service';
@@ -58,7 +58,7 @@ export class TransactionsService {
       // Send notification about pending payment
       await this.notificationsService.create(
         userId,
-        'PAYMENT_INITIATED',
+        NotificationType.PAYMENT_INITIATED,
         `Payment initiated for ${campaign.title}. Amount: ${createDto.amount}`,
         {
           campaignId: campaign.id,
@@ -168,7 +168,7 @@ export class TransactionsService {
       const receiptBuffer = await PdfGeneratorUtil.generateDonationReceipt({
         receiptId: transaction.id,
         date: transaction.createdAt,
-        donorName: transaction.donor.firstName + ' ' + transaction.donor.lastName,
+        donorName: transaction.donor.name,
         campaignTitle: transaction.campaign.title,
         amount: transaction.amount,
         paymentMethod: transaction.paymentGateway,
@@ -177,7 +177,7 @@ export class TransactionsService {
       // Send success notification
       await this.notificationsService.create(
         transaction.donor.id,
-        'PAYMENT_SUCCESS',
+        NotificationType.PAYMENT_SUCCESS,
         `Payment successful for ${transaction.campaign.title}. Thank you for your donation!`,
         {
           campaignId: transaction.campaign.id,
@@ -212,7 +212,7 @@ export class TransactionsService {
       // Send failure notification
       await this.notificationsService.create(
         transaction.donor.id,
-        'PAYMENT_FAILED',
+        NotificationType.PAYMENT_FAILED,
         `Payment failed for ${transaction.campaign.title}. Error: ${error}`,
         {
           campaignId: transaction.campaign.id,
