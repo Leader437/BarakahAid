@@ -154,4 +154,73 @@ export class AuthService {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userRepository.update(userId, { refreshToken: hashedRefreshToken });
   }
+
+  /**
+   * Handle OAuth login (Google)
+   * Creates new user if doesn't exist, or returns existing user
+   */
+  async validateOAuthLogin(oauthUser: {
+    googleId?: string;
+    email: string;
+    name: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+    authProvider: 'GOOGLE';
+    isEmailVerified?: boolean;
+  }): Promise<{ user: User; accessToken: string; refreshToken: string }> {
+    let user: User | null = null;
+
+    // Check if user exists by OAuth ID
+    if (oauthUser.googleId) {
+      user = await this.userRepository.findOne({
+        where: { googleId: oauthUser.googleId },
+      });
+    }
+
+    // If not found by OAuth ID, check by email
+    if (!user && oauthUser.email) {
+      user = await this.userRepository.findOne({
+        where: { email: oauthUser.email },
+      });
+
+      // Update existing user with OAuth ID and latest profile info
+      if (user) {
+        if (oauthUser.googleId) {
+          user.googleId = oauthUser.googleId;
+        }
+        user.authProvider = oauthUser.authProvider;
+        user.name = oauthUser.name; // Update name from Google
+        if (oauthUser.avatar && !user.avatar) {
+          user.avatar = oauthUser.avatar; // Update avatar if not set
+        }
+        if (oauthUser.isEmailVerified) {
+          user.verificationStatus = 'VERIFIED' as any; // Mark as verified if Google email is verified
+        }
+        await this.userRepository.save(user);
+      }
+    }
+
+    // Create new user if doesn't exist
+    if (!user) {
+      user = this.userRepository.create({
+        email: oauthUser.email,
+        name: oauthUser.name,
+        googleId: oauthUser.googleId,
+        avatar: oauthUser.avatar,
+        authProvider: oauthUser.authProvider,
+        password: '', // OAuth users don't need password but field is required
+        verificationStatus: oauthUser.isEmailVerified ? 'VERIFIED' as any : 'UNVERIFIED' as any,
+      });
+      await this.userRepository.save(user);
+    }
+
+    const tokens = await this.generateTokens(user);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return {
+      user,
+      ...tokens,
+    };
+  }
 }

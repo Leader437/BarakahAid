@@ -28,7 +28,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({
@@ -37,6 +37,16 @@ export class User {
     default: Role.DONOR,
   })
   role: Role;
+
+  // OAuth fields - for Google login
+  @Column({ nullable: true })
+  googleId: string;
+
+  @Column({ type: 'enum', enum: ['LOCAL', 'GOOGLE'], default: 'LOCAL' })
+  authProvider: 'LOCAL' | 'GOOGLE';
+
+  @Column({ nullable: true })
+  avatar: string;
 
   @Column({ nullable: true })
   profileImage: string;

@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "typeorm-ts-node-esm",
+    "migration:generate": "typeorm migration:generate",
+    "migration:run": "typeorm migration:run",
+    "migration:revert": "typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -29,6 +33,7 @@
     "@nestjs/platform-socket.io": "^11.1.9",
     "@nestjs/schedule": "^6.1.0",
     "@nestjs/typeorm": "^11.0.0",
+    "@types/passport-google-oauth20": "^2.0.17",
     "@types/stripe": "^8.0.416",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
@@ -40,6 +45,7 @@
     "helmet": "^8.1.0",
     "multer": "^2.0.2",
     "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",

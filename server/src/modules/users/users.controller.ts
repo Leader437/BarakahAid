@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Put,
+  Patch,
   Body,
   UseGuards,
   UseInterceptors,
@@ -28,7 +29,17 @@ export class UsersController {
 
   @Get('profile')
   async getProfile(@CurrentUser('id') userId: string) {
-    return this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId);
+    console.log('📤 Returning user profile:', JSON.stringify({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      authProvider: user.authProvider,
+      createdAt: user.createdAt,
+    }, null, 2));
+    return user;
   }
 
   @Put('profile')
@@ -54,6 +65,17 @@ export class UsersController {
     @Body() preferences: UpdateNotificationPreferencesDto,
   ) {
     return this.usersService.updateNotificationPreferences(userId, preferences);
+  }
+
+  @Patch('update-role')
+  async updateRole(
+    @CurrentUser('id') userId: string,
+    @Body('role') role: Role,
+  ) {
+    console.log('📝 Update role request:', { userId, role });
+    const result = await this.usersService.updateUserRole(userId, role);
+    console.log('📤 Returning updated user:', { id: result.id, role: result.role, name: result.name });
+    return result;
   }
 
   @Put('profile/verification/submit')
