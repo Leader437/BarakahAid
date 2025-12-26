@@ -21,7 +21,14 @@ export interface DisasterAlert {
 @Injectable()
 export class DisasterFeedUtil {
   private readonly logger = new Logger(DisasterFeedUtil.name);
-  private readonly xmlParser = new xml2js.Parser({ explicitArray: false });
+  private readonly xmlParser = new xml2js.Parser({ 
+    explicitArray: false,
+    trim: true,
+    normalize: true,
+    normalizeTags: false,
+    strict: false, // Allow malformed XML
+    ignoreAttrs: false
+  });
 
   /**
    * Fetch earthquake data from USGS Earthquake Hazards Program API
@@ -229,17 +236,29 @@ export class DisasterFeedUtil {
       // GDACS RSS Feed for Pakistan/South Asia
       const response = await axios.get(
         'https://www.gdacs.org/xml/rss_africa_asia.xml',
-        { timeout: 30000 }
+        { 
+          timeout: 30000,
+          responseType: 'text',
+          transformResponse: [(data) => data] // Get raw text
+        }
       );
 
-      const parsed = await this.xmlParser.parseStringPromise(response.data);
+      // Sanitize XML by removing problematic characters
+      let xmlData = response.data;
+      
+      // Remove or replace common problematic entities and characters
+      xmlData = xmlData
+        .replace(/&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[\da-f]+);)/gi, '&amp;') // Fix unescaped ampersands
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, ''); // Remove control characters
+      
+      const parsed = await this.xmlParser.parseStringPromise(xmlData);
       const items = parsed.rss?.channel?.item || [];
 
       const itemArray = Array.isArray(items) ? items : [items];
 
       itemArray.forEach((item: any) => {
-        const title = item.title?.[0] || '';
-        const description = item.description?.[0] || '';
+        const title = item.title?.[0] || item.title || '';
+        const description = item.description?.[0] || item.description || '';
         
         // Only include alerts affecting Pakistan
         if (this.isPakistanAlert(title, description)) {
@@ -250,7 +269,7 @@ export class DisasterFeedUtil {
             location: this.extractGDACSLocation(title, description),
             severity: this.calculateGDACSServerity(title, description),
             description: `${title}: ${description}`,
-            timestamp: new Date(item.pubDate?.[0] || Date.now()),
+            timestamp: new Date(item.pubDate?.[0] || item.pubDate || Date.now()),
             source: 'Global Disaster Alert and Coordination System (GDACS)',
           });
         }
@@ -260,6 +279,9 @@ export class DisasterFeedUtil {
       return alerts;
     } catch (error) {
       this.logger.error(`❌ Error fetching GDACS alerts: ${error.message}`);
+      if (error.message.includes('Invalid character')) {
+        this.logger.warn('⚠️ GDACS XML feed contains malformed data - skipping');
+      }
       return [];
     }
   }

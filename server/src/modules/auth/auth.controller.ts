@@ -7,10 +7,15 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  Get,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
+import { UsersService } from '../users/users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -19,7 +24,10 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -96,5 +104,41 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     await this.authService.resetPassword(resetPasswordDto);
     return { message: 'Password reset successfully' };
+  }
+
+  /**
+   * Google OAuth - Initiate login
+   */
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth() {
+    // Redirects to Google OAuth consent screen
+  }
+
+  /**
+   * Google OAuth - Callback endpoint
+   */
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthCallback(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const oauthUser = req.user as any;
+    console.log('🔍 OAuth User Data from Google:', JSON.stringify(oauthUser, null, 2));
+    const { user, accessToken, refreshToken } = await this.authService.validateOAuthLogin(oauthUser);
+    console.log('✅ User saved to database:', JSON.stringify({ id: user.id, name: user.name, email: user.email, avatar: user.avatar, googleId: user.googleId }, null, 2));
+
+    // Set refresh token cookie
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // Redirect to frontend with access token
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    response.redirect(`${frontendUrl}/auth/callback?token=${accessToken}`);
   }
 }

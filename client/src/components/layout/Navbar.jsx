@@ -144,6 +144,13 @@ const Navbar = () => {
                       >
                         Profile
                       </Link>
+                      <Link
+                        to="/select-role"
+                        className="block px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        Change Role
+                      </Link>
                       <hr className="my-1 border-secondary-200" />
                       <button
                         onClick={handleLogout}

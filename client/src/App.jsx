@@ -24,6 +24,8 @@ import Cookies from './pages/Cookies';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import OAuthCallback from './pages/auth/OAuthCallback';
+import RoleSelection from './pages/auth/RoleSelection';
 
 // Donor Pages
 import DonorDashboard from './pages/donor/Dashboard';
@@ -59,7 +61,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role?.toLowerCase())) {
+    console.warn('🚫 Access denied. User role:', user?.role, 'Allowed roles:', allowedRoles);
     return <Navigate to="/" replace />;
   }
 
@@ -219,6 +222,8 @@ function App() {
           <Route path="/login" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/callback" element={<OAuthCallback />} />
+          <Route path="/select-role" element={<RoleSelection />} />
 
           {/* Donor Routes */}
           <Route
@@ -229,6 +234,7 @@ function App() {
               </ProtectedRoute>
             }
           >
+            <Route index element={<Navigate to="/donor/dashboard" replace />} />
             <Route path="dashboard" element={<DonorDashboard />} />
             <Route path="browse-requests" element={<BrowseRequests />} />
             <Route path="donation-history" element={<DonationHistory />} />
@@ -255,6 +261,7 @@ function App() {
               </ProtectedRoute>
             }
           >
+            <Route index element={<Navigate to="/volunteer/dashboard" replace />} />
             <Route path="dashboard" element={<VolunteerDashboard />} />
             <Route path="browse-events" element={<BrowseEvents />} />
             <Route path="my-activities" element={<MyActivities />} />
@@ -269,6 +276,7 @@ function App() {
               </ProtectedRoute>
             }
           >
+            <Route index element={<Navigate to="/ngo/dashboard" replace />} />
             <Route path="dashboard" element={<NgoDashboard />} />
             <Route path="campaigns" element={<ManageCampaigns />} />
             <Route path="donations" element={<DonationsReceived />} />

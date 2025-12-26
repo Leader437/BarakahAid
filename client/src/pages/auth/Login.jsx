@@ -1,6 +1,8 @@
 // Login Page
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { FcGoogle } from 'react-icons/fc';
+
 import logo from "./../../assets/logo-main.png";
 import useAuth from '../../hooks/useAuth';
 import useForm from '../../hooks/useForm';
@@ -13,6 +15,18 @@ import { validateEmail, validateRequired } from '../../utils/validation';
 const Login = () => {
   const { login, loading, error: authError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      // Store token and redirect to dashboard
+      localStorage.setItem('token', token);
+      navigate('/dashboard');
+    }
+  }, [searchParams, navigate]);
 
   const validate = (values) => {
     const errors = {};
@@ -112,6 +126,20 @@ const Login = () => {
               {isSubmitting || loading ? 'Signing In...' : 'Sign In'}
             </PrimaryButton>
           </form>
+
+          {/* OAuth Login Options */}
+          <div className="pt-6 mt-6 border-t border-secondary-200">
+            <p className="mb-4 text-sm text-center text-secondary-600">Or continue with</p>
+            <button
+              onClick={() => {
+                window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/google`;
+              }}
+              className="flex items-center justify-center w-full gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 bg-white border rounded-lg border-secondary-300 text-secondary-700 hover:bg-secondary-50 hover:border-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            >
+              <FcGoogle className="w-5 h-5" />
+              Continue with Google
+            </button>
+          </div>
 
           {/* Quick Login for Demo */}
           <div className="pt-6 mt-6 border-t border-secondary-200">
