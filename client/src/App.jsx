@@ -1,7 +1,10 @@
 // Main App Component with Routing
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+
+// Lazy load Admin Module
+const AdminModule = lazy(() => import('../../admin/src/AdminModule'));
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -199,6 +202,7 @@ function App() {
         <Routes>
           <Route path="/login" element={null} />
           <Route path="/register" element={null} />
+          <Route path="/admin/*" element={null} />
           <Route path="*" element={<Navbar />} />
         </Routes>
 
@@ -283,14 +287,21 @@ function App() {
             <Route path="profile" element={<OrganizationProfile />} />
           </Route>
 
-          {/* Admin Routes - Placeholder */}
+          {/* Admin Routes - Lazy loaded from admin module */}
           <Route
             path="/admin/*"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <div className="p-8 text-center">
-                  <h2 className="text-2xl font-bold">Admin Dashboard - Coming Soon</h2>
-                </div>
+                <Suspense fallback={
+                  <div className="min-h-screen flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4" />
+                      <p className="text-secondary-600">Loading Admin Panel...</p>
+                    </div>
+                  </div>
+                }>
+                  <AdminModule />
+                </Suspense>
               </ProtectedRoute>
             }
           />

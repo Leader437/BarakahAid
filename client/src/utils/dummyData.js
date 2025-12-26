@@ -53,7 +53,7 @@ export const mockUsers = [
   },
   {
     id: 'user-5',
-    email: 'admin@example.com',
+    email: 'admin@barakahaid.com',
     name: 'Admin User',
     role: ROLES.ADMIN,
     avatar: null,

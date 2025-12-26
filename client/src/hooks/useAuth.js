@@ -15,6 +15,13 @@ const useAuth = () => {
   const login = async (credentials) => {
     const result = await dispatch(loginUser(credentials));
     if (result.success && result.user) {
+      // Persist to localStorage for AdminModule and session persistence
+      localStorage.setItem('user', JSON.stringify(result.user));
+      
+      // Generate mock token if not present (mock mode) or use real one
+      const token = result.token || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJleHAiOjE5OTk5OTk5OTl9.mock_token";
+      localStorage.setItem('token', token);
+
       const dashboardPath = getDashboardPath(result.user.role);
       navigate(dashboardPath);
     }

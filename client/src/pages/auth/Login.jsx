@@ -30,13 +30,13 @@ const Login = () => {
 
   const validate = (values) => {
     const errors = {};
-    
+
     const emailError = validateEmail(values.email);
     if (emailError) errors.email = emailError;
-    
+
     const passwordError = validateRequired(values.password, 'Password');
     if (passwordError) errors.password = passwordError;
-    
+
     return errors;
   };
 
@@ -155,16 +155,6 @@ const Login = () => {
               >
                 Donor
               </SecondaryButton>
-              {/* <SecondaryButton
-                onClick={() => {
-                  values.email = 'recipient@example.com';
-                  values.password = 'password';
-                  handleLogin(values);
-                }}
-                className="!text-xs !py-2"
-              >
-                Recipient
-              </SecondaryButton> */}
               <SecondaryButton
                 onClick={() => {
                   values.email = 'volunteer@example.com';
@@ -184,6 +174,16 @@ const Login = () => {
                 className="!text-xs !py-2"
               >
                 NGO
+              </SecondaryButton>
+              <SecondaryButton
+                onClick={() => {
+                  values.email = 'admin@barakahaid.com';
+                  values.password = 'Admin123!';
+                  handleLogin(values);
+                }}
+                className="!text-xs !py-2 !bg-primary-100 !text-primary-700 !border-primary-300"
+              >
+                Admin
               </SecondaryButton>
             </div>
           </div>
