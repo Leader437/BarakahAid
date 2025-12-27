@@ -1,29 +1,25 @@
 /* Google Fonts Import - Inter (body) and Poppins (headings) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
 /* Tailwind CSS v4 - Base, Components, Utilities */
 @import "tailwindcss";
 
 /* Theme Configuration - Tailwind v4 CSS-based approach */
 /* @theme { Removed v4 syntax */
+
 :root {
+  /* Color Palette - Main Green Theme (from client) */
+  --color-primary-50: #e8f8f5;
+  --color-primary-100: #d1f2eb;
+  --color-primary-200: #a3e4d7;
+  --color-primary-300: #76d7c4;
+  --color-primary-400: #48c9b0;
+  --color-primary-500: #1e8449;
+  --color-primary-600: #196f3d;
+  --color-primary-700: #145a32;
+  --color-primary-800: #0e4429;
+  --color-primary-900: #092e1f;
 
-  /* ===== BarakahAid Color Palette ===== */
-
-  /* Primary - Sky Blue (#0ea5e9) */
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
-  --color-primary-950: #082f49;
-
-  /* Secondary - Slate (#64748b) */
   --color-secondary-50: #f8fafc;
   --color-secondary-100: #f1f5f9;
   --color-secondary-200: #e2e8f0;
@@ -34,9 +30,7 @@
   --color-secondary-700: #334155;
   --color-secondary-800: #1e293b;
   --color-secondary-900: #0f172a;
-  --color-secondary-950: #020617;
 
-  /* Success - Green (#22c55e) */
   --color-success-50: #f0fdf4;
   --color-success-100: #dcfce7;
   --color-success-200: #bbf7d0;
@@ -47,9 +41,7 @@
   --color-success-700: #15803d;
   --color-success-800: #166534;
   --color-success-900: #14532d;
-  --color-success-950: #052e16;
 
-  /* Warning - Yellow (#eab308) */
   --color-warning-50: #fefce8;
   --color-warning-100: #fef9c3;
   --color-warning-200: #fef08a;
@@ -60,9 +52,7 @@
   --color-warning-700: #a16207;
   --color-warning-800: #854d0e;
   --color-warning-900: #713f12;
-  --color-warning-950: #422006;
 
-  /* Danger - Red (#ef4444) */
   --color-danger-50: #fef2f2;
   --color-danger-100: #fee2e2;
   --color-danger-200: #fecaca;
@@ -73,37 +63,31 @@
   --color-danger-700: #b91c1c;
   --color-danger-800: #991b1b;
   --color-danger-900: #7f1d1d;
-  --color-danger-950: #450a0a;
 
-  /* Accent - Fuchsia (#d946ef) */
-  --color-accent-50: #fdf4ff;
-  --color-accent-100: #fae8ff;
-  --color-accent-200: #f5d0fe;
-  --color-accent-300: #f0abfc;
-  --color-accent-400: #e879f9;
-  --color-accent-500: #d946ef;
-  --color-accent-600: #c026d3;
-  --color-accent-700: #a21caf;
-  --color-accent-800: #86198f;
-  --color-accent-900: #701a75;
-  --color-accent-950: #4a044e;
+  --color-accent-50: #e8f8f5;
+  --color-accent-100: #d1f2eb;
+  --color-accent-200: #a3e4d7;
+  --color-accent-300: #76d7c4;
+  --color-accent-400: #48c9b0;
+  --color-accent-500: #27ae60;
+  --color-accent-600: #229954;
+  --color-accent-700: #1e8449;
+  --color-accent-800: #186a3b;
+  --color-accent-900: #145a32;
 
-  /* ===== Font Families ===== */
-  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-family-heading: 'Poppins', system-ui, sans-serif;
-  --font-family-display: 'Poppins', sans-serif;
-  --font-family-logo: 'Poppins', sans-serif;
+  /* Font Families */
+  --font-family-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-family-display: 'Tajawal', sans-serif;
+  --font-family-logo: 'Tajawal', sans-serif;
 
-  /* ===== Border Radius ===== */
+  /* Border Radius */
   --radius-card: 12px;
   --radius-button: 8px;
-  --radius-input: 8px;
 
-  /* ===== Shadows ===== */
+  /* Shadows */
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
   --shadow-modal: 0 10px 40px rgba(0, 0, 0, 0.2);
-  --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ===== Base Styles ===== */
@@ -117,69 +101,65 @@ html {
 
 /* Light Mode (Default) */
 body {
-  font-family: 'Inter', var(--font-family-sans);
+  font-family: 'Poppins', var(--font-family-display);
   color: var(--color-secondary-900);
-  background-color: #f8fafc;
+  background-color: white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
   font-weight: 400;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 
 
 /* ===== Typography ===== */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: 'Poppins', var(--font-family-heading);
-  font-weight: 600;
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Tajawal', var(--font-family-display);
+  font-weight: 700;
 }
 
-p,
-span,
-div {
-  font-family: 'Inter', var(--font-family-sans);
+
+p, span, div {
+  font-family: 'Poppins', var(--font-family-display);
 }
+
 
 button {
-  font-family: 'Inter', var(--font-family-sans);
+  font-family: 'Poppins', var(--font-family-display);
   font-weight: 500;
 }
 
-input,
-select,
-textarea {
-  font-family: 'Inter', var(--font-family-sans);
+
+input, select, textarea {
+  font-family: 'Poppins', var(--font-family-display);
   font-weight: 400;
 }
 
+
 a {
-  font-family: 'Inter', var(--font-family-sans);
+  font-family: 'Poppins', var(--font-family-display);
 }
 
+
 label {
-  font-family: 'Inter', var(--font-family-sans);
+  font-family: 'Poppins', var(--font-family-display);
   font-weight: 500;
 }
 
 /* Font utility classes */
 .font-heading {
-  font-family: 'Poppins', var(--font-family-heading);
-  font-weight: 600;
+  font-family: 'Tajawal', var(--font-family-display);
+  font-weight: 700;
 }
 
 .font-sans {
-  font-family: 'Inter', var(--font-family-sans);
+  font-family: 'Poppins', var(--font-family-sans);
 }
 
 .font-logo {
-  font-family: 'Poppins', var(--font-family-logo);
+  font-family: 'Tajawal', var(--font-family-logo);
   font-weight: 700;
 }
 
