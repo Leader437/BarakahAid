@@ -5,9 +5,11 @@
 @import "tailwindcss";
 
 /* Theme Configuration - Tailwind v4 CSS-based approach */
-@theme {
+/* @theme { Removed v4 syntax */
+:root {
+
   /* ===== BarakahAid Color Palette ===== */
-  
+
   /* Primary - Sky Blue (#0ea5e9) */
   --color-primary-50: #f0f9ff;
   --color-primary-100: #e0f2fe;
@@ -138,12 +140,19 @@ body.dark {
 }
 
 /* ===== Typography ===== */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Poppins', var(--font-family-heading);
   font-weight: 600;
 }
 
-p, span, div {
+p,
+span,
+div {
   font-family: 'Inter', var(--font-family-sans);
 }
 
@@ -152,7 +161,9 @@ button {
   font-weight: 500;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: 'Inter', var(--font-family-sans);
   font-weight: 400;
 }
@@ -266,40 +277,57 @@ label {
 
 /* ===== Animations ===== */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     transform: translateY(10px);
     opacity: 0;
   }
-  to { 
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes slideDown {
-  from { 
+  from {
     transform: translateY(-10px);
     opacity: 0;
   }
-  to { 
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Animation utility classes */
@@ -330,6 +358,8 @@ label {
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
+  /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -337,6 +367,8 @@ label {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
+  /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -344,6 +376,8 @@ label {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
+  /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

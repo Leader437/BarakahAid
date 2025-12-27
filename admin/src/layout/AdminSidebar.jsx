@@ -5,7 +5,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 // Navigation menu items with icons
 const menuItems = [
     {
-        path: '/admin/dashboard',
+        path: '/dashboard',
         label: 'Dashboard',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,7 +14,7 @@ const menuItems = [
         ),
     },
     {
-        path: '/admin/users',
+        path: '/users',
         label: 'Users',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@ const menuItems = [
         ),
     },
     {
-        path: '/admin/donations',
+        path: '/donations',
         label: 'Donations',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@ const menuItems = [
         ),
     },
     {
-        path: '/admin/requests',
+        path: '/requests',
         label: 'Requests',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@ const menuItems = [
         badge: 3, // Show pending count
     },
     {
-        path: '/admin/campaigns',
+        path: '/campaigns',
         label: 'Campaigns',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@ const menuItems = [
         ),
     },
     {
-        path: '/admin/reports',
+        path: '/reports',
         label: 'Reports',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ const menuItems = [
         ),
     },
     {
-        path: '/admin/settings',
+        path: '/settings',
         label: 'Settings',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,8 +145,8 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                             onClick={() => {
                                 localStorage.removeItem('token');
                                 localStorage.removeItem('user');
-                                const clientUrl = import.meta.env.VITE_CLIENT_URL || 'http://localhost:5173';
-                                window.location.href = `${clientUrl}/login`;
+                                // Redirect to local login
+                                window.location.href = '/login';
                             }}
                             className="flex items-center gap-3 w-full px-4 py-3 text-danger-600 hover:bg-danger-50 rounded-lg transition-colors"
                         >

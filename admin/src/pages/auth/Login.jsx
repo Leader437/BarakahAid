@@ -1,34 +1,53 @@
-// Admin Login Page
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Login Page
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAdminData } from '../../store/adminSlice';
 import { mockUsers } from '../../utils/dummyData';
 import { ROLES } from '../../utils/constants';
 
 // UI Components
-import Card from '../../components/ui/Card';
+import useForm from '../../hooks/useForm';
+import PrimaryButton from '../../components/ui/PrimaryButton';
+import SecondaryButton from '../../components/ui/SecondaryButton';
 import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import { validateEmail, validateRequired } from '../../utils/validation';
 
+// Assets
+// Using a placeholder for logo if not available, or standard text
 const Login = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [searchParams] = useSearchParams();
 
-    const [values, setValues] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
+    // Local Auth State (Replica of useAuth logic)
     const [loading, setLoading] = useState(false);
+    const [authError, setAuthError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setValues(prev => ({ ...prev, [name]: value }));
-        if (error) setError('');
+    // Handle OAuth callback (Mock)
+    useEffect(() => {
+        const token = searchParams.get('token');
+        if (token) {
+            localStorage.setItem('token', token);
+            navigate('/dashboard');
+        }
+    }, [searchParams, navigate]);
+
+    const validate = (values) => {
+        const errors = {};
+        const emailError = validateEmail(values.email);
+        if (emailError) errors.email = emailError;
+        const passwordError = validateRequired(values.password, 'Password');
+        if (passwordError) errors.password = passwordError;
+        return errors;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // Mock Login Function
+    const handleLogin = async (values) => {
         setLoading(true);
-        setError('');
+        setAuthError('');
 
         // Simulate network delay
         setTimeout(() => {
@@ -42,14 +61,12 @@ const Login = () => {
                     throw new Error('Invalid email or password');
                 }
 
-                // 2. Validate password (mock check - accept any password for demo if user is found)
-                // In a real app, you would hash and compare.
+                // 2. Validate password (mock check)
                 if (values.password.length < 6) {
                     throw new Error('Invalid email or password');
                 }
 
                 // 3. Generate Mock Token
-                // We fake a JWT structure so the decoder doesn't crash
                 const mockTokenHeader = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
                 const mockTokenPayload = btoa(JSON.stringify({
                     id: adminUser.id,
@@ -73,81 +90,117 @@ const Login = () => {
                 navigate('/dashboard');
 
             } catch (err) {
-                setError(err.message || 'Login failed');
+                setAuthError(err.message || 'Login failed');
             } finally {
                 setLoading(false);
             }
         }, 800);
     };
 
+    const { values, errors, handleChange, handleBlur, handleSubmit, isSubmitting } = useForm(
+        { email: '', password: '' },
+        handleLogin,
+        validate
+    );
+
     return (
-        <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-secondary-50 to-primary-50">
+        <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-primary-50 to-accent-50">
             <div className="w-full max-w-md">
-                {/* Logo & Title */}
+                {/* Logo */}
                 <div className="mb-8 text-center">
-                    <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-white rounded-xl shadow-sm border border-secondary-100">
-                        <span className="text-3xl">🛡️</span>
-                    </div>
-                    <h1 className="text-2xl font-bold text-secondary-900">Admin Portal</h1>
-                    <p className="mt-2 text-secondary-600">Secure access for platform administrators</p>
+                    <Link to="/" className="inline-flex items-center gap-2">
+                        <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm text-2xl">
+                            🎁
+                        </div>
+                        <span className="text-3xl font-bold font-logo text-primary-600">
+                            BarakahAid
+                        </span>
+                    </Link>
+                    <h1 className="mt-4 text-2xl font-bold text-secondary-900">Admin Portal</h1>
+                    <p className="mt-2 text-secondary-600">Sign in to manage the platform</p>
                 </div>
 
-                <Card padding="lg" className="shadow-xl border-t-4 border-t-primary-600">
-                    {error && (
-                        <div className="p-3 mb-6 text-sm bg-danger-50 border border-danger-200 text-danger-700 rounded-lg flex items-center gap-2">
-                            <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {error}
+                <Card padding="lg">
+                    {authError && (
+                        <div className="p-3 mb-4 text-sm border rounded-lg bg-danger-50 border-danger-200 text-danger-700">
+                            {authError}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <Input
                             label="Email Address"
                             type="email"
                             name="email"
                             value={values.email}
                             onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={errors.email}
                             placeholder="admin@barakahaid.com"
                             required
                         />
 
-                        <Input
-                            label="Password"
-                            type="password"
-                            name="password"
-                            value={values.password}
-                            onChange={handleChange}
-                            placeholder="••••••••"
-                            required
-                        />
+                        <div>
+                            <Input
+                                label="Password"
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
+                                value={values.password}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={errors.password}
+                                placeholder="Enter your password"
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="mt-1 text-sm text-primary-600 hover:text-primary-700"
+                            >
+                                {showPassword ? 'Hide' : 'Show'} password
+                            </button>
+                        </div>
 
-                        <Button
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" className="rounded border-secondary-300" />
+                                <span className="text-sm text-secondary-700">Remember me</span>
+                            </label>
+                            {/* Hidden for Admin or point to dummy */}
+                            <Link to="#" className="text-sm text-primary-600 hover:text-primary-700">
+                                Forgot password?
+                            </Link>
+                        </div>
+
+                        <PrimaryButton
                             type="submit"
-                            variant="primary"
                             fullWidth
-                            size="lg"
-                            loading={loading}
+                            disabled={isSubmitting || loading}
                         >
-                            {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
-                        </Button>
+                            {isSubmitting || loading ? 'Signing In...' : 'Sign In'}
+                        </PrimaryButton>
                     </form>
 
-                    <div className="mt-6 pt-6 border-t border-secondary-100">
-                        <div className="text-center text-xs text-secondary-500">
-                            <p className="mb-2 uppercase tracking-wider font-semibold">Demo Credentials</p>
-                            <code className="bg-secondary-100 px-2 py-1 rounded select-all cursor-pointer hover:bg-secondary-200 transition-colors">admin@barakahaid.com</code>
-                            <span className="mx-2 text-secondary-300">|</span>
-                            <code className="bg-secondary-100 px-2 py-1 rounded select-all cursor-pointer hover:bg-secondary-200 transition-colors">Admin123!</code>
+                    {/* Demo Login Options */}
+                    <div className="pt-6 mt-6 border-t border-secondary-200">
+                        <p className="mb-3 text-sm text-center text-secondary-600">Demo Login:</p>
+                        <div className="grid grid-cols-1 gap-2 text-xs">
+                            <SecondaryButton
+                                onClick={() => {
+                                    values.email = 'admin@barakahaid.com';
+                                    values.password = 'Admin123!';
+                                    handleLogin(values);
+                                }}
+                                className="!text-xs !py-2 justify-center"
+                            >
+                                Auto-Fill Admin Credentials
+                            </SecondaryButton>
                         </div>
                     </div>
                 </Card>
 
-                <p className="mt-6 text-center text-sm text-secondary-500">
-                    For authorized personnel only.
-                    <br />
-                    Unauthorized access is prohibited.
+                <p className="mt-6 text-center text-secondary-600">
+                    Restricted Access area.
                 </p>
             </div>
         </div>

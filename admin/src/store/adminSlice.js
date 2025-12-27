@@ -1,6 +1,6 @@
 // Admin Slice - Admin info from JWT (no login logic)
 import { createSlice } from '@reduxjs/toolkit';
-import { mockAnalytics } from '../../../client/src/utils/dummyData';
+import { mockAnalytics } from '../utils/dummyData';
 
 /**
  * Admin slice stores only admin info (id, email, role) extracted from existing JWT

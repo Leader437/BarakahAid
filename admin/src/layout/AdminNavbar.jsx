@@ -38,8 +38,7 @@ const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    const clientUrl = import.meta.env.VITE_CLIENT_URL || 'http://localhost:5173';
-    window.location.href = `${clientUrl}/login`;
+    window.location.href = '/login';
   };
 
   return (

@@ -50,7 +50,7 @@ const DashboardPage = () => {
     const metrics = [
         {
             label: 'Total Users',
-            value: dashboardStats.totalUsers.toLocaleString(),
+            value: dashboardStats?.totalUsers?.toLocaleString() || '0',
             change: '+12%',
             changeType: 'positive',
             icon: (
@@ -62,7 +62,7 @@ const DashboardPage = () => {
         },
         {
             label: 'Total Donations',
-            value: `$${dashboardStats.totalDonations.toLocaleString()}`,
+            value: `$${dashboardStats?.totalDonations?.toLocaleString() || '0'}`,
             change: '+8%',
             changeType: 'positive',
             icon: (
@@ -159,8 +159,8 @@ const DashboardPage = () => {
                                 <p className="text-sm font-medium text-secondary-500">{metric.label}</p>
                                 <p className="text-2xl font-bold text-secondary-900 mt-1">{metric.value}</p>
                                 <p className={`text-sm mt-1 ${metric.changeType === 'positive' ? 'text-success-600' :
-                                        metric.changeType === 'warning' ? 'text-warning-600' :
-                                            'text-danger-600'
+                                    metric.changeType === 'warning' ? 'text-warning-600' :
+                                        'text-danger-600'
                                     }`}>
                                     {metric.change}
                                 </p>
