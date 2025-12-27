@@ -1,13 +1,13 @@
-// Reusable Button Component
+// Button Component - Flexible button with variants
 import React from 'react';
 
 /**
- * Button component with various styles and sizes
- * @param {string} variant - primary, secondary, success, danger, outline, ghost
- * @param {string} size - sm, md, lg
- * @param {boolean} fullWidth - Make button full width
- * @param {boolean} disabled - Disable button
- * @param {boolean} loading - Show loading state
+ * Button - Flexible button component
+ * @param {string} variant - Visual variant: 'primary', 'secondary', 'success', 'danger', 'warning', 'outline', 'ghost'
+ * @param {string} size - Size variant: 'sm', 'md', 'lg'
+ * @param {boolean} fullWidth - Full width button
+ * @param {boolean} disabled - Disabled state
+ * @param {boolean} loading - Loading state
  */
 const Button = ({
   children,
@@ -18,42 +18,55 @@ const Button = ({
   loading = false,
   className = '',
   type = 'button',
-  onClick,
   ...props
 }) => {
-  const baseStyles = 'font-medium rounded-button transition-all duration-300 inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
-  const variantStyles = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow-md',
-    secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 shadow-sm hover:shadow-md',
-    success: 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-sm hover:shadow-md',
-    danger: 'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500 shadow-sm hover:shadow-md',
-    warning: 'bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 shadow-sm hover:shadow-md',
-    outline: 'bg-white text-primary-600 border-2 border-primary-600 hover:bg-primary-50 focus:ring-primary-500',
-    outlineSecondary: 'bg-white text-secondary-600 border-2 border-secondary-300 hover:bg-secondary-50 focus:ring-secondary-500',
-    ghost: 'bg-transparent text-primary-600 hover:bg-primary-50 focus:ring-primary-500',
+  // Base classes
+  const baseClasses = `
+    inline-flex items-center justify-center gap-2 font-medium rounded-lg
+    transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+    disabled:opacity-50 disabled:cursor-not-allowed
+  `;
+
+  // Variant classes
+  const variantClasses = {
+    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm',
+    secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 shadow-sm',
+    success: 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-sm',
+    danger: 'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500 shadow-sm',
+    warning: 'bg-warning-500 text-white hover:bg-warning-600 focus:ring-warning-500 shadow-sm',
+    outline: 'border-2 border-secondary-300 text-secondary-700 hover:bg-secondary-50 focus:ring-secondary-500',
+    ghost: 'text-secondary-600 hover:bg-secondary-100 hover:text-secondary-900 focus:ring-secondary-500',
+    info: 'bg-primary-100 text-primary-700 hover:bg-primary-200 focus:ring-primary-500',
   };
-  
-  const sizeStyles = {
+
+  // Size classes
+  const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base',
   };
-  
-  const widthStyle = fullWidth ? 'w-full' : '';
-  
+
   return (
     <button
       type={type}
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${widthStyle} ${className}`}
       disabled={disabled || loading}
-      onClick={onClick}
+      className={`
+        ${baseClasses}
+        ${variantClasses[variant] || variantClasses.primary}
+        ${sizeClasses[size] || sizeClasses.md}
+        ${fullWidth ? 'w-full' : ''}
+        ${className}
+      `}
       {...props}
     >
       {loading && (
-        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
         </svg>
       )}
       {children}

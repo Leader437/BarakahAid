@@ -117,7 +117,7 @@ export class AuthController {
 
   /**
    * Google OAuth - Callback endpoint
-   */
+    */
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthCallback(

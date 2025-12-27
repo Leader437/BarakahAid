@@ -1,7 +1,9 @@
 // Main App Component with Routing
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+
+
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -184,8 +186,7 @@ function App() {
         return '/recipient/dashboard';
       case 'ngo':
         return '/ngo/dashboard';
-      case 'admin':
-        return '/admin/dashboard';
+
       default:
         return '/donor/dashboard';
     }
@@ -199,6 +200,7 @@ function App() {
         <Routes>
           <Route path="/login" element={null} />
           <Route path="/register" element={null} />
+
           <Route path="*" element={<Navbar />} />
         </Routes>
 
@@ -283,17 +285,7 @@ function App() {
             <Route path="profile" element={<OrganizationProfile />} />
           </Route>
 
-          {/* Admin Routes - Placeholder */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <div className="p-8 text-center">
-                  <h2 className="text-2xl font-bold">Admin Dashboard - Coming Soon</h2>
-                </div>
-              </ProtectedRoute>
-            }
-          />
+
 
           {/* 404 */}
           <Route path="*" element={
@@ -315,7 +307,7 @@ function App() {
           <Route path="/volunteer/*" element={null} />
           <Route path="/ngo/*" element={null} />
           <Route path="/recipient/*" element={null} />
-          <Route path="/admin/*" element={null} />
+
           <Route path="*" element={<Footer />} />
         </Routes>
       </div>

@@ -1,12 +1,14 @@
-/* Google Fonts Import - Must be first */
+/* Google Fonts Import - Inter (body) and Poppins (headings) */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
-/* Tailwind CSS v4 */
+/* Tailwind CSS v4 - Base, Components, Utilities */
 @import "tailwindcss";
 
 /* Theme Configuration - Tailwind v4 CSS-based approach */
-@theme {
-  /* Color Palette - Main Green Theme */
+/* @theme { Removed v4 syntax */
+
+:root {
+  /* Color Palette - Main Green Theme (from client) */
   --color-primary-50: #e8f8f5;
   --color-primary-100: #d1f2eb;
   --color-primary-200: #a3e4d7;
@@ -88,7 +90,7 @@
   --shadow-modal: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-/* Custom Global Styles */
+/* ===== Base Styles ===== */
 * {
   border-color: var(--color-secondary-200);
 }
@@ -97,6 +99,7 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Light Mode (Default) */
 body {
   font-family: 'Poppins', var(--font-family-display);
   color: var(--color-secondary-900);
@@ -108,34 +111,44 @@ body {
   font-weight: 400;
 }
 
+
+
+/* ===== Typography ===== */
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Tajawal', var(--font-family-display);
   font-weight: 700;
 }
 
+
 p, span, div {
   font-family: 'Poppins', var(--font-family-display);
 }
+
 
 button {
   font-family: 'Poppins', var(--font-family-display);
   font-weight: 500;
 }
 
+
 input, select, textarea {
   font-family: 'Poppins', var(--font-family-display);
   font-weight: 400;
 }
 
+
 a {
   font-family: 'Poppins', var(--font-family-display);
 }
+
 
 label {
   font-family: 'Poppins', var(--font-family-display);
   font-weight: 500;
 }
 
+/* Font utility classes */
 .font-heading {
   font-family: 'Tajawal', var(--font-family-display);
   font-weight: 700;
@@ -150,7 +163,7 @@ label {
   font-weight: 700;
 }
 
-/* Scrollbar Styling */
+/* ===== Scrollbar Styling ===== */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -160,14 +173,20 @@ label {
   background: var(--color-secondary-100);
 }
 
+
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-secondary-300);
   border-radius: 4px;
 }
 
+
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-secondary-400);
 }
+
+
 
 /* Selection */
 ::selection {
@@ -175,40 +194,66 @@ label {
   color: var(--color-primary-900);
 }
 
-/* Animations */
+
+
+
+
+/* ===== Animations ===== */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     transform: translateY(10px);
     opacity: 0;
   }
-  to { 
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes slideDown {
-  from { 
+  from {
     transform: translateY(-10px);
     opacity: 0;
   }
-  to { 
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
 }
 
-/* Utility Classes */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animation utility classes */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -227,9 +272,14 @@ label {
   background-size: 1000px 100%;
 }
 
+
+
+/* ===== Utility Classes ===== */
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
+  /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -237,6 +287,8 @@ label {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
+  /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -244,6 +296,8 @@ label {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
+  /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -260,6 +314,10 @@ label {
   box-shadow: var(--shadow-modal);
 }
 
+.shadow-dropdown {
+  box-shadow: var(--shadow-dropdown);
+}
+
 .rounded-card {
   border-radius: var(--radius-card);
 }
@@ -268,10 +326,14 @@ label {
   border-radius: var(--radius-button);
 }
 
-/* Primary Animated Button */
+.rounded-input {
+  border-radius: var(--radius-input);
+}
+
+/* ===== Primary Animated Button ===== */
 .primary-animated-button {
-  --button-color: #1e8449;
-  --button-hover-color: #145a32;
+  --button-color: #0ea5e9;
+  --button-hover-color: #0284c7;
   position: relative;
   font-size: 16px;
   text-transform: uppercase;
@@ -293,13 +355,13 @@ label {
 
 .primary-animated-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(30, 132, 73, 0.3);
+  box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
   background-color: var(--button-hover-color);
 }
 
 .primary-animated-button:active {
   transform: translateY(-1px);
-  box-shadow: 0 5px 10px rgba(30, 132, 73, 0.3);
+  box-shadow: 0 5px 10px rgba(14, 165, 233, 0.3);
 }
 
 .primary-animated-button:disabled {
@@ -315,10 +377,10 @@ label {
   background-color: var(--button-color);
 }
 
-/* Secondary Animated Button */
+/* ===== Secondary Animated Button ===== */
 .secondary-animated-button {
-  --button-color: #1e8449;
-  --button-hover-color: #145a32;
+  --button-color: #0ea5e9;
+  --button-hover-color: #0284c7;
   font-family: inherit;
   display: inline-flex;
   align-items: center;
@@ -382,7 +444,9 @@ label {
   left: 100%;
 }
 
-/* Print Styles */
+
+
+/* ===== Print Styles ===== */
 @media print {
   .no-print {
     display: none !important;
