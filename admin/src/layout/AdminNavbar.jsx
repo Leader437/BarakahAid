@@ -65,12 +65,12 @@ const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
 
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-lg font-logo">B</span>
+            <div className="w-9 h-9 bg-primary-100 rounded-lg flex items-center justify-center shadow-md">
+              <span className="text-primary-700 font-bold text-lg font-logo">B</span>
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold text-secondary-900 font-heading">BarakahAid</h1>
-              <p className="text-xs text-secondary-500 -mt-1">Admin Panel</p>
+              <p className="text-xs text-secondary-700 -mt-1">Admin Panel</p>
             </div>
           </div>
         </div>
@@ -116,12 +116,12 @@ const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="flex items-center gap-2 p-1.5 hover:bg-secondary-100 rounded-lg transition-colors"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">{getInitials(adminUser.name)}</span>
+              <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                <span className="text-primary-700 font-semibold text-sm">{getInitials(adminUser.name)}</span>
               </div>
               <div className="hidden lg:block text-left">
                 <p className="text-sm font-medium text-secondary-900">{adminUser.name}</p>
-                <p className="text-xs text-secondary-500">Administrator</p>
+                <p className="text-xs text-secondary-700">Administrator</p>
               </div>
               <svg className="w-4 h-4 text-secondary-400 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -138,7 +138,7 @@ const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
                 <div className="absolute right-0 z-20 w-56 mt-2 bg-white border border-secondary-200 rounded-lg shadow-dropdown animate-fade-in">
                   <div className="p-3 border-b border-secondary-200">
                     <p className="font-medium text-secondary-900">{adminUser.name}</p>
-                    <p className="text-sm text-secondary-500">{adminUser.email}</p>
+                    <p className="text-sm text-secondary-700">{adminUser.email}</p>
                   </div>
                   <div className="py-1">
                     <a href="/settings" className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors">

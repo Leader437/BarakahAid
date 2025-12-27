@@ -128,16 +128,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark Mode */
-.dark body,
-body.dark {
-  background-color: var(--color-secondary-900);
-  color: var(--color-secondary-100);
-}
 
-.dark {
-  color-scheme: dark;
-}
 
 /* ===== Typography ===== */
 h1,
@@ -202,26 +193,20 @@ label {
   background: var(--color-secondary-100);
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: var(--color-secondary-800);
-}
+
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-secondary-300);
   border-radius: 4px;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: var(--color-secondary-600);
-}
+
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-secondary-400);
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-secondary-500);
-}
+
 
 /* Selection */
 ::selection {
@@ -229,51 +214,9 @@ label {
   color: var(--color-primary-900);
 }
 
-.dark ::selection {
-  background-color: var(--color-primary-700);
-  color: var(--color-primary-100);
-}
 
-/* ===== Dark Mode Component Overrides ===== */
-.dark .bg-white {
-  background-color: var(--color-secondary-800);
-}
 
-.dark .border-secondary-200 {
-  border-color: var(--color-secondary-700);
-}
 
-.dark .text-secondary-900 {
-  color: var(--color-secondary-100);
-}
-
-.dark .text-secondary-700 {
-  color: var(--color-secondary-300);
-}
-
-.dark .text-secondary-600 {
-  color: var(--color-secondary-400);
-}
-
-.dark .text-secondary-500 {
-  color: var(--color-secondary-400);
-}
-
-.dark .bg-secondary-50 {
-  background-color: var(--color-secondary-800);
-}
-
-.dark .bg-secondary-100 {
-  background-color: var(--color-secondary-700);
-}
-
-.dark .hover\:bg-secondary-50:hover {
-  background-color: var(--color-secondary-700);
-}
-
-.dark .hover\:bg-secondary-100:hover {
-  background-color: var(--color-secondary-600);
-}
 
 /* ===== Animations ===== */
 @keyframes fadeIn {
@@ -349,10 +292,7 @@ label {
   background-size: 1000px 100%;
 }
 
-.dark .animate-shimmer {
-  background: linear-gradient(to right, var(--color-secondary-800) 4%, var(--color-secondary-700) 25%, var(--color-secondary-800) 36%);
-  background-size: 1000px 100%;
-}
+
 
 /* ===== Utility Classes ===== */
 .line-clamp-1 {
@@ -524,54 +464,7 @@ label {
   left: 100%;
 }
 
-/* ===== Dark Mode Toggle Button ===== */
-.dark-mode-toggle {
-  position: relative;
-  width: 56px;
-  height: 28px;
-  background: var(--color-secondary-200);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  border: none;
-  padding: 0;
-}
 
-.dark .dark-mode-toggle {
-  background: var(--color-secondary-700);
-}
-
-.dark-mode-toggle::before {
-  content: '☀️';
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  transition: opacity 0.3s;
-}
-
-.dark .dark-mode-toggle::before {
-  opacity: 0.5;
-}
-
-.dark-mode-toggle::after {
-  content: '';
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  background: white;
-  border-radius: 50%;
-  top: 3px;
-  left: 3px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.dark .dark-mode-toggle::after {
-  transform: translateX(28px);
-  background: var(--color-secondary-900);
-}
 
 /* ===== Print Styles ===== */
 @media print {

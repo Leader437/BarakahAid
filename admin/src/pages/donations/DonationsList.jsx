@@ -91,7 +91,7 @@ const DonationsList = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-secondary-900 font-heading">Donations</h1>
-                    <p className="text-secondary-500 mt-1">
+                    <p className="text-secondary-700 mt-1">
                         Track and manage all platform donations ({totalItems} total)
                     </p>
                 </div>
@@ -105,28 +105,28 @@ const DonationsList = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-br from-primary-500 to-primary-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-primary-100 text-sm">Total Amount</p>
-                        <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
+                        <p className="text-secondary-700 text-sm">Total Amount</p>
+                        <p className="text-2xl font-bold text-secondary-900">{formatCurrency(stats.totalAmount)}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-success-500 to-success-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-success-100 text-sm">Completed</p>
-                        <p className="text-2xl font-bold">{stats.completed}</p>
+                        <p className="text-secondary-700 text-sm">Completed</p>
+                        <p className="text-2xl font-bold text-secondary-900">{stats.completed}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-warning-500 to-warning-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-warning-100 text-sm">Pending</p>
-                        <p className="text-2xl font-bold">{stats.pending}</p>
+                        <p className="text-secondary-700 text-sm">Pending</p>
+                        <p className="text-2xl font-bold text-secondary-900">{stats.pending}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-secondary-500 to-secondary-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-secondary-100 text-sm">Total Donations</p>
-                        <p className="text-2xl font-bold">{stats.total}</p>
+                        <p className="text-secondary-700 text-sm">Total Donations</p>
+                        <p className="text-2xl font-bold text-secondary-900">{stats.total}</p>
                     </div>
                 </Card>
             </div>
@@ -138,7 +138,7 @@ const DonationsList = () => {
                     <div className="flex-1">
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg className="w-5 h-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
@@ -201,7 +201,7 @@ const DonationsList = () => {
                         <tbody className="divide-y divide-secondary-200">
                             {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-secondary-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-secondary-700">
                                         No donations found matching your criteria.
                                     </td>
                                 </tr>
@@ -211,8 +211,8 @@ const DonationsList = () => {
                                         {/* Donor */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-success-400 to-success-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-white font-semibold text-sm">
+                                                <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-success-700 font-semibold text-sm">
                                                         {donation.donor?.name
                                                             ? donation.donor.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
                                                             : 'AN'}
@@ -222,7 +222,7 @@ const DonationsList = () => {
                                                     <p className="font-medium text-secondary-900">
                                                         {donation.donor?.name || 'Anonymous'}
                                                     </p>
-                                                    <p className="text-xs text-secondary-500">
+                                                    <p className="text-xs text-secondary-600">
                                                         {donation.donor?.email || 'No email'}
                                                     </p>
                                                 </div>
@@ -234,7 +234,7 @@ const DonationsList = () => {
                                             <p className="text-secondary-900 font-medium line-clamp-1">
                                                 {donation.campaign?.title || 'General Donation'}
                                             </p>
-                                            <p className="text-xs text-secondary-500">{donation.paymentGateway}</p>
+                                            <p className="text-xs text-secondary-600">{donation.paymentGateway}</p>
                                         </td>
 
                                         {/* Amount */}
@@ -243,12 +243,12 @@ const DonationsList = () => {
                                         </td>
 
                                         {/* Date */}
-                                        <td className="px-6 py-4 text-secondary-600">
+                                        <td className="px-6 py-4 text-secondary-800">
                                             {formatDateTime(donation.createdAt)}
                                         </td>
 
                                         {/* Status */}
-                                        <td className="px-6 py-4">
+                                        < td className="px-6 py-4" >
                                             <Badge variant={getStatusVariant(donation.status)} size="sm">
                                                 {donation.status}
                                             </Badge>
@@ -276,40 +276,42 @@ const DonationsList = () => {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-6 py-4 border-t border-secondary-200">
-                        <p className="text-sm text-secondary-500">
-                            Showing {startIndex} to {endIndex} of {totalItems} donations
-                        </p>
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={prevPage} disabled={!hasPrevPage}>
-                                Previous
-                            </Button>
-                            <div className="flex items-center gap-1">
-                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                    const pageNum = i + 1;
-                                    return (
-                                        <button
-                                            key={pageNum}
-                                            onClick={() => goToPage(pageNum)}
-                                            className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
+                {
+                    totalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 border-t border-secondary-200">
+                            <p className="text-sm text-secondary-700">
+                                Showing {startIndex} to {endIndex} of {totalItems} donations
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="sm" onClick={prevPage} disabled={!hasPrevPage}>
+                                    Previous
+                                </Button>
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        const pageNum = i + 1;
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => goToPage(pageNum)}
+                                                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
                                                     ? 'bg-primary-600 text-white'
-                                                    : 'text-secondary-600 hover:bg-secondary-100'
-                                                }`}
-                                        >
-                                            {pageNum}
-                                        </button>
-                                    );
-                                })}
+                                                    : 'text-secondary-700 hover:bg-secondary-100'
+                                                    }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <Button variant="outline" size="sm" onClick={nextPage} disabled={!hasNextPage}>
+                                    Next
+                                </Button>
                             </div>
-                            <Button variant="outline" size="sm" onClick={nextPage} disabled={!hasNextPage}>
-                                Next
-                            </Button>
                         </div>
-                    </div>
-                )}
-            </Card>
-        </div>
+                    )
+                }
+            </Card >
+        </div >
     );
 };
 

@@ -110,7 +110,7 @@ const RequestsList = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-secondary-900 font-heading">Donation Requests</h1>
-                    <p className="text-secondary-500 mt-1">
+                    <p className="text-secondary-700 mt-1">
                         Review and manage requests from NGOs and recipients ({totalItems} total)
                     </p>
                 </div>
@@ -120,7 +120,7 @@ const RequestsList = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <div className="text-center">
-                        <p className="text-sm text-secondary-500">Total Requests</p>
+                        <p className="text-sm text-secondary-700">Total Requests</p>
                         <p className="text-2xl font-bold text-secondary-900">{requests.length}</p>
                     </div>
                 </Card>
@@ -157,7 +157,7 @@ const RequestsList = () => {
                     <div className="flex-1">
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg className="w-5 h-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
@@ -230,7 +230,7 @@ const RequestsList = () => {
                         <tbody className="divide-y divide-secondary-200">
                             {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-secondary-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-secondary-700">
                                         No requests found matching your criteria.
                                     </td>
                                 </tr>
@@ -245,7 +245,7 @@ const RequestsList = () => {
                                                     <Badge variant={getUrgencyVariant(request.urgency)} size="sm">
                                                         {request.urgency}
                                                     </Badge>
-                                                    <span className="text-xs text-secondary-500">
+                                                    <span className="text-xs text-secondary-600">
                                                         {formatDate(request.createdAt)}
                                                     </span>
                                                 </div>
@@ -255,8 +255,8 @@ const RequestsList = () => {
                                         {/* Requester */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-white font-semibold text-xs">
+                                                <div className="w-8 h-8 bg-accent-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-accent-700 font-semibold text-xs">
                                                         {request.createdBy?.name?.substring(0, 2).toUpperCase() || 'NA'}
                                                     </span>
                                                 </div>
@@ -265,7 +265,7 @@ const RequestsList = () => {
                                         </td>
 
                                         {/* Category */}
-                                        <td className="px-6 py-4 text-secondary-600">{request.category}</td>
+                                        <td className="px-6 py-4 text-secondary-700">{request.category}</td>
 
                                         {/* Progress */}
                                         <td className="px-6 py-4">
@@ -274,7 +274,7 @@ const RequestsList = () => {
                                                     <span className="text-secondary-600">
                                                         {formatCurrency(request.currentAmount || 0)}
                                                     </span>
-                                                    <span className="text-secondary-500">
+                                                    <span className="text-secondary-600">
                                                         {formatCurrency(request.targetAmount)}
                                                     </span>
                                                 </div>
@@ -330,7 +330,7 @@ const RequestsList = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="flex items-center justify-between px-6 py-4 border-t border-secondary-200">
-                        <p className="text-sm text-secondary-500">
+                        <p className="text-sm text-secondary-700">
                             Showing {startIndex} to {endIndex} of {totalItems} requests
                         </p>
                         <div className="flex items-center gap-2">

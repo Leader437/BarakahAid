@@ -194,7 +194,7 @@ const ReportsPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-secondary-900 font-heading">Reports & Analytics</h1>
-                    <p className="text-secondary-500 mt-1">
+                    <p className="text-secondary-700 mt-1">
                         Generate and export platform analytics reports
                     </p>
                 </div>
@@ -223,34 +223,34 @@ const ReportsPage = () => {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <Card className="bg-gradient-to-br from-primary-500 to-primary-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-primary-100 text-sm">Total Donations</p>
-                        <p className="text-2xl font-bold">{formatCurrency(dashboardStats.totalDonations)}</p>
+                        <p className="text-secondary-700 text-sm">Total Donations</p>
+                        <p className="text-2xl font-bold text-secondary-900">{formatCurrency(dashboardStats.totalDonations)}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-success-500 to-success-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-success-100 text-sm">Active Users</p>
-                        <p className="text-2xl font-bold">{activeUsers}</p>
+                        <p className="text-secondary-700 text-sm">Active Users</p>
+                        <p className="text-2xl font-bold text-secondary-900">{activeUsers}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-accent-500 to-accent-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-accent-100 text-sm">Verified NGOs</p>
-                        <p className="text-2xl font-bold">{verifiedNGOs}</p>
+                        <p className="text-secondary-700 text-sm">Verified NGOs</p>
+                        <p className="text-2xl font-bold text-secondary-900">{verifiedNGOs}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-warning-500 to-warning-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-warning-100 text-sm">Active Campaigns</p>
-                        <p className="text-2xl font-bold">{activeCampaigns}</p>
+                        <p className="text-secondary-700 text-sm">Active Campaigns</p>
+                        <p className="text-2xl font-bold text-secondary-900">{activeCampaigns}</p>
                     </div>
                 </Card>
-                <Card className="bg-gradient-to-br from-secondary-500 to-secondary-600 text-white">
+                <Card>
                     <div className="text-center">
-                        <p className="text-secondary-100 text-sm">Pending Requests</p>
-                        <p className="text-2xl font-bold">{dashboardStats.pendingRequests}</p>
+                        <p className="text-secondary-700 text-sm">Pending Requests</p>
+                        <p className="text-2xl font-bold text-secondary-900">{dashboardStats.pendingRequests}</p>
                     </div>
                 </Card>
             </div>
@@ -260,7 +260,7 @@ const ReportsPage = () => {
                 <div className="flex flex-col lg:flex-row gap-4">
                     {/* Report Type */}
                     <div className="flex-1">
-                        <label className="block text-sm font-medium text-secondary-700 mb-2">Report Type</label>
+                        <label className="block text-sm font-medium text-secondary-900 mb-2">Report Type</label>
                         <select
                             value={reportType}
                             onChange={(e) => setReportType(e.target.value)}
@@ -275,7 +275,7 @@ const ReportsPage = () => {
 
                     {/* Date Range */}
                     <div className="flex-1">
-                        <label className="block text-sm font-medium text-secondary-700 mb-2">Date Range</label>
+                        <label className="block text-sm font-medium text-secondary-900 mb-2">Date Range</label>
                         <select
                             value={dateRange}
                             onChange={(e) => setDateRange(e.target.value)}
@@ -291,7 +291,7 @@ const ReportsPage = () => {
 
                     {/* Category */}
                     <div className="flex-1">
-                        <label className="block text-sm font-medium text-secondary-700 mb-2">Category</label>
+                        <label className="block text-sm font-medium text-secondary-900 mb-2">Category</label>
                         <select
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
@@ -320,9 +320,9 @@ const ReportsPage = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={monthlyDonations}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#334155' }} />
                                     <YAxis
-                                        tick={{ fontSize: 12, fill: '#64748b' }}
+                                        tick={{ fontSize: 12, fill: '#334155' }}
                                         tickFormatter={(value) => `$${value / 1000}k`}
                                     />
                                     <Tooltip
@@ -422,9 +422,9 @@ const ReportsPage = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={monthlyDonations}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#334155' }} />
                                     <YAxis
-                                        tick={{ fontSize: 12, fill: '#64748b' }}
+                                        tick={{ fontSize: 12, fill: '#334155' }}
                                         tickFormatter={(value) => `$${value / 1000}k`}
                                     />
                                     <Tooltip

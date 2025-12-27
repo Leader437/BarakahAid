@@ -32,7 +32,7 @@ const COLORS = {
     warning: '#eab308',
     danger: '#ef4444',
     accent: '#d946ef',
-    secondary: '#64748b',
+    secondary: '#334155',
 };
 
 const ROLE_COLORS = ['#0ea5e9', '#22c55e', '#eab308', '#d946ef'];
@@ -147,7 +147,7 @@ const DashboardPage = () => {
             {/* Page Header */}
             <div>
                 <h1 className="text-2xl font-bold text-secondary-900 font-heading">Dashboard</h1>
-                <p className="text-secondary-500 mt-1">Welcome back! Here's your platform overview.</p>
+                <p className="text-secondary-700 mt-1">Welcome back! Here's your platform overview.</p>
             </div>
 
             {/* Metrics Grid - 2x2 on desktop, stacked on mobile */}
@@ -156,7 +156,7 @@ const DashboardPage = () => {
                     <Card key={index} className="relative overflow-hidden">
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-secondary-500">{metric.label}</p>
+                                <p className="text-sm font-medium text-secondary-700">{metric.label}</p>
                                 <p className="text-2xl font-bold text-secondary-900 mt-1">{metric.value}</p>
                                 <p className={`text-sm mt-1 ${metric.changeType === 'positive' ? 'text-success-600' :
                                     metric.changeType === 'warning' ? 'text-warning-600' :
@@ -182,7 +182,7 @@ const DashboardPage = () => {
                     <Card.Header>
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-secondary-900">Donation Trends</h2>
-                            <span className="text-sm text-secondary-500">Last 12 months</span>
+                            <span className="text-sm text-secondary-700">Last 12 months</span>
                         </div>
                     </Card.Header>
                     <Card.Body>
@@ -198,11 +198,11 @@ const DashboardPage = () => {
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                                     <XAxis
                                         dataKey="month"
-                                        tick={{ fontSize: 12, fill: '#64748b' }}
+                                        tick={{ fontSize: 12, fill: '#334155' }}
                                         axisLine={{ stroke: '#e2e8f0' }}
                                     />
                                     <YAxis
-                                        tick={{ fontSize: 12, fill: '#64748b' }}
+                                        tick={{ fontSize: 12, fill: '#334155' }}
                                         axisLine={{ stroke: '#e2e8f0' }}
                                         tickFormatter={(value) => `$${value / 1000}k`}
                                     />
@@ -234,7 +234,7 @@ const DashboardPage = () => {
                     <Card.Header>
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-secondary-900">Monthly Comparison</h2>
-                            <span className="text-sm text-secondary-500">This year</span>
+                            <span className="text-sm text-secondary-700">This year</span>
                         </div>
                     </Card.Header>
                     <Card.Body>
@@ -345,7 +345,7 @@ const DashboardPage = () => {
                                         <p className="text-sm font-medium text-secondary-900">
                                             {activity.description}
                                         </p>
-                                        <p className="text-xs text-secondary-500">{activity.time}</p>
+                                        <p className="text-xs text-secondary-700">{activity.time}</p>
                                     </div>
                                 </div>
                             ))}
@@ -359,7 +359,7 @@ const DashboardPage = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-secondary-900">Anonymous donated $100</p>
-                                    <p className="text-xs text-secondary-500">2 days ago</p>
+                                    <p className="text-xs text-secondary-700">2 days ago</p>
                                 </div>
                             </div>
 
@@ -371,7 +371,7 @@ const DashboardPage = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-secondary-900">New request needs approval</p>
-                                    <p className="text-xs text-secondary-500">3 days ago</p>
+                                    <p className="text-xs text-secondary-700">3 days ago</p>
                                 </div>
                             </div>
                         </div>

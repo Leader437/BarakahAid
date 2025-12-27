@@ -106,7 +106,7 @@ const RequestDetails = () => {
                     </svg>
                     Requests
                 </Link>
-                <span className="text-secondary-400">/</span>
+                <span className="text-secondary-500">/</span>
                 <span className="text-secondary-600 line-clamp-1">{request.title}</span>
             </div>
 
@@ -118,7 +118,7 @@ const RequestDetails = () => {
                         <Badge variant={getStatusVariant(request.status)} size="lg">{request.status}</Badge>
                         <Badge variant={getUrgencyVariant(request.urgency)}>{request.urgency} Priority</Badge>
                     </div>
-                    <p className="text-secondary-500 mt-1">
+                    <p className="text-secondary-700 mt-1">
                         Submitted on {formatDate(request.createdAt)} • {request.location}
                     </p>
                 </div>
@@ -174,19 +174,19 @@ const RequestDetails = () => {
 
                             <div className="mt-6 grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-secondary-500">Category</p>
+                                    <p className="text-sm text-secondary-700">Category</p>
                                     <p className="font-medium text-secondary-900">{request.category}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-secondary-500">Beneficiaries</p>
+                                    <p className="text-sm text-secondary-700">Beneficiaries</p>
                                     <p className="font-medium text-secondary-900">{request.beneficiaryCount || 0} people</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-secondary-500">Deadline</p>
+                                    <p className="text-sm text-secondary-700">Deadline</p>
                                     <p className="font-medium text-secondary-900">{formatDate(request.deadline)}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-secondary-500">Location</p>
+                                    <p className="text-sm text-secondary-700">Location</p>
                                     <p className="font-medium text-secondary-900">{request.location}</p>
                                 </div>
                             </div>
@@ -211,7 +211,7 @@ const RequestDetails = () => {
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-secondary-500 mt-3 text-center">
+                            <p className="text-sm text-secondary-700 mt-3 text-center">
                                 Images submitted by requester for verification
                             </p>
                         </Card.Body>
@@ -233,7 +233,7 @@ const RequestDetails = () => {
                                         </div>
                                         <div>
                                             <p className="font-medium text-secondary-900">{item.action}</p>
-                                            <p className="text-sm text-secondary-500">
+                                            <p className="text-sm text-secondary-700">
                                                 By {item.user} • {formatDateTime(item.date)}
                                             </p>
                                         </div>
@@ -256,7 +256,7 @@ const RequestDetails = () => {
                                 <p className="text-3xl font-bold text-primary-600">
                                     {formatCurrency(request.currentAmount || 0)}
                                 </p>
-                                <p className="text-secondary-500">
+                                <p className="text-secondary-700">
                                     raised of {formatCurrency(request.targetAmount)} goal
                                 </p>
                             </div>
@@ -278,8 +278,8 @@ const RequestDetails = () => {
                         </Card.Header>
                         <Card.Body>
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="w-14 h-14 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center">
-                                    <span className="text-white font-bold text-lg">
+                                <div className="w-14 h-14 bg-accent-100 rounded-xl flex items-center justify-center">
+                                    <span className="text-accent-700 font-bold text-lg">
                                         {request.createdBy?.name?.substring(0, 2).toUpperCase() || 'NA'}
                                     </span>
                                 </div>

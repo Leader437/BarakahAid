@@ -147,7 +147,7 @@ const DonationDetails = () => {
                     </svg>
                     Donations
                 </Link>
-                <span className="text-secondary-400">/</span>
+                <span className="text-secondary-500">/</span>
                 <span className="text-secondary-600">{donation.transactionId}</span>
             </div>
 
@@ -162,7 +162,7 @@ const DonationDetails = () => {
                             {donation.status}
                         </Badge>
                     </div>
-                    <p className="text-secondary-500 mt-1">
+                    <p className="text-secondary-700 mt-1">
                         Transaction ID: <span className="font-mono text-secondary-700">{donation.transactionId}</span>
                     </p>
                 </div>
@@ -198,31 +198,31 @@ const DonationDetails = () => {
                         <Card.Body>
                             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
-                                    <dt className="text-sm font-medium text-secondary-500">Transaction ID</dt>
+                                    <dt className="text-sm font-medium text-secondary-700">Transaction ID</dt>
                                     <dd className="mt-1 font-mono text-secondary-900">{donation.transactionId}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-secondary-500">Amount</dt>
+                                    <dt className="text-sm font-medium text-secondary-700">Amount</dt>
                                     <dd className="mt-1 text-2xl font-bold text-success-600">
                                         {formatCurrency(donation.amount)}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-secondary-500">Payment Method</dt>
+                                    <dt className="text-sm font-medium text-secondary-700">Payment Method</dt>
                                     <dd className="mt-1 text-secondary-900">{donation.paymentGateway}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-secondary-500">Date & Time</dt>
+                                    <dt className="text-sm font-medium text-secondary-700">Date & Time</dt>
                                     <dd className="mt-1 text-secondary-900">{formatDateTime(donation.createdAt)}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-secondary-500">Status</dt>
+                                    <dt className="text-sm font-medium text-secondary-700">Status</dt>
                                     <dd className="mt-1">
                                         <Badge variant={getStatusVariant(donation.status)}>{donation.status}</Badge>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-secondary-500">Campaign</dt>
+                                    <dt className="text-sm font-medium text-secondary-700">Campaign</dt>
                                     <dd className="mt-1 text-secondary-900">
                                         {donation.campaign?.title || 'General Donation'}
                                     </dd>
@@ -238,8 +238,8 @@ const DonationDetails = () => {
                         </Card.Header>
                         <Card.Body>
                             <div className="flex items-start gap-4">
-                                <div className="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <span className="text-white font-bold text-xl">
+                                <div className="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span className="text-primary-700 font-bold text-xl">
                                         {donation.donor?.name
                                             ? donation.donor.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
                                             : 'AN'}
@@ -249,7 +249,7 @@ const DonationDetails = () => {
                                     <h3 className="text-lg font-semibold text-secondary-900">
                                         {donation.donor?.name || 'Anonymous Donor'}
                                     </h3>
-                                    <p className="text-secondary-500">{donation.donor?.email || 'No email provided'}</p>
+                                    <p className="text-secondary-700">{donation.donor?.email || 'No email provided'}</p>
 
                                     {donation.donor?.id && (
                                         <Link
@@ -282,12 +282,12 @@ const DonationDetails = () => {
                                         <div className="flex flex-col items-center">
                                             <div
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${step.isFailed
-                                                        ? 'bg-danger-100'
-                                                        : step.isRefund
-                                                            ? 'bg-info-100'
-                                                            : step.completed
-                                                                ? 'bg-success-100'
-                                                                : 'bg-secondary-100'
+                                                    ? 'bg-danger-100'
+                                                    : step.isRefund
+                                                        ? 'bg-info-100'
+                                                        : step.completed
+                                                            ? 'bg-success-100'
+                                                            : 'bg-secondary-100'
                                                     }`}
                                             >
                                                 {step.isFailed ? (
@@ -314,17 +314,17 @@ const DonationDetails = () => {
                                         <div className="flex-1 pb-2">
                                             <h4
                                                 className={`font-medium ${step.isFailed
-                                                        ? 'text-danger-700'
-                                                        : step.completed
-                                                            ? 'text-secondary-900'
-                                                            : 'text-secondary-400'
+                                                    ? 'text-danger-700'
+                                                    : step.completed
+                                                        ? 'text-secondary-900'
+                                                        : 'text-secondary-400'
                                                     }`}
                                             >
                                                 {step.title}
                                             </h4>
-                                            <p className="text-sm text-secondary-500 mt-0.5">{step.description}</p>
+                                            <p className="text-sm text-secondary-700 mt-0.5">{step.description}</p>
                                             {step.date && step.completed && (
-                                                <p className="text-xs text-secondary-400 mt-1">
+                                                <p className="text-xs text-secondary-600 mt-1">
                                                     {formatDateTime(step.date)}
                                                 </p>
                                             )}
@@ -349,7 +349,7 @@ const DonationDetails = () => {
                                 </div>
                                 <div>
                                     <p className="font-medium text-secondary-900">Print Receipt</p>
-                                    <p className="text-xs text-secondary-500">Generate donation receipt</p>
+                                    <p className="text-xs text-secondary-700">Generate donation receipt</p>
                                 </div>
                             </button>
 
@@ -361,7 +361,7 @@ const DonationDetails = () => {
                                 </div>
                                 <div>
                                     <p className="font-medium text-secondary-900">Send Confirmation</p>
-                                    <p className="text-xs text-secondary-500">Email donor receipt</p>
+                                    <p className="text-xs text-secondary-700">Email donor receipt</p>
                                 </div>
                             </button>
 
@@ -377,7 +377,7 @@ const DonationDetails = () => {
                                     </div>
                                     <div>
                                         <p className="font-medium text-secondary-900">View Campaign</p>
-                                        <p className="text-xs text-secondary-500">{donation.campaign.title}</p>
+                                        <p className="text-xs text-secondary-700">{donation.campaign.title}</p>
                                     </div>
                                 </Link>
                             )}
@@ -416,8 +416,8 @@ const DonationDetails = () => {
                             <label
                                 key={status}
                                 className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${newStatus === status
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-secondary-200 hover:bg-secondary-50'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-secondary-200 hover:bg-secondary-50'
                                     }`}
                             >
                                 <input

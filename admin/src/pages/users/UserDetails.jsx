@@ -111,7 +111,7 @@ const UserDetails = () => {
                     </svg>
                     Users
                 </Link>
-                <span className="text-secondary-400">/</span>
+                <span className="text-secondary-500">/</span>
                 <span className="text-secondary-600">{user.name}</span>
             </div>
 
@@ -119,8 +119,8 @@ const UserDetails = () => {
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div className="flex items-start gap-4">
                     {/* Avatar */}
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <span className="text-white font-bold text-2xl">
+                    <div className="w-20 h-20 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <span className="text-primary-700 font-bold text-2xl">
                             {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                         </span>
                     </div>
@@ -132,7 +132,7 @@ const UserDetails = () => {
                             {user.isBlocked && <Badge variant="danger">Blocked</Badge>}
                             {user.isSuspended && <Badge variant="warning">Suspended</Badge>}
                         </div>
-                        <p className="text-secondary-500 mt-1">{user.email}</p>
+                        <p className="text-secondary-700 mt-1">{user.email}</p>
                         <div className="flex items-center gap-2 mt-2">
                             <Badge variant={getRoleVariant(user.role)}>{user.role}</Badge>
                             <Badge variant={getStatusVariant(user.verificationStatus)}>
@@ -174,27 +174,27 @@ const UserDetails = () => {
                     <Card.Body>
                         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <dt className="text-sm font-medium text-secondary-500">Full Name</dt>
+                                <dt className="text-sm font-medium text-secondary-700">Full Name</dt>
                                 <dd className="mt-1 text-secondary-900">{user.name}</dd>
                             </div>
                             <div>
-                                <dt className="text-sm font-medium text-secondary-500">Email Address</dt>
+                                <dt className="text-sm font-medium text-secondary-700">Email Address</dt>
                                 <dd className="mt-1 text-secondary-900">{user.email}</dd>
                             </div>
                             <div>
-                                <dt className="text-sm font-medium text-secondary-500">Phone Number</dt>
+                                <dt className="text-sm font-medium text-secondary-700">Phone Number</dt>
                                 <dd className="mt-1 text-secondary-900">{user.phone || 'Not provided'}</dd>
                             </div>
                             <div>
-                                <dt className="text-sm font-medium text-secondary-500">Location</dt>
+                                <dt className="text-sm font-medium text-secondary-700">Location</dt>
                                 <dd className="mt-1 text-secondary-900">{user.location || 'Not provided'}</dd>
                             </div>
                             <div>
-                                <dt className="text-sm font-medium text-secondary-500">Member Since</dt>
+                                <dt className="text-sm font-medium text-secondary-700">Member Since</dt>
                                 <dd className="mt-1 text-secondary-900">{user.joinedDate}</dd>
                             </div>
                             <div>
-                                <dt className="text-sm font-medium text-secondary-500">Account Type</dt>
+                                <dt className="text-sm font-medium text-secondary-700">Account Type</dt>
                                 <dd className="mt-1">
                                     <Badge variant={getRoleVariant(user.role)}>{user.role}</Badge>
                                 </dd>
@@ -207,7 +207,7 @@ const UserDetails = () => {
                                 <h3 className="text-sm font-semibold text-secondary-700 mb-4">NGO Information</h3>
                                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <dt className="text-sm font-medium text-secondary-500">Registration Number</dt>
+                                        <dt className="text-sm font-medium text-secondary-700">Registration Number</dt>
                                         <dd className="mt-1 text-secondary-900">{user.registrationNumber || 'N/A'}</dd>
                                     </div>
                                     <div>
@@ -229,11 +229,11 @@ const UserDetails = () => {
                                 <h3 className="text-sm font-semibold text-secondary-700 mb-4">Volunteer Information</h3>
                                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <dt className="text-sm font-medium text-secondary-500">Hours Logged</dt>
+                                        <dt className="text-sm font-medium text-secondary-700">Hours Logged</dt>
                                         <dd className="mt-1 text-secondary-900">{user.hoursLogged || 0} hours</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-secondary-500">Events Attended</dt>
+                                        <dt className="text-sm font-medium text-secondary-700">Events Attended</dt>
                                         <dd className="mt-1 text-secondary-900">{user.eventsAttended || 0}</dd>
                                     </div>
                                 </dl>
@@ -402,8 +402,8 @@ const UserDetails = () => {
                             <label
                                 key={option.value}
                                 className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${newStatus === option.value
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-secondary-200 hover:bg-secondary-50'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-secondary-200 hover:bg-secondary-50'
                                     }`}
                             >
                                 <input

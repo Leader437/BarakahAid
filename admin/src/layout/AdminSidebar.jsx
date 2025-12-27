@@ -107,10 +107,10 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                                 onClick={onClose}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
                                     ? 'bg-primary-50 text-primary-700 font-medium shadow-sm'
-                                    : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
+                                    : 'text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900'
                                     }`}
                             >
-                                <span className={`transition-colors ${isActive(item.path) ? 'text-primary-600' : 'text-secondary-400 group-hover:text-secondary-600'}`}>
+                                <span className={`transition-colors ${isActive(item.path) ? 'text-primary-600' : 'text-secondary-500 group-hover:text-secondary-700'}`}>
                                     {item.icon}
                                 </span>
                                 <span className="flex-1">{item.label}</span>
@@ -127,15 +127,15 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                     <div className="p-3 border-t border-secondary-200">
                         {/* Quick Stats */}
                         <div className="mb-3 p-3 bg-secondary-50 rounded-lg">
-                            <p className="text-xs font-medium text-secondary-500 uppercase tracking-wide mb-2">Quick Stats</p>
+                            <p className="text-xs font-medium text-secondary-700 uppercase tracking-wide mb-2">Quick Stats</p>
                             <div className="grid grid-cols-2 gap-2 text-center">
                                 <div>
                                     <p className="text-lg font-bold text-primary-600">24</p>
-                                    <p className="text-xs text-secondary-500">Active</p>
+                                    <p className="text-xs text-secondary-700">Active</p>
                                 </div>
                                 <div>
                                     <p className="text-lg font-bold text-warning-600">3</p>
-                                    <p className="text-xs text-secondary-500">Pending</p>
+                                    <p className="text-xs text-secondary-700">Pending</p>
                                 </div>
                             </div>
                         </div>

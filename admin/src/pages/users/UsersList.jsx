@@ -113,7 +113,7 @@ const UsersList = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-secondary-900 font-heading">Users</h1>
-                    <p className="text-secondary-500 mt-1">Manage all platform users ({totalItems} total)</p>
+                    <p className="text-secondary-700 mt-1">Manage all platform users ({totalItems} total)</p>
                 </div>
             </div>
 
@@ -186,7 +186,7 @@ const UsersList = () => {
                         <tbody className="divide-y divide-secondary-200">
                             {paginatedData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-secondary-500">
+                                    <td colSpan={5} className="px-6 py-12 text-center text-secondary-700">
                                         No users found matching your criteria.
                                     </td>
                                 </tr>
@@ -196,20 +196,20 @@ const UsersList = () => {
                                         {/* Name with Avatar */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-white font-semibold text-sm">
+                                                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-primary-700 font-semibold text-sm">
                                                         {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-secondary-900">{user.name}</p>
-                                                    <p className="text-xs text-secondary-500">{user.location || 'Location not set'}</p>
+                                                    <p className="text-xs text-secondary-600">{user.location || 'Location not set'}</p>
                                                 </div>
                                             </div>
                                         </td>
 
                                         {/* Email */}
-                                        <td className="px-6 py-4 text-secondary-600">{user.email}</td>
+                                        <td className="px-6 py-4 text-secondary-800">{user.email}</td>
 
                                         {/* Role */}
                                         <td className="px-6 py-4">
@@ -267,7 +267,7 @@ const UsersList = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="flex items-center justify-between px-6 py-4 border-t border-secondary-200">
-                        <p className="text-sm text-secondary-500">
+                        <p className="text-sm text-secondary-700">
                             Showing {startIndex} to {endIndex} of {totalItems} users
                         </p>
                         <div className="flex items-center gap-2">
@@ -289,8 +289,8 @@ const UsersList = () => {
                                             key={pageNum}
                                             onClick={() => goToPage(pageNum)}
                                             className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
-                                                    ? 'bg-primary-600 text-white'
-                                                    : 'text-secondary-600 hover:bg-secondary-100'
+                                                ? 'bg-primary-600 text-white'
+                                                : 'text-secondary-700 hover:bg-secondary-100'
                                                 }`}
                                         >
                                             {pageNum}

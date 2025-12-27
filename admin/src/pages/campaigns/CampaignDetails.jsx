@@ -132,7 +132,7 @@ const CampaignDetails = () => {
                     </svg>
                     Campaigns
                 </Link>
-                <span className="text-secondary-400">/</span>
+                <span className="text-secondary-500">/</span>
                 <span className="text-secondary-600 line-clamp-1">{campaign.title}</span>
             </div>
 
@@ -144,7 +144,7 @@ const CampaignDetails = () => {
                         <Badge variant={getStatusVariant(campaign.status)} size="lg">{campaign.status}</Badge>
                         {campaign.isEmergency && <Badge variant="danger">EMERGENCY</Badge>}
                     </div>
-                    <p className="text-secondary-500 mt-1">
+                    <p className="text-secondary-700 mt-1">
                         By {campaign.createdBy?.name || 'Unknown'} • {formatDate(campaign.startDate)} - {formatDate(campaign.endDate)}
                     </p>
                 </div>
@@ -199,21 +199,21 @@ const CampaignDetails = () => {
                             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div className="text-center p-3 bg-secondary-50 rounded-lg">
                                     <p className="text-2xl font-bold text-primary-600">{campaign.donorCount || 0}</p>
-                                    <p className="text-sm text-secondary-500">Donors</p>
+                                    <p className="text-sm text-secondary-700">Donors</p>
                                 </div>
                                 <div className="text-center p-3 bg-secondary-50 rounded-lg">
                                     <p className="text-2xl font-bold text-success-600">{campaign.beneficiaryCount || 0}</p>
-                                    <p className="text-sm text-secondary-500">Beneficiaries</p>
+                                    <p className="text-sm text-secondary-700">Beneficiaries</p>
                                 </div>
                                 <div className="text-center p-3 bg-secondary-50 rounded-lg">
                                     <p className="text-2xl font-bold text-secondary-900">{progress}%</p>
-                                    <p className="text-sm text-secondary-500">Funded</p>
+                                    <p className="text-sm text-secondary-700">Funded</p>
                                 </div>
                                 <div className="text-center p-3 bg-secondary-50 rounded-lg">
                                     <p className="text-2xl font-bold text-warning-600">
                                         {Math.max(0, Math.ceil((new Date(campaign.endDate) - new Date()) / (1000 * 60 * 60 * 24)))}
                                     </p>
-                                    <p className="text-sm text-secondary-500">Days Left</p>
+                                    <p className="text-sm text-secondary-700">Days Left</p>
                                 </div>
                             </div>
                         </Card.Body>
@@ -235,9 +235,9 @@ const CampaignDetails = () => {
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                        <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} />
+                                        <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#334155' }} />
                                         <YAxis
-                                            tick={{ fontSize: 12, fill: '#64748b' }}
+                                            tick={{ fontSize: 12, fill: '#334155' }}
                                             tickFormatter={(value) => `$${value / 1000}k`}
                                         />
                                         <Tooltip
@@ -269,8 +269,8 @@ const CampaignDetails = () => {
                         </Card.Header>
                         <Card.Body>
                             <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center">
-                                    <span className="text-white font-bold text-xl">
+                                <div className="w-16 h-16 bg-accent-100 rounded-xl flex items-center justify-center">
+                                    <span className="text-accent-700 font-bold text-xl">
                                         {campaign.createdBy?.name?.substring(0, 2).toUpperCase() || 'NA'}
                                     </span>
                                 </div>
@@ -327,7 +327,7 @@ const CampaignDetails = () => {
 
                             <div className="text-center -mt-4">
                                 <p className="text-3xl font-bold text-primary-600">{progress}%</p>
-                                <p className="text-secondary-500">of goal reached</p>
+                                <p className="text-secondary-700">of goal reached</p>
                             </div>
 
                             <div className="mt-4 space-y-3">
