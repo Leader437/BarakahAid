@@ -51,17 +51,7 @@ export const mockUsers = [
     bio: 'Non-profit organization focused on education and healthcare.',
     registrationNumber: 'NGO-12345',
   },
-  {
-    id: 'user-5',
-    email: 'admin@barakahaid.com',
-    name: 'Admin User',
-    role: ROLES.ADMIN,
-    avatar: null,
-    phone: '+1234567894',
-    location: 'Global',
-    verified: true,
-    joinedDate: '2023-10-01',
-  },
+
 ];
 
 // Mock Donation Requests

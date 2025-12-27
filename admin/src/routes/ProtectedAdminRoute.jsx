@@ -99,8 +99,11 @@ const ProtectedAdminRoute = ({ children }) => {
         return children;
     }
 
-    // Not authenticated - show error page with redirect link (no automatic redirect to avoid loops)
-    const loginUrl = `${CLIENT_URL}/login?redirect=${encodeURIComponent(window.location.href)}`;
+    // Not authenticated - Redirect to internal Admin Login
+    const loginUrl = `/login?redirect=${encodeURIComponent(location.pathname)}`;
+
+    // If not authenticated, force redirect immediately instead of showing error page
+    return <Navigate to="/login" replace state={{ from: location }} />;
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-secondary-50 p-4">

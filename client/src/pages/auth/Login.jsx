@@ -175,16 +175,7 @@ const Login = () => {
               >
                 NGO
               </SecondaryButton>
-              <SecondaryButton
-                onClick={() => {
-                  values.email = 'admin@barakahaid.com';
-                  values.password = 'Admin123!';
-                  handleLogin(values);
-                }}
-                className="!text-xs !py-2 !bg-primary-100 !text-primary-700 !border-primary-300"
-              >
-                Admin
-              </SecondaryButton>
+
             </div>
           </div>
         </Card>

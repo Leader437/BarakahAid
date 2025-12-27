@@ -9,6 +9,7 @@ import AdminLayout from '../layout/AdminLayout';
 import ProtectedAdminRoute from './ProtectedAdminRoute';
 
 // Pages
+import Login from '../pages/auth/Login';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import UsersList from '../pages/users/UsersList';
 import UserDetails from '../pages/users/UserDetails';
@@ -35,6 +36,9 @@ import { NotFound } from '../components/shared';
 const AdminRoutes = () => {
     return (
         <Routes>
+            {/* Public Route */}
+            <Route path="/login" element={<Login />} />
+
             {/* All admin routes are protected */}
             <Route
                 path="/"
@@ -44,6 +48,7 @@ const AdminRoutes = () => {
                     </ProtectedAdminRoute>
                 }
             >
+
                 {/* Dashboard - Default route */}
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />

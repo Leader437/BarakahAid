@@ -52,8 +52,7 @@ const useAuth = () => {
         return '/volunteer/dashboard';
       case 'ngo':
         return '/ngo/dashboard';
-      case 'admin':
-        return '/admin/dashboard';
+
       default:
         return '/';
     }

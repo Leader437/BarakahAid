@@ -3,8 +3,7 @@ import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-// Lazy load Admin Module
-const AdminModule = lazy(() => import('../../admin/src/AdminModule'));
+
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -187,8 +186,7 @@ function App() {
         return '/recipient/dashboard';
       case 'ngo':
         return '/ngo/dashboard';
-      case 'admin':
-        return '/admin/dashboard';
+
       default:
         return '/donor/dashboard';
     }
@@ -202,7 +200,7 @@ function App() {
         <Routes>
           <Route path="/login" element={null} />
           <Route path="/register" element={null} />
-          <Route path="/admin/*" element={null} />
+
           <Route path="*" element={<Navbar />} />
         </Routes>
 
@@ -287,24 +285,7 @@ function App() {
             <Route path="profile" element={<OrganizationProfile />} />
           </Route>
 
-          {/* Admin Routes - Lazy loaded from admin module */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Suspense fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4" />
-                      <p className="text-secondary-600">Loading Admin Panel...</p>
-                    </div>
-                  </div>
-                }>
-                  <AdminModule />
-                </Suspense>
-              </ProtectedRoute>
-            }
-          />
+
 
           {/* 404 */}
           <Route path="*" element={
@@ -326,7 +307,7 @@ function App() {
           <Route path="/volunteer/*" element={null} />
           <Route path="/ngo/*" element={null} />
           <Route path="/recipient/*" element={null} />
-          <Route path="/admin/*" element={null} />
+
           <Route path="*" element={<Footer />} />
         </Routes>
       </div>
