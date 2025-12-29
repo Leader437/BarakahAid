@@ -49,7 +49,22 @@ export class TransactionsService {
 
       // Update transaction with payment intent ID
       savedTransaction.paymentReference = paymentIntent.paymentIntentId;
-      savedTransaction.status = TransactionStatus.PENDING;
+      
+      // If payment is already succeeded (e.g. demo mode or instant capture), mark as COMPLETED
+      if (paymentIntent.status === 'succeeded') {
+          savedTransaction.status = TransactionStatus.COMPLETED;
+          // Also update campaign raised amount immediately
+          // Note: Ideally call campaignsService.updateRaisedAmount here too
+          // But for now, let's just set status. The webhook handler does updateRaisedAmount.
+          // Since we might not trigger webhook in demo, we should update amount here.
+          
+          await this.campaignsService.updateRaisedAmount(
+            campaign.id,
+            createDto.amount
+          );
+      } else {
+          savedTransaction.status = TransactionStatus.PENDING;
+      }
 
       // In a real scenario, wait for webhook confirmation
       // For now, we'll update to PENDING and let webhook handle completion
@@ -89,6 +104,18 @@ export class TransactionsService {
     return this.transactionRepository.find({
       where: { campaign: { id: campaignId } },
       relations: ['donor'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findReceivedByNgo(ngoId: string): Promise<Transaction[]> {
+    return this.transactionRepository.find({
+      where: {
+        campaign: {
+          createdBy: { id: ngoId },
+        },
+      },
+      relations: ['campaign', 'donor'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -225,4 +252,18 @@ export class TransactionsService {
       throw new BadRequestException(`Failed to process payment failure: ${error.message}`);
     }
   }
+
+  async findAll(): Promise<Transaction[]> {
+    return this.transactionRepository.find({
+      relations: ['donor', 'campaign'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async updateStatus(id: string, status: TransactionStatus): Promise<Transaction> {
+    const transaction = await this.findOne(id);
+    transaction.status = status;
+    return this.transactionRepository.save(transaction);
+  }
+
 }

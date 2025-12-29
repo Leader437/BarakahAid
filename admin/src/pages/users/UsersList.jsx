@@ -1,5 +1,5 @@
 // Users List Page - User Management Table
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Input, Badge, Modal } from '../../components/ui';
@@ -10,7 +10,8 @@ import {
     setFilters,
     setPagination,
     verifyUser,
-    updateUser,
+    updateUserStatus,
+    fetchUsers,
 } from '../../store/usersSlice';
 import usePagination from '../../hooks/usePagination';
 import { ROLES, VERIFICATION_STATUS } from '../../utils/constants';
@@ -20,6 +21,11 @@ const UsersList = () => {
     const users = useSelector(selectFilteredUsers);
     const filters = useSelector(selectUsersFilters);
     const paginationState = useSelector(selectUsersPagination);
+
+    // Fetch users on mount
+    useEffect(() => {
+        dispatch(fetchUsers());
+    }, [dispatch]);
 
     // Local state
     const [selectedUser, setSelectedUser] = useState(null);
@@ -71,7 +77,7 @@ const UsersList = () => {
     const handleToggleBlock = () => {
         if (selectedUser) {
             const newStatus = selectedUser.isBlocked ? false : true;
-            dispatch(updateUser({ id: selectedUser.id, isBlocked: newStatus }));
+            dispatch(updateUserStatus({ id: selectedUser.id, isBlocked: newStatus }));
             setShowActionModal(false);
             setSelectedUser(null);
         }

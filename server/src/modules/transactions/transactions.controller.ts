@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Param,
   Query,
@@ -21,6 +22,12 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
+
+  @Get()
+  @Roles(Role.ADMIN)
+  async findAll() {
+    return this.transactionsService.findAll();
+  }
 
   @Post()
   @Roles(Role.DONOR)
@@ -43,9 +50,24 @@ export class TransactionsController {
     return this.transactionsService.findByCampaign(campaignId);
   }
 
+  @Get('received')
+  @Roles(Role.NGO)
+  async getReceivedDonations(@CurrentUser('id') userId: string) {
+    return this.transactionsService.findReceivedByNgo(userId);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.transactionsService.findOne(id);
+  }
+
+  @Put(':id/status')
+  @Roles(Role.ADMIN)
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: any,
+  ) {
+    return this.transactionsService.updateStatus(id, status);
   }
 
   @Get('reports/yearly')

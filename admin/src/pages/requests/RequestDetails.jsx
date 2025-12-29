@@ -119,7 +119,7 @@ const RequestDetails = () => {
                         <Badge variant={getUrgencyVariant(request.urgency)}>{request.urgency} Priority</Badge>
                     </div>
                     <p className="text-secondary-700 mt-1">
-                        Submitted on {formatDate(request.createdAt)} • {request.location}
+                        Submitted on {formatDate(request.createdAt)} • {request.location?.address || 'Unknown'}
                     </p>
                 </div>
 
@@ -129,6 +129,7 @@ const RequestDetails = () => {
                         <>
                             <Button
                                 variant="success"
+                                className="!text-black"
                                 onClick={() => { setActionType('approve'); setShowActionModal(true); }}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,6 +139,7 @@ const RequestDetails = () => {
                             </Button>
                             <Button
                                 variant="danger"
+                                className="!text-black"
                                 onClick={() => { setActionType('reject'); setShowActionModal(true); }}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +177,7 @@ const RequestDetails = () => {
                             <div className="mt-6 grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-secondary-700">Category</p>
-                                    <p className="font-medium text-secondary-900">{request.category}</p>
+                                    <p className="font-medium text-secondary-900">{request.category?.name || 'Uncategorized'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-secondary-700">Beneficiaries</p>
@@ -187,7 +189,7 @@ const RequestDetails = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-secondary-700">Location</p>
-                                    <p className="font-medium text-secondary-900">{request.location}</p>
+                                    <p className="font-medium text-secondary-900">{request.location?.address || 'Unknown'}</p>
                                 </div>
                             </div>
                         </Card.Body>
@@ -353,6 +355,7 @@ const RequestDetails = () => {
                         <Button variant="outline" onClick={() => setShowActionModal(false)}>Cancel</Button>
                         <Button
                             variant={actionType === 'reject' ? 'danger' : 'success'}
+                            className="!text-black"
                             onClick={handleAction}
                         >
                             Confirm

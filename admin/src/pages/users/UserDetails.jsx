@@ -6,7 +6,7 @@ import { Card, Button, Badge, Modal } from '../../components/ui';
 import {
     selectUsers,
     setSelectedUser,
-    updateUser,
+    updateUserStatus,
     verifyUser,
 } from '../../store/usersSlice';
 import { selectDonations } from '../../store/donationsSlice';
@@ -66,11 +66,11 @@ const UserDetails = () => {
     // Handle status update
     const handleStatusUpdate = () => {
         if (newStatus === 'active') {
-            dispatch(updateUser({ id: user.id, isBlocked: false, isSuspended: false }));
+            dispatch(updateUserStatus({ id: user.id, isBlocked: false, isSuspended: false }));
         } else if (newStatus === 'suspended') {
-            dispatch(updateUser({ id: user.id, isSuspended: true }));
+            dispatch(updateUserStatus({ id: user.id, isSuspended: true }));
         } else if (newStatus === 'blocked') {
-            dispatch(updateUser({ id: user.id, isBlocked: true }));
+            dispatch(updateUserStatus({ id: user.id, isBlocked: true }));
         }
         setShowStatusModal(false);
         setNewStatus('');

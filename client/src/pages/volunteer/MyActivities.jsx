@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  HiSearch, 
-  HiCheckCircle, 
-  HiClock, 
+import {
+  HiSearch,
+  HiCheckCircle,
+  HiClock,
   HiCalendar,
   HiDownload,
   HiEye,
@@ -11,115 +11,36 @@ import {
 import Card from '../../components/ui/Card';
 import SecondaryButton from '../../components/ui/SecondaryButton';
 
+import { useDispatch, useSelector } from "react-redux";
+import { fetchVolunteerProfile, selectVolunteerProfile } from "../../store/volunteerSlice";
+
 const MyActivities = () => {
+  const dispatch = useDispatch();
+  const profile = useSelector(selectVolunteerProfile);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
-  // Mock activities data
-  const activities = [
-    {
-      id: 'VA-2024-015',
-      title: 'Emergency Relief Package Assembly',
-      category: 'Emergency',
-      date: '2025-12-10',
-      hours: 6,
-      location: 'Warehouse District',
-      status: 'completed',
-      badge: 'Team Leader',
-      rating: 5,
-      feedback: 'Outstanding contribution'
-    },
-    {
-      id: 'VA-2024-014',
-      title: 'Community Meal Preparation',
-      category: 'Food Relief',
-      date: '2025-12-08',
-      hours: 4,
-      location: 'Community Kitchen',
-      status: 'completed',
-      badge: null,
-      rating: 5,
-      feedback: 'Great teamwork'
-    },
-    {
-      id: 'VA-2024-013',
-      title: 'Fundraising Event Support',
-      category: 'Event',
-      date: '2025-12-05',
-      hours: 5,
-      location: 'City Hall',
-      status: 'completed',
-      badge: 'Outstanding',
-      rating: 5,
-      feedback: 'Excellent organization skills'
-    },
-    {
-      id: 'VA-2024-012',
-      title: 'Winter Clothing Drive',
-      category: 'Clothing',
-      date: '2025-12-03',
-      hours: 3,
-      location: 'Community Center',
-      status: 'completed',
-      badge: null,
-      rating: 4,
-      feedback: null
-    },
-    {
-      id: 'VA-2024-011',
-      title: 'Educational Workshop',
-      category: 'Education',
-      date: '2025-12-01',
-      hours: 4,
-      location: 'Learning Center',
-      status: 'completed',
-      badge: null,
-      rating: 5,
-      feedback: 'Children loved the session'
-    },
-    {
-      id: 'VA-2024-010',
-      title: 'Medical Camp Setup',
-      category: 'Healthcare',
-      date: '2025-11-28',
-      hours: 6,
-      location: 'Central Hospital',
-      status: 'completed',
-      badge: null,
-      rating: 5,
-      feedback: null
-    },
-    {
-      id: 'VA-2025-001',
-      title: 'Food Distribution Drive',
-      category: 'Food Relief',
-      date: '2025-12-15',
-      hours: 5,
-      location: 'Community Center',
-      status: 'upcoming',
-      badge: null,
-      rating: null,
-      feedback: null
-    },
-    {
-      id: 'VA-2025-002',
-      title: 'Winter Clothing Collection',
-      category: 'Clothing',
-      date: '2025-12-18',
-      hours: 4,
-      location: 'City Plaza',
-      status: 'upcoming',
-      badge: null,
-      rating: null,
-      feedback: null
-    }
-  ];
+  React.useEffect(() => {
+    dispatch(fetchVolunteerProfile());
+  }, [dispatch]);
 
+  const activities = (profile?.events || []).map(e => ({
+    id: e.id,
+    title: e.title,
+    category: 'General', // Backend doesn't store category yet
+    date: e.eventDate,
+    hours: 4, // Placeholder for now, or 0
+    location: e.location?.address || 'TBD',
+    status: new Date(e.eventDate) < new Date() ? 'completed' : 'upcoming', // Infer status from date
+    badge: null,
+    rating: null,
+    feedback: null
+  }));
   const statuses = ['All', 'Upcoming', 'Completed', 'Cancelled'];
 
   const filteredActivities = activities.filter(activity => {
     const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         activity.category.toLowerCase().includes(searchQuery.toLowerCase());
+      activity.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || activity.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
@@ -146,9 +67,7 @@ const MyActivities = () => {
     }
   };
 
-  const totalHours = activities
-    .filter(a => a.status === 'completed')
-    .reduce((sum, a) => sum + a.hours, 0);
+  const totalHours = profile?.hoursLogged || 0;
 
   const completedCount = activities.filter(a => a.status === 'completed').length;
   const upcomingCount = activities.filter(a => a.status === 'upcoming').length;
@@ -215,11 +134,10 @@ const MyActivities = () => {
                   <button
                     key={status}
                     onClick={() => setSelectedStatus(status.toLowerCase())}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      status.toLowerCase() === selectedStatus
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${status.toLowerCase() === selectedStatus
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                      }`}
                   >
                     {status}
                   </button>

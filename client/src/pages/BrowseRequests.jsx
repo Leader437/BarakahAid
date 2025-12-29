@@ -1,104 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { HiSearch, HiFilter, HiHeart, HiClock, HiCheckCircle } from 'react-icons/hi';
 import Card from '../components/ui/Card';
 import ProgressBar from '../components/ui/ProgressBar';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { formatCurrency } from '../utils/helpers';
+import { fetchRequests, selectAllRequests, selectRequestsLoading } from '../store/requestsSlice';
 
 const BrowseRequests = () => {
+  const dispatch = useDispatch();
+  const requests = useSelector(selectAllRequests);
+  const loading = useSelector(selectRequestsLoading);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedUrgency, setSelectedUrgency] = useState('all');
 
-  // Mock requests data
-  const requests = [
-    {
-      id: 1,
-      title: 'Emergency Food Relief - Gaza',
-      description: 'Provide emergency food packages to families affected by the ongoing crisis in Gaza. Each package contains essential food items for a family of 5 for one week.',
-      category: 'Emergency Relief',
-      urgency: 'high',
-      currentAmount: 45000,
-      targetAmount: 100000,
-      daysLeft: 15,
-      beneficiaries: 500,
-      verified: true,
-      image: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400'
-    },
-    {
-      id: 2,
-      title: 'Education Support for Orphans',
-      description: 'Help provide quality education, school supplies, and uniforms for orphaned children. Your support will help them build a better future.',
-      category: 'Education',
-      urgency: 'medium',
-      currentAmount: 28000,
-      targetAmount: 50000,
-      daysLeft: 30,
-      beneficiaries: 150,
-      verified: true,
-      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400'
-    },
-    {
-      id: 3,
-      title: 'Clean Water Project - Yemen',
-      description: 'Build water wells and purification systems to provide clean drinking water to villages in Yemen facing severe water scarcity.',
-      category: 'Water & Sanitation',
-      urgency: 'high',
-      currentAmount: 75000,
-      targetAmount: 150000,
-      daysLeft: 20,
-      beneficiaries: 2000,
-      verified: true,
-      image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400'
-    },
-    {
-      id: 4,
-      title: 'Medical Aid for Syria',
-      description: 'Provide essential medical supplies, equipment, and support to hospitals and clinics treating injured civilians in Syria.',
-      category: 'Healthcare',
-      urgency: 'high',
-      currentAmount: 120000,
-      targetAmount: 200000,
-      daysLeft: 10,
-      beneficiaries: 1000,
-      verified: true,
-      image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400'
-    },
-    {
-      id: 5,
-      title: 'Winter Clothing Drive',
-      description: 'Distribute warm clothing, blankets, and heating supplies to displaced families facing harsh winter conditions.',
-      category: 'Clothing',
-      urgency: 'medium',
-      currentAmount: 15000,
-      targetAmount: 40000,
-      daysLeft: 25,
-      beneficiaries: 300,
-      verified: true,
-      image: 'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=400'
-    },
-    {
-      id: 6,
-      title: 'Orphan Sponsorship Program',
-      description: 'Provide monthly support including food, education, healthcare, and shelter for orphaned children in need.',
-      category: 'Orphan Care',
-      urgency: 'medium',
-      currentAmount: 35000,
-      targetAmount: 80000,
-      daysLeft: 45,
-      beneficiaries: 100,
-      verified: true,
-      image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400'
-    }
+  useEffect(() => {
+    dispatch(fetchRequests());
+  }, [dispatch]);
+
+  // Default images for requests without media
+  const defaultImages = [
+    'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400',
+    'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400',
+    'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400',
+    'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',
+    'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=400',
+    'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
   ];
 
   const categories = ['All', 'Emergency Relief', 'Education', 'Healthcare', 'Water & Sanitation', 'Clothing', 'Orphan Care'];
   const urgencyLevels = ['All', 'High', 'Medium', 'Low'];
 
-  const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         request.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredRequests = (requests || []).filter(request => {
+    const matchesSearch = request.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      request.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || request.category === selectedCategory;
     const matchesUrgency = selectedUrgency === 'all' || request.urgency === selectedUrgency;
     return matchesSearch && matchesCategory && matchesUrgency;
@@ -107,11 +45,28 @@ const BrowseRequests = () => {
   const getUrgencyBadge = (urgency) => {
     const styles = {
       high: 'bg-error-100 text-error-700',
+      critical: 'bg-error-100 text-error-700',
       medium: 'bg-warning-100 text-warning-700',
+      normal: 'bg-warning-100 text-warning-700',
       low: 'bg-success-100 text-success-700'
     };
     return styles[urgency] || styles.medium;
   };
+
+  const getRequestImage = (request, index) => {
+    if (request.media && request.media.length > 0) {
+      return request.media[0];
+    }
+    return defaultImages[index % defaultImages.length];
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-8 bg-secondary-50 flex items-center justify-center">
+        <p className="text-secondary-600">Loading requests...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 bg-secondary-50">
@@ -147,11 +102,10 @@ const BrowseRequests = () => {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category === 'All' ? 'all' : category)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      (category === 'All' && selectedCategory === 'all') || category === selectedCategory
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${(category === 'All' && selectedCategory === 'all') || category === selectedCategory
                         ? 'bg-primary-600 text-white'
                         : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                      }`}
                   >
                     {category}
                   </button>
@@ -167,11 +121,10 @@ const BrowseRequests = () => {
                   <button
                     key={level}
                     onClick={() => setSelectedUrgency(level.toLowerCase())}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      level.toLowerCase() === selectedUrgency
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${level.toLowerCase() === selectedUrgency
                         ? 'bg-primary-600 text-white'
                         : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                      }`}
                   >
                     {level}
                   </button>
@@ -190,23 +143,21 @@ const BrowseRequests = () => {
 
         {/* Requests Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredRequests.map((request) => (
+          {filteredRequests.map((request, index) => (
             <Card key={request.id} padding="none" hoverable>
               {/* Image */}
               <div className="relative h-48 overflow-hidden rounded-t-lg">
                 <img
-                  src={request.image}
+                  src={getRequestImage(request, index)}
                   alt={request.title}
                   className="object-cover w-full h-full"
                 />
-                {request.verified && (
-                  <div className="absolute flex items-center gap-1 px-2 py-1 text-xs font-medium text-white rounded-full top-3 right-3 bg-success-600">
-                    <HiCheckCircle className="w-4 h-4" />
-                    Verified
-                  </div>
-                )}
+                <div className="absolute flex items-center gap-1 px-2 py-1 text-xs font-medium text-white rounded-full top-3 right-3 bg-success-600">
+                  <HiCheckCircle className="w-4 h-4" />
+                  Verified
+                </div>
                 <span className={`absolute top-3 left-3 px-2 py-1 text-xs font-medium rounded-full ${getUrgencyBadge(request.urgency)}`}>
-                  {request.urgency.charAt(0).toUpperCase() + request.urgency.slice(1)} Priority
+                  {(request.urgency || 'Medium').charAt(0).toUpperCase() + (request.urgency || 'medium').slice(1)} Priority
                 </span>
               </div>
 
@@ -225,16 +176,16 @@ const BrowseRequests = () => {
                 {/* Progress */}
                 <div className="mb-4">
                   <ProgressBar
-                    value={request.currentAmount}
-                    max={request.targetAmount}
+                    value={request.currentAmount || 0}
+                    max={request.targetAmount || 1}
                     className="mb-2"
                   />
                   <div className="flex justify-between text-sm">
                     <span className="font-semibold text-secondary-900">
-                      {formatCurrency(request.currentAmount)}
+                      {formatCurrency(request.currentAmount || 0)}
                     </span>
                     <span className="text-secondary-600">
-                      of {formatCurrency(request.targetAmount)}
+                      of {formatCurrency(request.targetAmount || 0)}
                     </span>
                   </div>
                 </div>
@@ -243,11 +194,11 @@ const BrowseRequests = () => {
                 <div className="flex items-center justify-between pb-4 mb-4 text-xs text-secondary-600 border-b border-secondary-200">
                   <div className="flex items-center gap-1">
                     <HiClock className="w-4 h-4" />
-                    <span>{request.daysLeft} days left</span>
+                    <span>{request.daysLeft || 30} days left</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <HiHeart className="w-4 h-4" />
-                    <span>{request.beneficiaries} beneficiaries</span>
+                    <span>{request.beneficiaries || 0} beneficiaries</span>
                   </div>
                 </div>
 

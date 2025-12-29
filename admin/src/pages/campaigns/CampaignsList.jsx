@@ -1,5 +1,5 @@
 // Campaigns List Page - Campaign Management
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Badge } from '../../components/ui';
@@ -7,6 +7,7 @@ import {
     selectFilteredCampaigns,
     selectCampaignsFilters,
     setFilters,
+    fetchCampaigns,
 } from '../../store/campaignsSlice';
 import usePagination from '../../hooks/usePagination';
 import { formatCurrency, formatDate } from '../../utils/helpers';
@@ -15,6 +16,10 @@ const CampaignsList = () => {
     const dispatch = useDispatch();
     const campaigns = useSelector(selectFilteredCampaigns);
     const filters = useSelector(selectCampaignsFilters);
+
+    useEffect(() => {
+        dispatch(fetchCampaigns());
+    }, [dispatch]);
 
     // Pagination
     const {
@@ -60,8 +65,8 @@ const CampaignsList = () => {
 
     // Stats
     const activeCampaigns = campaigns.filter((c) => c.status === 'ACTIVE').length;
-    const totalRaised = campaigns.reduce((sum, c) => sum + (c.raisedAmount || 0), 0);
-    const totalGoal = campaigns.reduce((sum, c) => sum + (c.goalAmount || 0), 0);
+    const totalRaised = campaigns.reduce((sum, c) => sum + Number(c.raisedAmount || 0), 0);
+    const totalGoal = campaigns.reduce((sum, c) => sum + Number(c.goalAmount || 0), 0);
 
     return (
         <div className="space-y-6">

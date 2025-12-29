@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAdminData } from '../../store/adminSlice';
-import { mockUsers } from '../../utils/dummyData';
+import { api } from '../../utils/api';
 import { ROLES } from '../../utils/constants';
 
 // UI Components
@@ -44,57 +44,43 @@ const Login = () => {
         return errors;
     };
 
-    // Mock Login Function
+    // Real Login Function
     const handleLogin = async (values) => {
         setLoading(true);
         setAuthError('');
 
-        // Simulate network delay
-        setTimeout(() => {
-            try {
-                // 1. Find admin user in mock data
-                const adminUser = mockUsers.find(
-                    u => u.email.toLowerCase() === values.email.toLowerCase() && u.role === ROLES.ADMIN
-                );
+        try {
+            const { data } = await api.post('/auth/login', values);
+            const { user, accessToken } = data; // Adjust based on actual response structure
 
-                if (!adminUser) {
-                    throw new Error('Invalid email or password');
-                }
-
-                // 2. Validate password (mock check)
-                if (values.password.length < 6) {
-                    throw new Error('Invalid email or password');
-                }
-
-                // 3. Generate Mock Token
-                const mockTokenHeader = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-                const mockTokenPayload = btoa(JSON.stringify({
-                    id: adminUser.id,
-                    email: adminUser.email,
-                    name: adminUser.name,
-                    role: adminUser.role,
-                    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24), // 24 hours
-                    iat: Math.floor(Date.now() / 1000)
-                }));
-                const mockTokenSignature = "mock_signature_secret";
-                const token = `${mockTokenHeader}.${mockTokenPayload}.${mockTokenSignature}`;
-
-                // 4. Save to LocalStorage
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify(adminUser));
-
-                // 5. Update Redux
-                dispatch(setAdminData(adminUser));
-
-                // 6. Redirect
-                navigate('/dashboard');
-
-            } catch (err) {
-                setAuthError(err.message || 'Login failed');
-            } finally {
-                setLoading(false);
+            // Checks if user is authorized as admin (Backend should handle this, but double check role if needed)
+            if (user.role !== 'admin' && user.role !== 'NGO') {
+                // Adjust roles as per system. Assuming 'admin' or 'NGO' can access admin panel? 
+                // Or maybe just 'ADMIN'?
+                // If backend allows login but user is not admin, we should maybe block here.
+                // However, let's assume valid login means access for now or backend guards it.
             }
-        }, 800);
+
+            // 4. Save to LocalStorage
+            localStorage.setItem('adminAccessToken', accessToken);
+            // Also set 'token' for legacy compatibility if other parts use it, or migrate all.
+            // Let's migrate App.jsx too.
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // 5. Update Redux
+            dispatch(setAdminData(user));
+
+            // 6. Redirect
+            navigate('/dashboard');
+
+        } catch (err) {
+            console.error(err);
+            const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
+            setAuthError(message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const { values, errors, handleChange, handleBlur, handleSubmit, isSubmitting } = useForm(

@@ -17,7 +17,7 @@ import { OffersModule } from './modules/offers/offers.module';
 import { VolunteersModule } from './modules/volunteers/volunteers.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-import { AdminModule } from './admin/admin.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { EmergencyModule } from './modules/emergency/emergency.module';
 import { PaymentModule } from './modules/payments/payment.module';
 import { NotificationsGateway } from './modules/notifications/notifications.gateway';

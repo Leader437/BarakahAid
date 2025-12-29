@@ -10,6 +10,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ScrollToTop from './components/ScrollToTop';
+import { getDashboardPath } from './utils/helpers';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -41,8 +42,13 @@ import MyActivities from './pages/volunteer/MyActivities';
 // NGO Pages
 import NgoDashboard from './pages/ngo/Dashboard';
 import ManageCampaigns from './pages/ngo/ManageCampaigns';
+import CreateCampaign from './pages/ngo/CreateCampaign';
 import DonationsReceived from './pages/ngo/DonationsReceived';
 import OrganizationProfile from './pages/ngo/OrganizationProfile';
+import CreateRequest from './pages/ngo/CreateRequest';
+import CampaignDetails from './pages/ngo/CampaignDetails';
+import EditCampaign from './pages/ngo/EditCampaign';
+import Reports from './pages/ngo/Reports';
 
 // Browse Requests and Campaigns
 import BrowseRequests from './pages/BrowseRequests';
@@ -176,21 +182,8 @@ const ngoMenuItems = [
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.user);
 
-  const getDashboardPath = (role) => {
-    switch (role) {
-      case 'donor':
-        return '/donor/dashboard';
-      case 'volunteer':
-        return '/volunteer/dashboard';
-      case 'recipient':
-        return '/recipient/dashboard';
-      case 'ngo':
-        return '/ngo/dashboard';
-
-      default:
-        return '/donor/dashboard';
-    }
-  };
+  /* Shared getDashboardPath used from utils */
+  console.log('App Render:', { isAuthenticated, user, role: user?.role, path: window.location.pathname });
 
   return (
     <Router>
@@ -221,8 +214,8 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/login" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Login />} />
-          <Route path="/register" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Register />} />
+          <Route path="/login" element={isAuthenticated && user ? <Navigate to={getDashboardPath(user?.role)} /> : <Login />} />
+          <Route path="/register" element={isAuthenticated && user ? <Navigate to={getDashboardPath(user?.role)} /> : <Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/select-role" element={<RoleSelection />} />
@@ -281,6 +274,11 @@ function App() {
             <Route index element={<Navigate to="/ngo/dashboard" replace />} />
             <Route path="dashboard" element={<NgoDashboard />} />
             <Route path="campaigns" element={<ManageCampaigns />} />
+            <Route path="campaigns/new" element={<CreateCampaign />} />
+            <Route path="campaigns/:id" element={<CampaignDetails />} />
+            <Route path="campaigns/:id/edit" element={<EditCampaign />} />
+            <Route path="requests/new" element={<CreateRequest />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="donations" element={<DonationsReceived />} />
             <Route path="profile" element={<OrganizationProfile />} />
           </Route>

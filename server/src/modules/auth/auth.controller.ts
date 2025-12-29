@@ -53,6 +53,8 @@ export class AuthController {
 
     const { password, refreshToken: _, ...userResult } = user;
 
+    console.log('LOGIN SUCCESS: Returning payload:', { user: userResult, accessToken }); // DEBUG LOG
+
     return {
       user: userResult,
       accessToken,

@@ -1,150 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { HiSearch, HiClock, HiUserGroup, HiTrendingUp, HiCheckCircle } from 'react-icons/hi';
+import { useDispatch, useSelector } from 'react-redux';
+import { HiSearch, HiClock, HiUserGroup, HiTrendingUp } from 'react-icons/hi';
 import Card from '../components/ui/Card';
 import ProgressBar from '../components/ui/ProgressBar';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { formatCurrency } from '../utils/helpers';
+import { fetchCampaigns, selectCampaigns, selectNgoLoading } from '../store/ngoSlice';
 
 const Campaigns = () => {
+  const dispatch = useDispatch();
+  const campaigns = useSelector(selectCampaigns);
+  const loading = useSelector(selectNgoLoading);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
 
-  // Mock campaigns data
-  const campaigns = [
-    {
-      id: 1,
-      title: 'Ramadan Food Drive 2024',
-      description: 'Provide iftar meals and food packages to families in need during the holy month of Ramadan. Help us spread joy and blessings.',
-      type: 'Seasonal',
-      status: 'active',
-      currentAmount: 185000,
-      targetAmount: 250000,
-      donors: 1250,
-      daysLeft: 12,
-      startDate: '2024-03-01',
-      endDate: '2024-04-10',
-      image: 'https://images.unsplash.com/photo-1495195134817-aeb325a55b65?w=400',
-      featured: true
-    },
-    {
-      id: 2,
-      title: 'Build a Mosque in Rural Pakistan',
-      description: 'Help construct a mosque to serve as a spiritual and community center for a village of 500 families in rural Pakistan.',
-      type: 'Infrastructure',
-      status: 'active',
-      currentAmount: 320000,
-      targetAmount: 500000,
-      donors: 890,
-      daysLeft: 45,
-      startDate: '2024-01-15',
-      endDate: '2024-06-30',
-      image: 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=400',
-      featured: true
-    },
-    {
-      id: 3,
-      title: 'Syria Emergency Response',
-      description: 'Immediate relief for earthquake victims in Syria including shelter, food, medical aid, and trauma support for affected families.',
-      type: 'Emergency',
-      status: 'active',
-      currentAmount: 450000,
-      targetAmount: 600000,
-      donors: 3200,
-      daysLeft: 8,
-      startDate: '2024-02-10',
-      endDate: '2024-03-31',
-      image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400',
-      featured: true
-    },
-    {
-      id: 4,
-      title: 'Yemen Water Wells Project',
-      description: 'Dig and maintain water wells in rural Yemen to provide clean drinking water and improve health outcomes for thousands.',
-      type: 'Long-term',
-      status: 'active',
-      currentAmount: 95000,
-      targetAmount: 200000,
-      donors: 450,
-      daysLeft: 60,
-      startDate: '2023-12-01',
-      endDate: '2024-08-31',
-      image: 'https://images.unsplash.com/photo-1523215713805-7a8c0f6a6c5f?w=400',
-      featured: false
-    },
-    {
-      id: 5,
-      title: 'School Supplies for Rohingya Children',
-      description: 'Provide books, stationery, uniforms, and educational materials to Rohingya refugee children in Bangladesh camps.',
-      type: 'Education',
-      status: 'active',
-      currentAmount: 42000,
-      targetAmount: 75000,
-      donors: 320,
-      daysLeft: 30,
-      startDate: '2024-02-01',
-      endDate: '2024-05-31',
-      image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400',
-      featured: false
-    },
-    {
-      id: 6,
-      title: 'Gaza Healthcare Support',
-      description: 'Fund medical treatments, surgeries, medications, and rehabilitation for injured civilians in Gaza hospitals.',
-      type: 'Healthcare',
-      status: 'active',
-      currentAmount: 280000,
-      targetAmount: 400000,
-      donors: 1850,
-      daysLeft: 20,
-      startDate: '2024-01-20',
-      endDate: '2024-04-30',
-      image: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400',
-      featured: false
-    },
-    {
-      id: 7,
-      title: 'Orphan Care Program - Somalia',
-      description: 'Comprehensive care including food, shelter, education, healthcare, and emotional support for orphaned children in Somalia.',
-      type: 'Long-term',
-      status: 'active',
-      currentAmount: 125000,
-      targetAmount: 300000,
-      donors: 680,
-      daysLeft: 90,
-      startDate: '2023-11-01',
-      endDate: '2024-12-31',
-      image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
-      featured: false
-    },
-    {
-      id: 8,
-      title: 'Winter Relief - Afghanistan',
-      description: 'Distribute warm clothing, blankets, heating fuel, and winterized shelter materials to families facing harsh winter.',
-      type: 'Seasonal',
-      status: 'active',
-      currentAmount: 68000,
-      targetAmount: 120000,
-      donors: 420,
-      daysLeft: 18,
-      startDate: '2024-02-15',
-      endDate: '2024-03-31',
-      image: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=400',
-      featured: false
-    }
-  ];
+  useEffect(() => {
+    dispatch(fetchCampaigns());
+  }, [dispatch]);
 
-  const campaignTypes = ['All', 'Emergency', 'Seasonal', 'Long-term', 'Infrastructure', 'Education', 'Healthcare'];
+  const getDaysLeft = (endDate) => {
+    if (!endDate) return 0;
+    const diff = new Date(endDate) - new Date();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 0;
+  };
 
-  const filteredCampaigns = campaigns.filter(campaign => {
+  // Map campaign types/categories if possible, otherwise rely on isEmergency or default
+  const getCampaignType = (c) => {
+    if (c.isEmergency) return 'Emergency';
+    // Backend Campaign entity currently lacks 'category' field. 
+    // Mapping based on generic logic or placeholder until backend updates.
+    return c.category || 'General';
+  };
+
+  const formattedCampaigns = campaigns.map(c => ({
+    ...c,
+    targetAmount: Number(c.goalAmount),
+    currentAmount: Number(c.raisedAmount),
+    daysLeft: getDaysLeft(c.endDate),
+    donors: c.donorCount || 0, // Backend needs to provide this or we calculate from transactions
+    type: getCampaignType(c),
+    image: c.image || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400' // Placeholder
+  }));
+
+  const campaignTypes = ['All', 'Emergency', 'General'];
+  // Simplified types since backend doesn't support all yet.
+
+  const filteredCampaigns = formattedCampaigns.filter(campaign => {
     const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         campaign.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = selectedType === 'all' || campaign.type === selectedType;
+      campaign.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedType === 'all' ||
+      (selectedType === 'Emergency' ? campaign.isEmergency : campaign.type === selectedType);
     return matchesSearch && matchesType;
   });
 
-  const featuredCampaigns = campaigns.filter(c => c.featured);
-  const regularCampaigns = filteredCampaigns.filter(c => !c.featured);
+  const featuredCampaigns = formattedCampaigns.filter(c => c.isEmergency || c.featured); // Assume emergency is featured
+  const regularCampaigns = filteredCampaigns.filter(c => !c.isEmergency);
+
+  if (loading && campaigns.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center p-8">Loading campaigns...</div>;
+  }
 
   return (
     <div className="min-h-screen py-8 bg-secondary-50">
@@ -180,11 +97,10 @@ const Campaigns = () => {
                   <button
                     key={type}
                     onClick={() => setSelectedType(type === 'All' ? 'all' : type)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      (type === 'All' && selectedType === 'all') || type === selectedType
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${(type === 'All' && selectedType === 'all') || type === selectedType
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                      }`}
                   >
                     {type}
                   </button>
@@ -197,9 +113,9 @@ const Campaigns = () => {
         {/* Featured Campaigns */}
         {featuredCampaigns.length > 0 && selectedType === 'all' && !searchQuery && (
           <div className="mb-8">
-            <h2 className="mb-4 text-2xl font-bold text-secondary-900">Featured Campaigns</h2>
+            <h2 className="mb-4 text-2xl font-bold text-secondary-900">Featured & Emergency</h2>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {featuredCampaigns.map((campaign) => (
+              {featuredCampaigns.slice(0, 3).map((campaign) => (
                 <Card key={campaign.id} padding="none" hoverable className="overflow-hidden">
                   <div className="relative h-56">
                     <img
@@ -311,7 +227,7 @@ const Campaigns = () => {
         </div>
 
         {/* Empty State */}
-        {filteredCampaigns.length === 0 && (
+        {filteredCampaigns.length === 0 && !loading && (
           <div className="py-12 text-center">
             <p className="text-lg text-secondary-600">No campaigns found matching your criteria.</p>
             <p className="mt-2 text-sm text-secondary-500">Try adjusting your search or filters.</p>
@@ -323,3 +239,4 @@ const Campaigns = () => {
 };
 
 export default Campaigns;
+

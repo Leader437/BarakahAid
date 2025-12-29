@@ -23,7 +23,10 @@ const Login = () => {
     const token = searchParams.get('token');
     if (token) {
       // Store token and redirect to dashboard
-      localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
+      // We might want to fetch user profile here if not provided in URL, 
+      // but for now relying on basic auth state or subsequent profile fetch.
+      // Ideally dispatch loginSuccess if we had user info.
       navigate('/dashboard');
     }
   }, [searchParams, navigate]);
@@ -132,7 +135,7 @@ const Login = () => {
             <p className="mb-4 text-sm text-center text-secondary-600">Or continue with</p>
             <button
               onClick={() => {
-                window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/google`;
+                window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/auth/google`;
               }}
               className="flex items-center justify-center w-full gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 bg-white border rounded-lg border-secondary-300 text-secondary-700 hover:bg-secondary-50 hover:border-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
@@ -147,8 +150,8 @@ const Login = () => {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <SecondaryButton
                 onClick={() => {
-                  values.email = 'donor@example.com';
-                  values.password = 'password';
+                  values.email = 'donor_demo@barakahaid.com';
+                  values.password = 'password123';
                   handleLogin(values);
                 }}
                 className="!text-xs !py-2"
@@ -157,8 +160,8 @@ const Login = () => {
               </SecondaryButton>
               <SecondaryButton
                 onClick={() => {
-                  values.email = 'volunteer@example.com';
-                  values.password = 'password';
+                  values.email = 'volunteer_demo@barakahaid.com';
+                  values.password = 'password123';
                   handleLogin(values);
                 }}
                 className="!text-xs !py-2"
@@ -167,15 +170,14 @@ const Login = () => {
               </SecondaryButton>
               <SecondaryButton
                 onClick={() => {
-                  values.email = 'ngo@example.com';
-                  values.password = 'password';
+                  values.email = 'ngo_demo@barakahaid.com';
+                  values.password = 'password123';
                   handleLogin(values);
                 }}
                 className="!text-xs !py-2"
               >
                 NGO
               </SecondaryButton>
-
             </div>
           </div>
         </Card>

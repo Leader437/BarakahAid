@@ -1,5 +1,5 @@
 // Donations List Page - Donation Management Table
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Badge } from '../../components/ui';
@@ -8,6 +8,7 @@ import {
     selectDonationsFilters,
     selectDonationsStats,
     setFilters,
+    fetchDonations,
 } from '../../store/donationsSlice';
 import usePagination from '../../hooks/usePagination';
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
@@ -17,6 +18,10 @@ const DonationsList = () => {
     const donations = useSelector(selectFilteredDonations);
     const filters = useSelector(selectDonationsFilters);
     const stats = useSelector(selectDonationsStats);
+
+    useEffect(() => {
+        dispatch(fetchDonations());
+    }, [dispatch]);
 
     // Pagination
     const {

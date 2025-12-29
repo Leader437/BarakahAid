@@ -2,6 +2,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginUser, registerUser, logout } from '../store/userSlice';
+import { getDashboardPath } from '../utils/helpers';
 
 /**
  * Custom hook for authentication operations
@@ -15,14 +16,10 @@ const useAuth = () => {
   const login = async (credentials) => {
     const result = await dispatch(loginUser(credentials));
     if (result.success && result.user) {
-      // Persist to localStorage for AdminModule and session persistence
-      localStorage.setItem('user', JSON.stringify(result.user));
+      console.log('Login successful, user:', result.user);
       
-      // Generate mock token if not present (mock mode) or use real one
-      const token = result.token || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJleHAiOjE5OTk5OTk5OTl9.mock_token";
-      localStorage.setItem('token', token);
-
       const dashboardPath = getDashboardPath(result.user.role);
+      console.log('Redirecting to:', dashboardPath);
       navigate(dashboardPath);
     }
     return result;
@@ -31,7 +28,10 @@ const useAuth = () => {
   const register = async (userData) => {
     const result = await dispatch(registerUser(userData));
     if (result.success && result.user) {
+      console.log('Registration successful, user:', result.user);
+      
       const dashboardPath = getDashboardPath(result.user.role);
+      console.log('Redirecting to:', dashboardPath);
       navigate(dashboardPath);
     }
     return result;
@@ -42,21 +42,8 @@ const useAuth = () => {
     navigate('/login');
   };
 
-  const getDashboardPath = (role) => {
-    switch (role) {
-      case 'donor':
-        return '/donor/dashboard';
-      case 'recipient':
-        return '/recipient/dashboard';
-      case 'volunteer':
-        return '/volunteer/dashboard';
-      case 'ngo':
-        return '/ngo/dashboard';
+  // Removed local getDashboardPath in favor of helper
 
-      default:
-        return '/';
-    }
-  };
 
   const hasRole = (allowedRoles) => {
     if (!user || !isAuthenticated) return false;

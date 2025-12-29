@@ -1,127 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  HiSearch, 
-  HiCalendar, 
-  HiClock, 
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  HiSearch,
+  HiCalendar,
+  HiClock,
   HiLocationMarker,
   HiUserGroup,
   HiCheckCircle
 } from 'react-icons/hi';
 import Card from '../../components/ui/Card';
 import PrimaryButton from '../../components/ui/PrimaryButton';
+import { fetchEvents, selectEvents, selectVolunteerLoading, registerForEventAsync } from '../../store/volunteerSlice';
 
 const BrowseEvents = () => {
+  const dispatch = useDispatch();
+  const rawEvents = useSelector(selectEvents);
+  const loading = useSelector(selectVolunteerLoading);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
 
-  // Mock events data
-  const events = [
-    {
-      id: 1,
-      title: 'Food Distribution Drive',
-      description: 'Help distribute food packages to families in need. We provide essential groceries and fresh produce to underprivileged communities.',
-      category: 'Food Relief',
-      type: 'one-time',
-      date: '2025-12-15',
-      time: '09:00 AM - 02:00 PM',
-      duration: '5 hours',
-      location: 'Community Center, Downtown',
-      spotsLeft: 5,
-      totalSpots: 20,
-      organizer: 'BarakahAid Foundation',
-      requirements: ['Physical fitness', 'Transportation'],
-      image: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400'
-    },
-    {
-      id: 2,
-      title: 'Winter Clothing Collection',
-      description: 'Collect and sort winter clothing donations for distribution to homeless shelters and refugee families.',
-      category: 'Clothing',
-      type: 'one-time',
-      date: '2025-12-18',
-      time: '02:00 PM - 06:00 PM',
-      duration: '4 hours',
-      location: 'City Plaza',
-      spotsLeft: 8,
-      totalSpots: 15,
-      organizer: 'Community Outreach',
-      requirements: ['Organization skills'],
-      image: 'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=400'
-    },
-    {
-      id: 3,
-      title: 'Educational Workshop for Kids',
-      description: 'Teach basic literacy and numeracy skills to underprivileged children. Help create a fun learning environment.',
-      category: 'Education',
-      type: 'recurring',
-      date: '2025-12-20',
-      time: '10:00 AM - 01:00 PM',
-      duration: '3 hours',
-      location: 'Learning Center',
-      spotsLeft: 3,
-      totalSpots: 10,
-      organizer: 'Education Initiative',
-      requirements: ['Teaching experience preferred', 'Patience with children'],
-      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400'
-    },
-    {
-      id: 4,
-      title: 'Medical Camp Support',
-      description: 'Assist healthcare professionals in organizing and running a free medical camp for low-income families.',
-      category: 'Healthcare',
-      type: 'one-time',
-      date: '2025-12-22',
-      time: '08:00 AM - 04:00 PM',
-      duration: '8 hours',
-      location: 'Central Hospital',
-      spotsLeft: 10,
-      totalSpots: 25,
-      organizer: 'Health Services',
-      requirements: ['Medical background helpful but not required'],
-      image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400'
-    },
-    {
-      id: 5,
-      title: 'Orphanage Visit & Activities',
-      description: 'Spend time with orphaned children, organize games, and provide emotional support.',
-      category: 'Orphan Care',
-      type: 'recurring',
-      date: '2025-12-25',
-      time: '11:00 AM - 03:00 PM',
-      duration: '4 hours',
-      location: 'Hope Orphanage',
-      spotsLeft: 6,
-      totalSpots: 12,
-      organizer: 'Child Welfare',
-      requirements: ['Background check required', 'Good with children'],
-      image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400'
-    },
-    {
-      id: 6,
-      title: 'Emergency Relief Packaging',
-      description: 'Assemble emergency relief kits including food, water, hygiene items, and first aid supplies for disaster response.',
-      category: 'Emergency',
-      type: 'one-time',
-      date: '2025-12-28',
-      time: '01:00 PM - 05:00 PM',
-      duration: '4 hours',
-      location: 'Warehouse District',
-      spotsLeft: 15,
-      totalSpots: 30,
-      organizer: 'Disaster Response Team',
-      requirements: ['Ability to lift boxes'],
-      image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400'
+  useEffect(() => {
+    dispatch(fetchEvents());
+  }, [dispatch]);
+
+  const handleRegister = async (eventId) => {
+    try {
+      await dispatch(registerForEventAsync(eventId)).unwrap();
+      dispatch(fetchEvents());
+      alert('Successfully registered!');
+    } catch (err) {
+      alert(`Registration failed: ${err}`);
     }
-  ];
+  };
+
+  // Helper to infer category from title (since backend doesn't save it yet)
+  const inferCategory = (title) => {
+    const t = title.toLowerCase();
+    if (t.includes('food')) return 'Food Relief';
+    if (t.includes('clothing') || t.includes('winter')) return 'Clothing';
+    if (t.includes('education') || t.includes('mentor') || t.includes('school')) return 'Education';
+    if (t.includes('medical') || t.includes('health')) return 'Healthcare';
+    if (t.includes('orphan')) return 'Orphan Care';
+    if (t.includes('emergency') || t.includes('relief')) return 'Emergency';
+    return 'Other';
+  };
+
+  const getRandomImage = (category) => {
+    const images = {
+      'Food Relief': 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400',
+      'Clothing': 'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=400',
+      'Education': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400',
+      'Healthcare': 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',
+      'Orphan Care': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
+      'Emergency': 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400',
+      'Other': 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400'
+    };
+    return images[category] || images['Other'];
+  };
+
+  // Map backend events to UI structure
+  const events = rawEvents.map(e => {
+    const category = inferCategory(e.title);
+    return {
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      category: category,
+      type: 'one-time', // Default to one-time
+      date: e.eventDate,
+      time: new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      duration: '4 hours', // Placeholder
+      location: e.location?.address || 'TBD',
+      spotsLeft: (e.maxVolunteers || 0) - (e.volunteers?.length || 0),
+      totalSpots: e.maxVolunteers || 0,
+      organizer: 'BarakahAid',
+      requirements: e.requiredSkills || [],
+      image: getRandomImage(category)
+    };
+  });
 
   const categories = ['All', 'Food Relief', 'Clothing', 'Education', 'Healthcare', 'Orphan Care', 'Emergency'];
   const eventTypes = ['All', 'One-time', 'Recurring'];
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchQuery.toLowerCase());
+      event.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
     const matchesType = selectedType === 'all' || event.type === selectedType;
     return matchesSearch && matchesCategory && matchesType;
@@ -161,11 +127,10 @@ const BrowseEvents = () => {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category === 'All' ? 'all' : category)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      (category === 'All' && selectedCategory === 'all') || category === selectedCategory
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${(category === 'All' && selectedCategory === 'all') || category === selectedCategory
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                      }`}
                   >
                     {category}
                   </button>
@@ -181,11 +146,10 @@ const BrowseEvents = () => {
                   <button
                     key={type}
                     onClick={() => setSelectedType(type.toLowerCase())}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      type.toLowerCase() === selectedType
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${type.toLowerCase() === selectedType
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                      }`}
                   >
                     {type}
                   </button>
@@ -226,11 +190,10 @@ const BrowseEvents = () => {
               {/* Content */}
               <div className="p-4">
                 <div className="mb-2">
-                  <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                    event.type === 'recurring' 
-                      ? 'bg-success-100 text-success-700' 
-                      : 'bg-secondary-100 text-secondary-700'
-                  }`}>
+                  <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${event.type === 'recurring'
+                    ? 'bg-success-100 text-success-700'
+                    : 'bg-secondary-100 text-secondary-700'
+                    }`}>
                     {event.type === 'recurring' ? 'Recurring' : 'One-time'}
                   </span>
                 </div>
@@ -245,8 +208,8 @@ const BrowseEvents = () => {
                 <div className="mb-4 space-y-2 text-sm text-secondary-600">
                   <div className="flex items-center gap-2">
                     <HiCalendar className="w-4 h-4" />
-                    <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                      month: 'short', 
+                    <span>{new Date(event.date).toLocaleDateString('en-US', {
+                      month: 'short',
                       day: 'numeric',
                       year: 'numeric'
                     })}</span>
@@ -266,7 +229,7 @@ const BrowseEvents = () => {
                 </div>
 
                 {/* Action Button */}
-                <PrimaryButton className="w-full">
+                <PrimaryButton className="w-full" onClick={() => handleRegister(event.id)}>
                   Register for Event
                 </PrimaryButton>
               </div>

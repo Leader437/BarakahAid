@@ -12,7 +12,7 @@ import { validateEmail, validatePassword, validateRequired } from '../../utils/v
 import { ROLES } from '../../utils/constants';
 
 const Register = () => {
-  const { register, loading } = useAuth();
+  const { register, loading, error: authError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const roleOptions = [
@@ -24,23 +24,23 @@ const Register = () => {
 
   const validate = (values) => {
     const errors = {};
-    
+
     const nameError = validateRequired(values.name, 'Name');
     if (nameError) errors.name = nameError;
-    
+
     const emailError = validateEmail(values.email);
     if (emailError) errors.email = emailError;
-    
+
     const passwordError = validatePassword(values.password);
     if (passwordError) errors.password = passwordError;
-    
+
     if (values.password !== values.confirmPassword) {
       errors.confirmPassword = 'Passwords do not match';
     }
-    
+
     const roleError = validateRequired(values.role, 'Role');
     if (roleError) errors.role = roleError;
-    
+
     return errors;
   };
 
@@ -70,6 +70,11 @@ const Register = () => {
         </div>
 
         <Card padding="lg">
+          {authError && (
+            <div className="p-3 mb-4 text-sm border rounded-lg bg-danger-50 border-danger-200 text-danger-700">
+              {typeof authError === 'string' ? authError : 'Registration failed. Please try again.'}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
@@ -185,7 +190,11 @@ const Register = () => {
             >
               {isSubmitting || loading ? 'Creating Account...' : 'Create Account'}
             </PrimaryButton>
+            {/* Show general API error if exists */}
+            {/* We can access the error state from the hook, but for now we'll rely on the field errors or add a global alert */}
           </form>
+          {/* Add error message display related to registration failure */}
+          {/* Note: useAuth provides 'error' state which we should probably expose or use from slice */}
         </Card>
 
         <p className="mt-6 text-center text-secondary-600">

@@ -1,5 +1,5 @@
 // Requests List Page - Donation Requests Management
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Badge, Modal } from '../../components/ui';
@@ -9,6 +9,7 @@ import {
     setFilters,
     approveRequest,
     rejectRequest,
+    fetchRequests,
 } from '../../store/requestsSlice';
 import usePagination from '../../hooks/usePagination';
 import { formatCurrency, formatDate } from '../../utils/helpers';
@@ -17,6 +18,10 @@ const RequestsList = () => {
     const dispatch = useDispatch();
     const requests = useSelector(selectFilteredRequests);
     const filters = useSelector(selectRequestsFilters);
+
+    useEffect(() => {
+        dispatch(fetchRequests());
+    }, [dispatch]);
 
     // Local state
     const [selectedRequest, setSelectedRequest] = useState(null);
@@ -265,7 +270,7 @@ const RequestsList = () => {
                                         </td>
 
                                         {/* Category */}
-                                        <td className="px-6 py-4 text-secondary-700">{request.category}</td>
+                                        <td className="px-6 py-4 text-secondary-700">{request.category?.name || 'Uncategorized'}</td>
 
                                         {/* Progress */}
                                         <td className="px-6 py-4">
@@ -305,6 +310,7 @@ const RequestsList = () => {
                                                         <Button
                                                             variant="success"
                                                             size="sm"
+                                                            className="!text-black"
                                                             onClick={() => openActionModal(request, 'approve')}
                                                         >
                                                             Approve
@@ -312,6 +318,7 @@ const RequestsList = () => {
                                                         <Button
                                                             variant="danger"
                                                             size="sm"
+                                                            className="!text-black"
                                                             onClick={() => openActionModal(request, 'reject')}
                                                         >
                                                             Reject
@@ -358,6 +365,7 @@ const RequestsList = () => {
                         </Button>
                         <Button
                             variant={actionType === 'approve' ? 'success' : 'danger'}
+                            className="!text-black"
                             onClick={actionType === 'approve' ? handleApprove : handleReject}
                         >
                             {actionType === 'approve' ? 'Approve' : 'Reject'}
