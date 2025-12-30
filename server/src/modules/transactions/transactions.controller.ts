@@ -56,6 +56,51 @@ export class TransactionsController {
     return this.transactionsService.findReceivedByNgo(userId);
   }
 
+  @Get('reports/yearly')
+  @Roles(Role.DONOR)
+  async getYearlyReport(
+    @CurrentUser('id') userId: string,
+    @Query('year') year: number,
+    @Res() response: Response,
+  ) {
+    try {
+      console.log(`Generating yearly report for user ${userId}, year ${year}`);
+      const pdfBuffer = await this.transactionsService.generateYearlyReport(
+        userId,
+        year,
+      );
+
+      response.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `inline; filename=donation-report-${year}.pdf`,
+        'Content-Length': pdfBuffer.length,
+      });
+
+      response.end(pdfBuffer);
+    } catch (error) {
+      console.error('Failed to generate yearly report:', error);
+      response.status(500).json({ message: 'Failed to generate report', error: error.message });
+    }
+  }
+
+  @Get(':id/receipt')
+  @Roles(Role.DONOR)
+  async getReceipt(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+    @Res() response: Response,
+  ) {
+    const pdfBuffer = await this.transactionsService.generateReceipt(id, userId);
+
+    response.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename=receipt-${id}.pdf`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    response.end(pdfBuffer);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.transactionsService.findOne(id);
@@ -68,26 +113,5 @@ export class TransactionsController {
     @Body('status') status: any,
   ) {
     return this.transactionsService.updateStatus(id, status);
-  }
-
-  @Get('reports/yearly')
-  @Roles(Role.DONOR)
-  async getYearlyReport(
-    @CurrentUser('id') userId: string,
-    @Query('year') year: number,
-    @Res() response: Response,
-  ) {
-    const pdfBuffer = await this.transactionsService.generateYearlyReport(
-      userId,
-      year,
-    );
-
-    response.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=donation-report-${year}.pdf`,
-      'Content-Length': pdfBuffer.length,
-    });
-
-    response.end(pdfBuffer);
   }
 }

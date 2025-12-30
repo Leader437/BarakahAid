@@ -49,4 +49,7 @@ export enum PaymentGateway {
   JAZZCASH = 'JAZZCASH',
   EASYPAISA = 'EASYPAISA',
   CARD = 'CARD',
+  STRIPE = 'STRIPE',
+  PAYPAL = 'PAYPAL',
+  GOOGLEPAY = 'GOOGLEPAY',
 }

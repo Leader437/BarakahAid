@@ -141,7 +141,7 @@ export class TransactionsService {
       totalDonations: transactions.length,
       totalAmount,
       donations: transactions.map((t) => ({
-        campaignTitle: t.campaign.title,
+        campaignTitle: t.campaign?.title || 'Community Request',
         amount: t.amount,
         date: t.createdAt,
       })),
@@ -247,6 +247,30 @@ export class TransactionsService {
     const transaction = await this.findOne(id);
     transaction.status = status;
     return this.transactionRepository.save(transaction);
+  }
+
+  async generateReceipt(transactionId: string, userId: string): Promise<Buffer> {
+    const transaction = await this.transactionRepository.findOne({
+      where: { id: transactionId, donor: { id: userId } },
+      relations: ['donor', 'campaign'],
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found or not owned by you');
+    }
+
+    if (transaction.status !== TransactionStatus.COMPLETED) {
+      throw new BadRequestException('Receipt only available for completed transactions');
+    }
+
+    return PdfGeneratorUtil.generateDonationReceipt({
+      receiptId: transaction.id,
+      date: transaction.createdAt,
+      donorName: transaction.donor.name || 'Value Patron',
+      campaignTitle: transaction.campaign?.title || 'Community Request',
+      amount: transaction.amount,
+      paymentMethod: transaction.paymentGateway,
+    });
   }
 
 }

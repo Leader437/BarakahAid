@@ -17,6 +17,7 @@ import ProgressBar from '../components/ui/ProgressBar';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import SecondaryButton from '../components/ui/SecondaryButton';
 import { formatCurrency } from '../utils/helpers';
+import api from '../utils/api';
 import DemoPaymentForm from '../components/payment/DemoPaymentForm';
 import PayPalDemoForm from '../components/payment/PayPalDemoForm';
 import GooglePayDemoForm from '../components/payment/GooglePayDemoForm';
@@ -38,6 +39,7 @@ const Donate = () => {
   const [selectedPaymentGateway, setSelectedPaymentGateway] = useState('stripe');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successData, setSuccessData] = useState(null);
+  const [formKey, setFormKey] = useState(0);
   const [donorInfo, setDonorInfo] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -145,10 +147,12 @@ const Donate = () => {
       setShowSuccessModal(true);
       
       // Reset form
-      setSelectedAmount(100);
+      setSelectedAmount(null);
       setCustomAmount('');
-      setDonorInfo({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', anonymous: false });
+      setSelectedPaymentGateway('stripe');
+      setDonorInfo({ name: '', email: '', phone: '', anonymous: false });
       setIsRecurring(false);
+      setFormKey(prev => prev + 1);
     } catch (err) {
       console.error('Donation processing failed', err);
       alert('Payment was successful but we failed to record it in our system: ' + (err.response?.data?.message || err.message));
@@ -388,7 +392,7 @@ const Donate = () => {
                   </div>
 
                   {/* Active Payment Form */}
-                  <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 transition-all duration-300">
+                  <div key={formKey} className="bg-gray-50 rounded-xl border border-gray-200 p-6 transition-all duration-300">
                     {selectedPaymentGateway === 'stripe' && (
                       <DemoPaymentForm
                         amount={getTotalAmount() * 100}

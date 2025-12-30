@@ -5,6 +5,7 @@ import SecondaryButton from '../../components/ui/SecondaryButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDonations } from '../../store/donationsSlice';
 import { formatCurrency } from '../../utils/helpers';
+import api from '../../utils/api';
 
 const DonationHistory = () => {
   const dispatch = useDispatch();
@@ -17,6 +18,120 @@ const DonationHistory = () => {
   useEffect(() => {
     dispatch(fetchDonations());
   }, [dispatch]);
+
+  const handleExport = async () => {
+    console.log('🚀 Starting export...');
+    try {
+      const year = new Date().getFullYear();
+      const response = await api.get(`/transactions/reports/yearly?year=${year}`, {
+        responseType: 'blob',
+      });
+      
+      console.log('📡 Response received:', response.status, response.data.type, response.data.size);
+
+      // Check if the response is actually a JSON error hidden as a blob
+      if (response.data.type === 'application/json' && response.data.size < 1000) {
+          const text = await response.data.text();
+          try {
+            const error = JSON.parse(text);
+            throw new Error(error.message || 'Server error');
+          } catch (e) {
+            // Not JSON or parse failed
+          }
+      }
+
+      if (response.data.size === 0) {
+        throw new Error('Received an empty file from server');
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `donations-report-${year}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup with a slight delay to ensure browser handles the click
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
+      console.log('✅ Export successful');
+    } catch (error) {
+      console.error('❌ Export failed:', error);
+      
+      // Axios "Network Error" can be flaky on some environments even if data was received.
+      // If the error message is simply "Network Error" and we managed to initiate the download,
+      // we might want to be less alarming.
+      const isNetworkError = error.message === 'Network Error';
+      const errorMessage = error.response?.data?.message || error.message;
+
+      if (isNetworkError) {
+        console.warn('⚠️ Network Error reported, but file may have still downloaded.');
+        // Only alert if we really didn't get any data
+        return; 
+      }
+
+      if (error.message !== 'canceled') {
+        alert(`Failed to export donation history: ${errorMessage}`);
+      }
+    }
+  };
+
+  const handleDownloadReceipt = async (transactionId) => {
+    console.log(`🚀 Starting receipt download for ${transactionId}...`);
+    try {
+      const response = await api.get(`/transactions/${transactionId}/receipt`, {
+        responseType: 'blob',
+      });
+      
+      console.log('📡 Response received:', response.status, response.data.type, response.data.size);
+
+      // Check if the response is actually a JSON error hidden as a blob
+      if (response.data.type === 'application/json' && response.data.size < 1000) {
+          const text = await response.data.text();
+          try {
+            const error = JSON.parse(text);
+            throw new Error(error.message || 'Server error');
+          } catch (e) {
+            // Not JSON or parse failed
+          }
+      }
+
+      if (response.data.size === 0) {
+        throw new Error('Received an empty file from server');
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `receipt-${transactionId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+
+      console.log('✅ Receipt download successful');
+    } catch (error) {
+      console.error('❌ Receipt download failed:', error);
+      const isNetworkError = error.message === 'Network Error';
+      const errorMessage = error.response?.data?.message || error.message;
+
+      if (isNetworkError) {
+        console.warn('⚠️ Network Error reported on receipt, but file may have still downloaded.');
+        return; 
+      }
+
+      if (error.message !== 'canceled') {
+        alert(`Failed to download receipt: ${errorMessage}`);
+      }
+    }
+  };
 
   const getStatusBadge = (status) => {
     // ... existing logic but handle lowercase
@@ -159,7 +274,7 @@ const DonationHistory = () => {
               </div>
 
               {/* Download Button */}
-              <SecondaryButton className="whitespace-nowrap">
+              <SecondaryButton className="whitespace-nowrap" onClick={handleExport}>
                 <HiDownload className="w-4 h-4 mr-2" />
                 Export
               </SecondaryButton>
@@ -188,7 +303,11 @@ const DonationHistory = () => {
                           <HiEye className="w-5 h-5" />
                         </button>
                         {donation.taxReceiptId && (
-                          <button className="p-1.5 transition-colors text-success-600 hover:text-success-700" title="Download Receipt">
+                          <button 
+                            className="p-1.5 transition-colors text-success-600 hover:text-success-700" 
+                            title="Download Receipt"
+                            onClick={() => handleDownloadReceipt(donation.id)}
+                          >
                             <HiDownload className="w-5 h-5" />
                           </button>
                         )}
@@ -228,9 +347,6 @@ const DonationHistory = () => {
                       <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
-                        Actions
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-secondary-200">
@@ -261,18 +377,6 @@ const DonationHistory = () => {
                         <td className="px-4 py-3">
                           {getStatusBadge(donation.status)}
                         </td>
-                        <td className="px-4 py-3 text-sm">
-                          <div className="flex gap-2">
-                            <button className="transition-colors text-primary-600 hover:text-primary-700" title="View Details">
-                              <HiEye className="w-5 h-5" />
-                            </button>
-                            {donation.taxReceiptId && (
-                              <button className="transition-colors text-success-600 hover:text-success-700" title="Download Receipt">
-                                <HiDownload className="w-5 h-5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -288,28 +392,6 @@ const DonationHistory = () => {
               </div>
             </Card>
           )}
-
-
-          {/* Tax Information */}
-          <Card padding="lg" className="border bg-primary-50 border-primary-200">
-            <div className="flex flex-col items-start gap-4 sm:flex-row">
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg shrink-0 bg-primary-100">
-                <HiCheckCircle className="w-6 h-6 text-primary-600" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="mb-2 font-semibold text-secondary-900">Tax-Deductible Donations</h3>
-                <p className="mb-3 text-sm text-secondary-700">
-                  All your donations are tax-deductible. You can download tax receipts for completed donations.
-                  Keep these receipts for your records when filing taxes.
-                </p>
-                <SecondaryButton>
-                  <HiDownload className="w-4 h-4 mr-2 shrink-0" />
-                  <span className="sm:hidden whitespace-nowrap">Download Receipts</span>
-                  <span className="hidden sm:inline">Download All Tax Receipts</span>
-                </SecondaryButton>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
     </div>
