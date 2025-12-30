@@ -1,9 +1,11 @@
 // Admin Sidebar Component
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectRequests, fetchRequests } from '../store/requestsSlice';
 
-// Navigation menu items with icons
-const menuItems = [
+// Navigation menu items with icons (badge will be added dynamically)
+const baseMenuItems = [
     {
         path: '/dashboard',
         label: 'Dashboard',
@@ -39,7 +41,7 @@ const menuItems = [
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
         ),
-        badge: 3, // Show pending count
+        badgeKey: 'pendingRequests', // Dynamic badge
     },
     {
         path: '/campaigns',
@@ -77,6 +79,28 @@ const menuItems = [
  */
 const AdminSidebar = ({ isOpen, onClose }) => {
     const location = useLocation();
+    const dispatch = useDispatch();
+    const requests = useSelector(selectRequests);
+
+    // Fetch requests on mount to get pending count
+    useEffect(() => {
+        dispatch(fetchRequests());
+    }, [dispatch]);
+
+    // Calculate pending requests count
+    const pendingRequestsCount = useMemo(() => {
+        return requests.filter(r => r.status === 'PENDING').length;
+    }, [requests]);
+
+    // Build menu items with dynamic badges
+    const menuItems = useMemo(() => {
+        return baseMenuItems.map(item => ({
+            ...item,
+            badge: item.badgeKey === 'pendingRequests' && pendingRequestsCount > 0 
+                ? pendingRequestsCount 
+                : undefined,
+        }));
+    }, [pendingRequestsCount]);
 
     const isActive = (path) => {
         return location.pathname === path || location.pathname.startsWith(path + '/');
@@ -106,16 +130,16 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                                 to={item.path}
                                 onClick={onClose}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                                    ? 'bg-primary-50 text-primary-700 font-medium shadow-sm'
-                                    : 'text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900'
+                                    ? 'bg-primary-50 text-primary-700 font-medium border-l-4 border-primary-500'
+                                    : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
                                     }`}
                             >
-                                <span className={`transition-colors ${isActive(item.path) ? 'text-primary-600' : 'text-secondary-500 group-hover:text-secondary-700'}`}>
+                                <span className={`transition-colors ${isActive(item.path) ? 'text-primary-600' : 'text-secondary-400 group-hover:text-secondary-600'}`}>
                                     {item.icon}
                                 </span>
                                 <span className="flex-1">{item.label}</span>
                                 {item.badge && (
-                                    <span className="bg-danger-100 text-danger-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                    <span className="bg-danger-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                         {item.badge}
                                     </span>
                                 )}
@@ -125,20 +149,6 @@ const AdminSidebar = ({ isOpen, onClose }) => {
 
                     {/* Sidebar Footer */}
                     <div className="p-3 border-t border-secondary-200">
-                        {/* Quick Stats */}
-                        <div className="mb-3 p-3 bg-secondary-50 rounded-lg">
-                            <p className="text-xs font-medium text-secondary-700 uppercase tracking-wide mb-2">Quick Stats</p>
-                            <div className="grid grid-cols-2 gap-2 text-center">
-                                <div>
-                                    <p className="text-lg font-bold text-primary-600">24</p>
-                                    <p className="text-xs text-secondary-700">Active</p>
-                                </div>
-                                <div>
-                                    <p className="text-lg font-bold text-warning-600">3</p>
-                                    <p className="text-xs text-secondary-700">Pending</p>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Logout Button */}
                         <button
@@ -148,7 +158,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                                 // Redirect to local login
                                 window.location.href = '/login';
                             }}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-danger-600 hover:bg-danger-50 rounded-lg transition-colors"
+                            className="flex items-center gap-3 w-full px-4 py-3 text-secondary-600 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-colors"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -5,11 +5,12 @@ import { useDispatch } from 'react-redux';
 import { setAdminData } from '../../store/adminSlice';
 import { api } from '../../utils/api';
 import { ROLES } from '../../utils/constants';
+import logo from '../../assets/logo-main.png';
 
 // UI Components
 import useForm from '../../hooks/useForm';
 import PrimaryButton from '../../components/ui/PrimaryButton';
-import SecondaryButton from '../../components/ui/SecondaryButton';
+
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 import { validateEmail, validateRequired } from '../../utils/validation';
@@ -26,7 +27,7 @@ const Login = () => {
     const [authError, setAuthError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    // Handle OAuth callback (Mock)
+    // Handle OAuth callback (not yet implemented)
     useEffect(() => {
         const token = searchParams.get('token');
         if (token) {
@@ -96,7 +97,7 @@ const Login = () => {
                 <div className="mb-8 text-center">
                     <Link to="/" className="inline-flex items-center gap-2">
                         <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm text-2xl">
-                            🎁
+                            <img src={logo} alt="" />
                         </div>
                         <span className="text-3xl font-bold font-logo text-primary-600">
                             BarakahAid
@@ -152,10 +153,6 @@ const Login = () => {
                                 <input type="checkbox" className="rounded border-secondary-300" />
                                 <span className="text-sm text-secondary-700">Remember me</span>
                             </label>
-                            {/* Hidden for Admin or point to dummy */}
-                            <Link to="#" className="text-sm text-primary-600 hover:text-primary-700">
-                                Forgot password?
-                            </Link>
                         </div>
 
                         <PrimaryButton
@@ -167,22 +164,7 @@ const Login = () => {
                         </PrimaryButton>
                     </form>
 
-                    {/* Demo Login Options */}
-                    <div className="pt-6 mt-6 border-t border-secondary-200">
-                        <p className="mb-3 text-sm text-center text-secondary-600">Demo Login:</p>
-                        <div className="grid grid-cols-1 gap-2 text-xs">
-                            <SecondaryButton
-                                onClick={() => {
-                                    values.email = 'admin@barakahaid.com';
-                                    values.password = 'Admin123!';
-                                    handleLogin(values);
-                                }}
-                                className="!text-xs !py-2 justify-center"
-                            >
-                                Auto-Fill Admin Credentials
-                            </SecondaryButton>
-                        </div>
-                    </div>
+
                 </Card>
 
                 <p className="mt-6 text-center text-secondary-600">

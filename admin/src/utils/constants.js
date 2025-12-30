@@ -1,6 +1,6 @@
 // Admin-Specific Constants and API Endpoints
 // Note: This file only contains admin-specific constants
-// Client constants (ROLES, CATEGORIES, etc.) are imported from shared or defined in dummyData
+// Client constants (ROLES, CATEGORIES, etc.) are shared across the application
 
 // =============================================================================
 // API CONFIGURATION

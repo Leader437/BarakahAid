@@ -5,10 +5,12 @@
 @import "tailwindcss";
 
 /* Theme Configuration - Tailwind v4 CSS-based approach */
-/* @theme { Removed v4 syntax */
+@theme {
+  /* Base Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
 
-:root {
-  /* Color Palette - Main Green Theme (from client) */
+  /* Color Palette - Primary (Green) */
   --color-primary-50: #e8f8f5;
   --color-primary-100: #d1f2eb;
   --color-primary-200: #a3e4d7;
@@ -20,6 +22,7 @@
   --color-primary-800: #0e4429;
   --color-primary-900: #092e1f;
 
+  /* Color Palette - Secondary (Slate) */
   --color-secondary-50: #f8fafc;
   --color-secondary-100: #f1f5f9;
   --color-secondary-200: #e2e8f0;
@@ -31,6 +34,7 @@
   --color-secondary-800: #1e293b;
   --color-secondary-900: #0f172a;
 
+  /* Color Palette - Success (Green) */
   --color-success-50: #f0fdf4;
   --color-success-100: #dcfce7;
   --color-success-200: #bbf7d0;
@@ -42,6 +46,7 @@
   --color-success-800: #166534;
   --color-success-900: #14532d;
 
+  /* Color Palette - Warning (Yellow) */
   --color-warning-50: #fefce8;
   --color-warning-100: #fef9c3;
   --color-warning-200: #fef08a;
@@ -53,6 +58,7 @@
   --color-warning-800: #854d0e;
   --color-warning-900: #713f12;
 
+  /* Color Palette - Danger (Red) */
   --color-danger-50: #fef2f2;
   --color-danger-100: #fee2e2;
   --color-danger-200: #fecaca;
@@ -64,6 +70,7 @@
   --color-danger-800: #991b1b;
   --color-danger-900: #7f1d1d;
 
+  /* Color Palette - Accent (Green variant) */
   --color-accent-50: #e8f8f5;
   --color-accent-100: #d1f2eb;
   --color-accent-200: #a3e4d7;
@@ -76,15 +83,16 @@
   --color-accent-900: #145a32;
 
   /* Font Families */
-  --font-family-sans: 'Poppins', system-ui, -apple-system, sans-serif;
-  --font-family-display: 'Tajawal', sans-serif;
-  --font-family-logo: 'Tajawal', sans-serif;
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Tajawal', sans-serif;
 
   /* Border Radius */
   --radius-card: 12px;
   --radius-button: 8px;
+}
 
-  /* Shadows */
+:root {
+  /* Shadows - keep in :root for non-Tailwind usage */
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
   --shadow-modal: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -115,13 +123,20 @@ body {
 
 /* ===== Typography ===== */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Tajawal', var(--font-family-display);
   font-weight: 700;
 }
 
 
-p, span, div {
+p,
+span,
+div {
   font-family: 'Poppins', var(--font-family-display);
 }
 
@@ -132,7 +147,9 @@ button {
 }
 
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: 'Poppins', var(--font-family-display);
   font-weight: 400;
 }
@@ -150,16 +167,16 @@ label {
 
 /* Font utility classes */
 .font-heading {
-  font-family: 'Tajawal', var(--font-family-display);
+  font-family: 'Tajawal', sans-serif !important;
   font-weight: 700;
 }
 
 .font-sans {
-  font-family: 'Poppins', var(--font-family-sans);
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
 }
 
 .font-logo {
-  font-family: 'Tajawal', var(--font-family-logo);
+  font-family: 'Tajawal', sans-serif !important;
   font-weight: 700;
 }
 

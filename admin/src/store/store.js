@@ -13,7 +13,7 @@ import settingsReducer from './settingsSlice';
 /**
  * Admin Panel Redux Store
  * Combines: admin, users, donations, requests, campaigns, reports, settings
- * Uses mock data from dummyData.js for development
+ * Redux store configuration for Admin Panel - Uses real API data
  */
 const store = configureStore({
   reducer: {
@@ -27,7 +27,7 @@ const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Disable for dates in mock data
+      serializableCheck: false, // Disable for dates in API responses
     }),
   devTools: import.meta.env.DEV, // Enable Redux DevTools in development
 });

@@ -310,7 +310,6 @@ const RequestsList = () => {
                                                         <Button
                                                             variant="success"
                                                             size="sm"
-                                                            className="!text-black"
                                                             onClick={() => openActionModal(request, 'approve')}
                                                         >
                                                             Approve
@@ -318,7 +317,6 @@ const RequestsList = () => {
                                                         <Button
                                                             variant="danger"
                                                             size="sm"
-                                                            className="!text-black"
                                                             onClick={() => openActionModal(request, 'reject')}
                                                         >
                                                             Reject
@@ -365,7 +363,6 @@ const RequestsList = () => {
                         </Button>
                         <Button
                             variant={actionType === 'approve' ? 'success' : 'danger'}
-                            className="!text-black"
                             onClick={actionType === 'approve' ? handleApprove : handleReject}
                         >
                             {actionType === 'approve' ? 'Approve' : 'Reject'}

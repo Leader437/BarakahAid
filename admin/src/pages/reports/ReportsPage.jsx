@@ -28,19 +28,7 @@ import { formatCurrency } from '../../utils/helpers';
 // Chart colors
 const COLORS = ['#0ea5e9', '#22c55e', '#eab308', '#ef4444', '#d946ef', '#64748b'];
 
-// Mock fetch function for useFetch (will be replaced with API calls)
-const fetchReportData = async (type, dateRange) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Return mock data based on type
-    return {
-        generated: true,
-        type,
-        dateRange,
-        timestamp: new Date().toISOString(),
-    };
-};
 
 const ReportsPage = () => {
     const dispatch = useDispatch();

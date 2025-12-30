@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an Axios instance for Admin
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: `${import.meta.env.VITE_API_URL}/api` || 'http://localhost:5000/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -24,15 +24,15 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response.data, // Return data directly to match previous mock behavior if it returned objects directly
+  (response) => response.data, // Return data directly from API responses
   (error) => {
-      // If 401, maybe logout admin
-      if (error.response?.status === 401) {
-          // dispatch logout action if we had access to store, or just clear storage
-          // localStorage.removeItem('adminAccessToken');
-          // localStorage.removeItem('adminUser');
-      }
-      return Promise.reject(error);
+    // If 401, maybe logout admin
+    if (error.response?.status === 401) {
+      // dispatch logout action if we had access to store, or just clear storage
+      // localStorage.removeItem('adminAccessToken');
+      // localStorage.removeItem('adminUser');
+    }
+    return Promise.reject(error);
   }
 );
 
@@ -120,7 +120,7 @@ export const getCampaignById = async (id) => {
 };
 
 export const updateCampaignStatus = async (id, status) => {
-   return await api.put(`/campaigns/${id}/status`, { status });
+  return await api.put(`/campaigns/${id}/status`, { status });
 };
 
 export const publishCampaign = async (id) => {

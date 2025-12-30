@@ -8,9 +8,8 @@ import {
     selectUsersFilters,
     selectUsersPagination,
     setFilters,
-    setPagination,
     verifyUser,
-    updateUserStatus,
+    rejectUser,
     fetchUsers,
 } from '../../store/usersSlice';
 import usePagination from '../../hooks/usePagination';
@@ -73,11 +72,10 @@ const UsersList = () => {
         }
     };
 
-    // Handle block/unblock user
-    const handleToggleBlock = () => {
+    // Handle reject user
+    const handleRejectUser = () => {
         if (selectedUser) {
-            const newStatus = selectedUser.isBlocked ? false : true;
-            dispatch(updateUserStatus({ id: selectedUser.id, isBlocked: newStatus }));
+            dispatch(rejectUser(selectedUser.id));
             setShowActionModal(false);
             setSelectedUser(null);
         }
@@ -245,22 +243,23 @@ const UsersList = () => {
                                                 </Link>
 
                                                 {user.verificationStatus === 'PENDING' && (
-                                                    <Button
-                                                        variant="success"
-                                                        size="sm"
-                                                        onClick={() => openActionModal(user, 'verify')}
-                                                    >
-                                                        Verify
-                                                    </Button>
+                                                    <>
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            onClick={() => openActionModal(user, 'verify')}
+                                                        >
+                                                            Verify
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            onClick={() => openActionModal(user, 'reject')}
+                                                        >
+                                                            Reject
+                                                        </Button>
+                                                    </>
                                                 )}
-
-                                                <Button
-                                                    variant={user.isBlocked ? 'warning' : 'outline'}
-                                                    size="sm"
-                                                    onClick={() => openActionModal(user, 'block')}
-                                                >
-                                                    {user.isBlocked ? 'Unblock' : 'Block'}
-                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
@@ -322,7 +321,7 @@ const UsersList = () => {
             <Modal
                 isOpen={showActionModal}
                 onClose={() => setShowActionModal(false)}
-                title={actionType === 'verify' ? 'Verify User' : (selectedUser?.isBlocked ? 'Unblock User' : 'Block User')}
+                title={actionType === 'verify' ? 'Verify User' : 'Reject User'}
                 size="sm"
                 footer={
                     <>
@@ -330,10 +329,10 @@ const UsersList = () => {
                             Cancel
                         </Button>
                         <Button
-                            variant={actionType === 'verify' ? 'success' : (selectedUser?.isBlocked ? 'warning' : 'danger')}
-                            onClick={actionType === 'verify' ? handleVerifyUser : handleToggleBlock}
+                            variant={actionType === 'verify' ? 'success' : 'danger'}
+                            onClick={actionType === 'verify' ? handleVerifyUser : handleRejectUser}
                         >
-                            {actionType === 'verify' ? 'Verify' : (selectedUser?.isBlocked ? 'Unblock' : 'Block')}
+                            {actionType === 'verify' ? 'Verify' : 'Reject'}
                         </Button>
                     </>
                 }
@@ -352,16 +351,13 @@ const UsersList = () => {
                         </>
                     ) : (
                         <>
-                            <div className={`w-16 h-16 ${selectedUser?.isBlocked ? 'bg-warning-100' : 'bg-danger-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                                <svg className={`w-8 h-8 ${selectedUser?.isBlocked ? 'text-warning-600' : 'text-danger-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-danger-100">
+                                <svg className="w-8 h-8 text-danger-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </div>
                             <p className="text-secondary-600">
-                                {selectedUser?.isBlocked
-                                    ? `Are you sure you want to unblock ${selectedUser?.name}?`
-                                    : `Are you sure you want to block ${selectedUser?.name}? They will not be able to access the platform.`
-                                }
+                                Are you sure you want to reject <strong>{selectedUser?.name}</strong>? They will not be verified.
                             </p>
                         </>
                     )}

@@ -25,20 +25,15 @@ import {
 } from '../../store/campaignsSlice';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 
-// Mock donation progress data
+// Generate progress data - shows current status only (no historical data available from backend)
 const generateProgressData = (campaign) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const total = campaign.raisedAmount || 0;
-    let cumulative = 0;
-
-    return months.map((month, i) => {
-        const portion = (total / months.length) * (0.5 + Math.random());
-        cumulative = Math.min(cumulative + portion, total);
-        return {
-            month,
-            amount: Math.round(cumulative),
-        };
-    });
+    // Since we don't have historical donation data from the backend,
+    // we show a simple progress indicator based on current and goal amounts
+    const raisedAmount = campaign.raisedAmount || 0;
+    return [
+        { month: 'Start', amount: 0 },
+        { month: 'Current', amount: raisedAmount },
+    ];
 };
 
 const CampaignDetails = () => {

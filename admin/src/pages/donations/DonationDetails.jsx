@@ -11,7 +11,7 @@ import {
 } from '../../store/donationsSlice';
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
 
-// Mock delivery/processing timeline
+// Generate delivery/processing timeline based on donation status
 const generateTimeline = (donation) => {
     const baseTimeline = [
         {

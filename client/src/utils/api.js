@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // adjust default if needed
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // adjust default if needed
   withCredentials: true, // Important for cookies (refresh tokens)
   headers: {
     'Content-Type': 'application/json',
@@ -32,16 +32,16 @@ api.interceptors.response.use(
 
     // Optional: Handle token refresh logic here if you decide to implement silent refresh on the client
     // For now, just rejecting.
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-       // Auto-logout on 401
-       localStorage.removeItem('accessToken');
-       localStorage.removeItem('user');
-       
-       // Only redirect if not already on login page to avoid loops
-       if (!window.location.pathname.includes('/login')) {
-         window.location.href = '/login';
-       }
+      // Auto-logout on 401
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+
+      // Only redirect if not already on login page to avoid loops
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);
