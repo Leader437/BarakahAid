@@ -46,24 +46,46 @@ const CreateRequest = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const [media, setMedia] = useState(null);
+    const [mediaPreview, setMediaPreview] = useState(null);
+
+    const handleMediaChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setMedia(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setMediaPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const extendedDescription = `${formData.description}\n\n[Amount Needed: $${formData.amount}]\n[Urgency: ${formData.urgency}]`;
+            const formDataPayload = new FormData();
+            formDataPayload.append('title', formData.title);
+            formDataPayload.append('description', formData.description);
+            formDataPayload.append('amount', formData.amount);
+            formDataPayload.append('urgency', formData.urgency);
+            formDataPayload.append('categoryId', formData.category);
+            formDataPayload.append('location', JSON.stringify({
+                type: 'Point',
+                coordinates: [0, 0],
+                address: formData.location
+            }));
+            
+            if (media) {
+                formDataPayload.append('media', media);
+            }
 
-            const payload = {
-                title: formData.title,
-                description: extendedDescription,
-                categoryId: formData.category, // Mapped to categoryId
-                location: {
-                    type: 'Point',
-                    coordinates: [0, 0], // Default coordinates
-                    address: formData.location
+            await api.post('/donation-requests', formDataPayload, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
                 }
-            };
-
-            await api.post('/donation-requests', payload);
+            });
             navigate('/ngo/dashboard');
         } catch (error) {
             console.error('Failed to create request', error);
@@ -130,6 +152,31 @@ const CreateRequest = () => {
                                 className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                 placeholder="Describe the need and urgency..."
                             />
+                        </div>
+
+                         <div>
+                            <label className="block text-sm font-medium text-secondary-700">Media / Image</label>
+                            <div className="flex items-center gap-4 mt-1">
+                                <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg cursor-pointer w-44 border-secondary-300 hover:border-primary-500 hover:bg-secondary-50">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <HiUpload className="w-8 h-8 mb-2 text-secondary-400" />
+                                        <p className="text-xs text-secondary-500">Click to upload</p>
+                                    </div>
+                                    <input type="file" className="hidden" onChange={handleMediaChange} accept="image/*" />
+                                </label>
+                                {mediaPreview && (
+                                    <div className="relative h-32 rounded-lg w-44">
+                                        <img src={mediaPreview} alt="Preview" className="object-cover w-full h-full rounded-lg" />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => {setMedia(null); setMediaPreview(null);}}
+                                            className="absolute p-1 text-white bg-red-500 rounded-full -top-2 -right-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

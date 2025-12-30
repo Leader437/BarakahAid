@@ -25,7 +25,6 @@ const VolunteerDashboard = () => {
   useEffect(() => {
     dispatch(fetchEvents());
     dispatch(fetchVolunteerProfile());
-    dispatch(fetchVolunteerProfile());
   }, [dispatch]);
 
   const handleRegister = async (eventId) => {
@@ -301,69 +300,10 @@ const VolunteerDashboard = () => {
               </div>
             </Card>
 
-            {/* Achievements */}
-            <Card padding="lg">
-              <h2 className="mb-4 text-lg font-bold text-secondary-900">
-                Achievements
-              </h2>
-              <div className="space-y-3">
-                {achievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className={`p-3 rounded-lg border ${achievement.earned
-                      ? "bg-primary-50 border-primary-200"
-                      : "bg-secondary-50 border-secondary-200 opacity-50"
-                      }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <achievement.icon
-                        className={`w-6 h-6 ${achievement.earned
-                          ? "text-primary-600"
-                          : "text-secondary-400"
-                          }`}
-                      />
-                      <div>
-                        <h3 className="font-semibold text-secondary-900">
-                          {achievement.title}
-                        </h3>
-                        <p className="text-xs text-secondary-600">
-                          {achievement.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Impact Summary */}
-            <Card padding="lg" className="bg-primary-50">
-              <h2 className="mb-4 text-lg font-bold text-secondary-900">
-                Your Impact
-              </h2>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-primary-600" />
-                  <span className="text-secondary-700">
-                    Helped feed 120 families
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-primary-600" />
-                  <span className="text-secondary-700">
-                    Distributed clothes to 80 people
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-primary-600" />
-                  <span className="text-secondary-700">Taught 45 children</span>
-                </div>
-              </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

@@ -25,7 +25,8 @@ const Navbar = () => {
 
   const getDashboardLink = () => {
     if (!user) return '/';
-    switch (user.role) {
+    const normalizedRole = user.role?.toLowerCase();
+    switch (normalizedRole) {
       case 'donor':
         return '/donor/dashboard';
       case 'recipient':
@@ -115,7 +116,7 @@ const Navbar = () => {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 p-2 transition-colors rounded-lg hover:bg-secondary-50"
                 >
-                  <Avatar src={user?.avatar} name={user?.name} size="sm" />
+                  <Avatar src={user?.profileImage || user?.avatar} name={user?.name} size="sm" />
                   <span className="hidden text-sm font-medium sm:inline text-secondary-900">
                     {user?.name}
                   </span>

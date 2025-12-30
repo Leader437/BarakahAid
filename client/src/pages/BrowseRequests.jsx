@@ -21,24 +21,16 @@ const BrowseRequests = () => {
     dispatch(fetchRequests());
   }, [dispatch]);
 
-  // Default images for requests without media
-  const defaultImages = [
-    'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400',
-    'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400',
-    'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400',
-    'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',
-    'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=400',
-    'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
-  ];
-
-  const categories = ['All', 'Emergency Relief', 'Education', 'Healthcare', 'Water & Sanitation', 'Clothing', 'Orphan Care'];
+  const categories = ['All', ...new Set((requests || []).map(r => r.category).filter(Boolean))];
   const urgencyLevels = ['All', 'High', 'Medium', 'Low'];
 
   const filteredRequests = (requests || []).filter(request => {
     const matchesSearch = request.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       request.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || request.category === selectedCategory;
-    const matchesUrgency = selectedUrgency === 'all' || request.urgency === selectedUrgency;
+    // Handle missing urgency field gracefully
+    const requestUrgency = request.urgency || 'medium';
+    const matchesUrgency = selectedUrgency === 'all' || requestUrgency.toLowerCase() === selectedUrgency.toLowerCase();
     return matchesSearch && matchesCategory && matchesUrgency;
   });
 
@@ -50,14 +42,22 @@ const BrowseRequests = () => {
       normal: 'bg-warning-100 text-warning-700',
       low: 'bg-success-100 text-success-700'
     };
-    return styles[urgency] || styles.medium;
+    return styles[urgency?.toLowerCase()] || styles.medium;
   };
 
   const getRequestImage = (request, index) => {
     if (request.media && request.media.length > 0) {
       return request.media[0];
     }
-    return defaultImages[index % defaultImages.length];
+    const internalDefaultImages = [
+      'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400',
+      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400',
+      'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',
+      'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=400',
+      'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
+    ];
+    return internalDefaultImages[index % internalDefaultImages.length];
   };
 
   if (loading) {

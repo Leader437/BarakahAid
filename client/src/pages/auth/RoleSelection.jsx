@@ -6,6 +6,7 @@ import { updateProfile } from '../../store/userSlice';
 import Card from '../../components/ui/Card';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import logo from "./../../assets/logo-main.png";
+import api from '../../utils/api';
 
 const RoleSelection = () => {
   const [selectedRole, setSelectedRole] = useState('');
@@ -45,57 +46,37 @@ const RoleSelection = () => {
     console.log('📝 Submitting role selection:', selectedRole);
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      console.log('🔐 Using token:', token?.substring(0, 20) + '...');
+      const response = await api.patch('/users/update-role', { role: selectedRole });
+      console.log('📡 Response:', response.data);
+
+      // Extract user data from wrapped response
+      const updatedUser = response.data?.data || response.data;
+      console.log('✅ Role updated:', JSON.stringify(updatedUser, null, 2));
       
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/update-role`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ role: selectedRole }),
-        }
-      );
-
-      console.log('📡 Response status:', response.status);
-
-      if (response.ok) {
-        const responseData = await response.json();
-        // Extract user data from wrapped response
-        const updatedUser = responseData.data || responseData;
-        console.log('✅ Role updated:', JSON.stringify(updatedUser, null, 2));
-        
-        // Update Redux state with new role
-        dispatch(updateProfile({ role: updatedUser.role || selectedRole }));
-        console.log('✅ Redux state updated with new role:', updatedUser.role);
-        
-        // Redirect based on selected role (use uppercase from state)
-        const roleUpper = selectedRole.toUpperCase();
-        console.log('🔀 Redirecting with role:', roleUpper);
-        
-        switch (roleUpper) {
-          case 'DONOR':
-            navigate('/donor');
-            break;
-          case 'VOLUNTEER':
-            navigate('/volunteer');
-            break;
-          case 'NGO':
-            navigate('/ngo');
-            break;
-          default:
-            navigate('/donor');
-        }
-      } else {
-        console.error('❌ Failed to update role:', response.status, response.statusText);
-        alert('Failed to update role. Please try again.');
+      // Update Redux state with new role
+      dispatch(updateProfile({ role: updatedUser.role || selectedRole }));
+      console.log('✅ Redux state updated with new role:', updatedUser.role);
+      
+      // Redirect based on selected role (use uppercase from state)
+      const roleUpper = selectedRole.toUpperCase();
+      console.log('🔀 Redirecting with role:', roleUpper);
+      
+      switch (roleUpper) {
+        case 'DONOR':
+          navigate('/donor');
+          break;
+        case 'VOLUNTEER':
+          navigate('/volunteer');
+          break;
+        case 'NGO':
+          navigate('/ngo');
+          break;
+        default:
+          navigate('/donor');
       }
     } catch (error) {
       console.error('Role update error:', error);
-      alert('An error occurred. Please try again.');
+      alert('An error occurred: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }

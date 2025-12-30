@@ -144,42 +144,6 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Quick Login for Demo */}
-          <div className="pt-6 mt-6 border-t border-secondary-200">
-            <p className="mb-3 text-sm text-center text-secondary-600">Demo Login:</p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <SecondaryButton
-                onClick={() => {
-                  values.email = 'donor_demo@barakahaid.com';
-                  values.password = 'password123';
-                  handleLogin(values);
-                }}
-                className="!text-xs !py-2"
-              >
-                Donor
-              </SecondaryButton>
-              <SecondaryButton
-                onClick={() => {
-                  values.email = 'volunteer_demo@barakahaid.com';
-                  values.password = 'password123';
-                  handleLogin(values);
-                }}
-                className="!text-xs !py-2"
-              >
-                Volunteer
-              </SecondaryButton>
-              <SecondaryButton
-                onClick={() => {
-                  values.email = 'ngo_demo@barakahaid.com';
-                  values.password = 'password123';
-                  handleLogin(values);
-                }}
-                className="!text-xs !py-2"
-              >
-                NGO
-              </SecondaryButton>
-            </div>
-          </div>
         </Card>
 
         <p className="mt-6 text-center text-secondary-600">

@@ -30,23 +30,22 @@ const Campaigns = () => {
   // Map campaign types/categories if possible, otherwise rely on isEmergency or default
   const getCampaignType = (c) => {
     if (c.isEmergency) return 'Emergency';
-    // Backend Campaign entity currently lacks 'category' field. 
-    // Mapping based on generic logic or placeholder until backend updates.
-    return c.category || 'General';
+    return c.category?.name || 'General';
   };
 
   const formattedCampaigns = campaigns.map(c => ({
     ...c,
-    targetAmount: Number(c.goalAmount),
-    currentAmount: Number(c.raisedAmount),
+    // Use backend field names with fallbacks
+    targetAmount: Number(c.goalAmount) || Number(c.targetAmount) || 0,
+    currentAmount: Number(c.raisedAmount) || Number(c.currentAmount) || 0,
     daysLeft: getDaysLeft(c.endDate),
-    donors: c.donorCount || 0, // Backend needs to provide this or we calculate from transactions
+    donors: c.transactions?.length || c.donorCount || 0,
     type: getCampaignType(c),
-    image: c.image || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400' // Placeholder
+    image: c.image || c.imageUrl || '/images/placeholder-campaign.jpg',
+    organizationName: c.createdBy?.name || 'BarakahAid Partner'
   }));
 
-  const campaignTypes = ['All', 'Emergency', 'General'];
-  // Simplified types since backend doesn't support all yet.
+  const campaignTypes = ['All', 'Emergency', ...new Set(formattedCampaigns.map(c => c.type).filter(t => t !== 'Emergency'))];
 
   const filteredCampaigns = formattedCampaigns.filter(campaign => {
     const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -56,7 +55,7 @@ const Campaigns = () => {
     return matchesSearch && matchesType;
   });
 
-  const featuredCampaigns = formattedCampaigns.filter(c => c.isEmergency || c.featured); // Assume emergency is featured
+  const featuredCampaigns = formattedCampaigns.filter(c => c.isEmergency || c.featured);
   const regularCampaigns = filteredCampaigns.filter(c => !c.isEmergency);
 
   if (loading && campaigns.length === 0) {

@@ -54,7 +54,12 @@ export const createRequest = createAsyncThunk(
   'requests/createRequest',
   async (requestData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/donation-requests', requestData);
+      const isFormData = requestData instanceof FormData;
+      const response = await api.post('/donation-requests', requestData, {
+        headers: {
+          'Content-Type': isFormData ? 'multipart/form-data' : 'application/json'
+        }
+      });
       let data = response.data;
       if (data.data) data = data.data;
       return data;
@@ -90,22 +95,27 @@ const requestsSlice = createSlice({
       })
       .addCase(fetchRequests.fulfilled, (state, action) => {
         state.loading = false;
-        // Map backend entity to frontend model
+        // Map backend entity to frontend model with graceful fallbacks
         state.requests = action.payload.map(req => ({
           id: req.id,
           title: req.title,
           description: req.description,
           category: req.category?.name || 'General',
           categoryId: req.category?.id,
+          // These fields may not exist in backend - provide fallbacks
           targetAmount: Number(req.targetAmount) || 0,
           currentAmount: Number(req.currentAmount) || 0,
-          status: req.status?.toLowerCase() || 'active',
-          urgency: req.urgency || 'normal',
+          status: req.status?.toLowerCase() || 'pending',
+          urgency: req.urgency || 'medium',
           createdBy: req.createdBy?.id,
           createdByName: req.createdBy?.name || 'Anonymous',
           media: req.media || [],
+          location: req.location?.address || req.location || null,
           createdAt: req.createdAt,
           updatedAt: req.updatedAt,
+          // Calculate daysLeft if deadline exists, else default
+          daysLeft: req.deadline ? Math.max(0, Math.ceil((new Date(req.deadline) - new Date()) / 86400000)) : 30,
+          beneficiaries: req.beneficiaries || 0
         }));
       })
       .addCase(fetchRequests.rejected, (state, action) => {

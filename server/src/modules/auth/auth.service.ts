@@ -25,7 +25,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<User> {
+  async register(registerDto: RegisterDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -41,7 +41,16 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+
+    // Generate tokens for the new user (auto-login after registration)
+    const tokens = await this.generateTokens(savedUser);
+    await this.updateRefreshToken(savedUser.id, tokens.refreshToken);
+
+    return {
+      user: savedUser,
+      ...tokens,
+    };
   }
 
   async login(loginDto: LoginDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {

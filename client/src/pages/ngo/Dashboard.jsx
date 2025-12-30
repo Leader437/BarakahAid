@@ -283,32 +283,10 @@ const NgoDashboard = () => {
               </div>
             </Card>
 
-            {/* Impact Summary */}
-            <Card padding="lg" className="bg-primary-50">
-              <h2 className="mb-4 text-lg font-bold text-secondary-900">This Month's Impact</h2>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Families Fed</span>
-                  <span className="font-semibold text-secondary-900">450</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Children Educated</span>
-                  <span className="font-semibold text-secondary-900">120</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Medical Treatments</span>
-                  <span className="font-semibold text-secondary-900">85</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Clothing Distributed</span>
-                  <span className="font-semibold text-secondary-900">300+</span>
-                </div>
-              </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

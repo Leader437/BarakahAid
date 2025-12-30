@@ -31,9 +31,13 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    const user = await this.authService.register(registerDto);
-    const { password, refreshToken, ...result } = user;
-    return result;
+    const { user, accessToken, refreshToken } = await this.authService.register(registerDto);
+    // Remove sensitive fields from user before returning
+    const { password, refreshToken: _, ...safeUser } = user as any;
+    return { 
+      user: safeUser, 
+      accessToken 
+    };
   }
 
   @Post('login')

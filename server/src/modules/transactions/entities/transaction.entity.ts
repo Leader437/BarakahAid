@@ -20,9 +20,12 @@ export class Transaction {
   @JoinColumn()
   donor: User;
 
-  @ManyToOne(() => Campaign, (campaign) => campaign.transactions)
+  @ManyToOne(() => Campaign, (campaign) => campaign.transactions, { nullable: true })
   @JoinColumn()
   campaign: Campaign;
+
+  @Column({ type: 'uuid', nullable: true })
+  requestId: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
@@ -45,6 +48,18 @@ export class Transaction {
 
   @Column({ nullable: true })
   paymentReference: string;
+
+  @Column({ nullable: true })
+  donorName: string;
+
+  @Column({ nullable: true })
+  donorEmail: string;
+
+  @Column({ default: false })
+  isAnonymous: boolean;
+
+  @Column({ default: false })
+  isRecurring: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

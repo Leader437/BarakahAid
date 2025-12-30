@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import api from '../utils/api';
 import {
   HiHeart,
   HiUserGroup,
@@ -21,6 +22,8 @@ import { fetchEvents, selectEvents, selectVolunteerLoading } from '../store/volu
 const Volunteer = () => {
   useTextAnimation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const events = useSelector(selectEvents);
   const loading = useSelector(selectVolunteerLoading);
 
@@ -55,19 +58,43 @@ const Volunteer = () => {
     }
   ];
 
+  const handleApply = async (eventId) => {
+    if (!isAuthenticated) {
+      navigate(`/register?role=volunteer&redirect=/volunteer`);
+      return;
+    }
+
+    if (user?.role?.toLowerCase() !== 'volunteer') {
+      alert('You must be registered as a volunteer to apply for events.');
+      return;
+    }
+
+    try {
+      await api.post(`/volunteers/events/${eventId}/signup`);
+      alert('Successfully registered for the event!');
+      dispatch(fetchEvents()); // Refresh to update spots
+    } catch (err) {
+      console.error('Failed to sign up for event', err);
+      alert('Failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   const volunteerOpportunities = events.map(e => ({
     id: e.id,
     title: e.title,
-    organization: 'Barakah Aid',
-    location: e.location?.address || 'TBD',
+    // Use correct backend field names with fallbacks
+    organization: e.ngo?.name || e.createdBy?.name || 'BarakahAid',
+    location: e.location?.address || (typeof e.location === 'string' ? e.location : 'TBD'),
     type: e.location?.address?.toLowerCase().includes('remote') ? 'Remote' : 'On-site',
-    duration: '4 hours', // Placeholder as duration is not in entity yet
-    volunteers: e.volunteers?.length || 0,
+    duration: e.duration || 'Flexible',
+    // Use volunteers array length instead of fabricated field
+    volunteers: e.volunteers?.length || e.volunteersRegistered || 0,
     needed: e.maxVolunteers || 10,
     date: e.eventDate ? new Date(e.eventDate).toLocaleDateString() : 'TBD',
     description: e.description,
+    // Use correct backend field name
     skills: e.requiredSkills || [],
-    urgent: false // Placeholder as urgent flag is not in entity yet
+    urgent: e.isUrgent || false
   }));
 
   const getColorClasses = (color) => {
@@ -199,9 +226,7 @@ const Volunteer = () => {
                     <span className="text-sm font-medium text-secondary-700">
                       Date: {opportunity.date}
                     </span>
-                    <Link to="/register?role=volunteer">
-                      <PrimaryButton size="sm">Apply Now</PrimaryButton>
-                    </Link>
+                    <PrimaryButton size="sm" onClick={() => handleApply(opportunity.id)}>Apply Now</PrimaryButton>
                   </div>
 
                   {/* Progress Bar */}

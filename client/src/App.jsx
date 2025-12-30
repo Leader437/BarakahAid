@@ -1,7 +1,9 @@
 // Main App Component with Routing
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import api from './utils/api';
+import { updateProfile } from './store/userSlice';
 
 
 
@@ -69,9 +71,14 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role?.toLowerCase())) {
-    console.warn('🚫 Access denied. User role:', user?.role, 'Allowed roles:', allowedRoles);
-    return <Navigate to="/" replace />;
+  if (allowedRoles.length > 0) {
+    const userRole = user?.role?.toLowerCase();
+    const isAllowed = allowedRoles.some(role => role.toLowerCase() === userRole);
+    
+    if (!isAllowed) {
+      console.warn('🚫 Access denied. User role:', user?.role, 'Allowed roles:', allowedRoles);
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;
@@ -180,7 +187,24 @@ const ngoMenuItems = [
 ];
 
 function App() {
+  const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.user);
+
+  // Fetch user profile on app load to ensure we have the latest data including profileImage
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await api.get('/users/profile');
+          const profileData = response.data?.data || response.data;
+          dispatch(updateProfile(profileData));
+        } catch (error) {
+          console.error('Failed to fetch user profile on app load:', error);
+        }
+      }
+    };
+    fetchUserProfile();
+  }, [isAuthenticated, dispatch]);
 
   /* Shared getDashboardPath used from utils */
   console.log('App Render:', { isAuthenticated, user, role: user?.role, path: window.location.pathname });

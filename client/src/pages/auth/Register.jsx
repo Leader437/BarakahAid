@@ -45,8 +45,8 @@ const Register = () => {
   };
 
   const handleRegister = async (values) => {
-    const { confirmPassword, ...userData } = values;
-    await register(userData);
+    const { name, email, password, role, phone, location } = values;
+    await register({ name, email, password, role, phone, location });
   };
 
   const { values, errors, handleChange, handleBlur, handleSubmit, isSubmitting } = useForm(

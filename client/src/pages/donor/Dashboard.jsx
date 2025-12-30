@@ -100,33 +100,7 @@ const DonorDashboard = () => {
             </Card>
           </div>
 
-          {/* Impact Metrics */}
-          <Card padding="lg">
-            <h2 className="mb-4 text-xl font-semibold text-secondary-900">Your Impact (Estimated)</h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {impactMetrics.map((metric, index) => {
-                const Icon = metric.icon;
-                const colorClasses = {
-                  primary: 'bg-primary-100 text-primary-600',
-                  success: 'bg-success-100 text-success-600',
-                  accent: 'bg-accent-100 text-accent-600'
-                };
-                const bgColor = colorClasses[metric.color]?.split(' ')[0] || 'bg-primary-100';
-                const textColor = colorClasses[metric.color]?.split(' ')[1] || 'text-primary-600';
-                return (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className={`w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center shrink-0`}>
-                      <Icon className={`w-6 h-6 ${textColor}`} />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-secondary-900">{metric.value}</p>
-                      <p className="text-sm text-secondary-600">{metric.label}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
+
 
           {/* Quick Actions */}
           <Card padding="lg">
@@ -145,11 +119,6 @@ const DonorDashboard = () => {
               <Link to="/campaigns">
                 <Button variant="outline" fullWidth className="whitespace-nowrap">
                   View Campaigns
-                </Button>
-              </Link>
-              <Link to="/donor/donation-tracking">
-                <Button variant="outline" fullWidth className="whitespace-nowrap">
-                  Track Impact
                 </Button>
               </Link>
             </div>

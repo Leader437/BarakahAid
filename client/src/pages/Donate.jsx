@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
   HiCheckCircle, 
   HiCreditCard, 
@@ -23,6 +24,14 @@ import DonationSuccessModal from '../components/payment/DonationSuccessModal';
 
 const Donate = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.user);
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null); // Real data (campaign or request)
+  
   const [selectedAmount, setSelectedAmount] = useState(100);
   const [customAmount, setCustomAmount] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
@@ -30,26 +39,53 @@ const Donate = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successData, setSuccessData] = useState(null);
   const [donorInfo, setDonorInfo] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     anonymous: false
   });
 
-  // Mock campaign data - in real app, fetch based on id
-  const campaign = {
-    id: id || 1,
-    title: 'Emergency Food Relief - Gaza',
-    description: 'Provide emergency food packages to families affected by the ongoing crisis in Gaza. Each package contains essential food items for a family of 5 for one week.',
-    category: 'Emergency Relief',
-    currentAmount: 45000,
-    targetAmount: 100000,
-    donors: 1250,
-    daysLeft: 15,
-    image: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800',
-    organizer: 'BarakahAid Foundation',
-    verified: true
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Try fetching as campaign first
+        try {
+          const res = await api.get(`/campaigns/${id}`);
+          const campaignData = res.data?.data || res.data;
+          setData({
+            ...campaignData,
+            // Normalize field names with fallbacks
+            goalAmount: Number(campaignData.goalAmount) || 0,
+            raisedAmount: Number(campaignData.raisedAmount) || 0,
+            image: campaignData.image || campaignData.imageUrl || '/images/placeholder-campaign.jpg',
+            organizationName: campaignData.createdBy?.name || 'BarakahAid Partner',
+            type: 'campaign'
+          });
+        } catch (err) {
+          // If not campaign, try as donation request
+          const res = await api.get(`/donation-requests/${id}`);
+          const reqData = res.data?.data || res.data;
+          setData({
+            ...reqData,
+            // Map request fields to common format with fallbacks
+            goalAmount: Number(reqData.targetAmount) || Number(reqData.goalAmount) || 0,
+            raisedAmount: Number(reqData.currentAmount) || Number(reqData.raisedAmount) || 0,
+            image: reqData.media?.[0] || '/images/placeholder-request.jpg',
+            organizationName: reqData.createdBy?.name || 'BarakahAid Partner',
+            type: 'request'
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch donation target', err);
+        setError('Could not find the campaign or request you are looking for.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
 
   const presetAmounts = [25, 50, 100, 250, 500, 1000];
 
@@ -78,20 +114,72 @@ const Donate = () => {
     return selectedAmount || parseInt(customAmount) || 0;
   };
 
-  const handleSuccess = (method, transactionPrefix) => {
-    setSuccessData({
-      amount: getTotalAmount(),
-      campaign: campaign,
-      donorName: donorInfo.name || 'Anonymous',
-      paymentMethod: method,
-      transactionId: `${transactionPrefix}-${Date.now()}`,
-    });
-    setShowSuccessModal(true);
-    // Reset form
-    setSelectedAmount(100);
-    setCustomAmount('');
-    setDonorInfo({ name: '', email: '', phone: '', anonymous: false });
-    setIsRecurring(false);
+  const handleSuccess = async (method, transactionPrefix) => {
+    try {
+      const amount = getTotalAmount();
+      
+      // Call backend to record the transaction
+      const payload = {
+        amount,
+        campaignId: data.type === 'campaign' ? data.id : undefined,
+        requestId: data.type === 'request' ? data.id : undefined,
+        paymentGateway: method.toUpperCase(),
+        donorName: donorInfo.anonymous ? 'Anonymous' : donorInfo.name,
+        donorEmail: donorInfo.email,
+        isAnonymous: donorInfo.anonymous,
+        isRecurring
+      };
+
+      const res = await api.post('/transactions', payload);
+      
+      setSuccessData({
+        amount: amount,
+        campaign: {
+           ...data,
+           title: data.title || data.name
+        },
+        donorName: donorInfo.name || 'Anonymous',
+        paymentMethod: method,
+        transactionId: res.data?.id || `${transactionPrefix}-${Date.now()}`,
+      });
+      setShowSuccessModal(true);
+      
+      // Reset form
+      setSelectedAmount(100);
+      setCustomAmount('');
+      setDonorInfo({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', anonymous: false });
+      setIsRecurring(false);
+    } catch (err) {
+      console.error('Donation processing failed', err);
+      alert('Payment was successful but we failed to record it in our system: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center p-8">Loading donation details...</div>;
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 space-y-4">
+        <p className="text-xl text-secondary-600">{error || 'Target not found'}</p>
+        <Link to="/campaigns" className="text-primary-600 font-bold hover:underline">Back to Campaigns</Link>
+      </div>
+    );
+  }
+
+  const campaign = {
+    id: data.id,
+    title: data.title || data.name,
+    description: data.description,
+    category: data.category?.name || data.category || 'General',
+    currentAmount: Number(data.raisedAmount || data.currentAmount || 0),
+    targetAmount: Number(data.goalAmount || data.targetAmount || 1),
+    donors: data.donations?.length || data.donorCount || 0,
+    daysLeft: 30, // Default or calculated
+    image: data.imageUrl || data.image || (data.media && data.media[0]) || 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800',
+    organizer: data.ngo?.name || data.organizer || 'BarakahAid',
+    verified: true
   };
 
   return (

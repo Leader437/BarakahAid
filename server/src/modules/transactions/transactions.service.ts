@@ -21,75 +21,58 @@ export class TransactionsService {
   ) {}
 
   async create(userId: string, createDto: CreateTransactionDto): Promise<Transaction> {
-    const campaign = await this.campaignsService.findOne(createDto.campaignId);
-
-    if (!campaign) {
-      throw new NotFoundException('Campaign not found');
+    // Validate that either campaignId or requestId is provided
+    if (!createDto.campaignId && !createDto.requestId) {
+      throw new BadRequestException('Either campaignId or requestId must be provided');
     }
+
+    let campaign: any = null;
+    let targetTitle = 'Donation';
+
+    if (createDto.campaignId) {
+      campaign = await this.campaignsService.findOne(createDto.campaignId);
+      if (!campaign) {
+        throw new NotFoundException('Campaign not found');
+      }
+      targetTitle = campaign.title;
+    }
+
+    // For requestId, we'll just store it - the campaign relation can be null
+    // In a full implementation, you'd have a DonationRequest relation
 
     const transaction = this.transactionRepository.create({
       ...createDto,
       donor: { id: userId } as any,
-      campaign: { id: createDto.campaignId } as any,
-      status: TransactionStatus.PENDING,
+      campaign: createDto.campaignId ? { id: createDto.campaignId } as any : null,
+      status: TransactionStatus.COMPLETED, // Mark as completed immediately for demo
+      isAnonymous: createDto.isAnonymous || false,
+      isRecurring: createDto.isRecurring || false,
     });
 
     const savedTransaction = await this.transactionRepository.save(transaction);
 
-    try {
-      // Create Stripe payment intent using the PaymentService
-      const paymentIntent = await this.paymentService.createPaymentIntent({
-        amount: createDto.amount,
-        currency: createDto.currency || 'usd',
-        campaignId: createDto.campaignId,
-        donorId: userId,
-        donorEmail: createDto.donorEmail || 'donor@example.com',
-        donorName: createDto.donorName || 'Donor',
-      });
-
-      // Update transaction with payment intent ID
-      savedTransaction.paymentReference = paymentIntent.paymentIntentId;
-      
-      // If payment is already succeeded (e.g. demo mode or instant capture), mark as COMPLETED
-      if (paymentIntent.status === 'succeeded') {
-          savedTransaction.status = TransactionStatus.COMPLETED;
-          // Also update campaign raised amount immediately
-          // Note: Ideally call campaignsService.updateRaisedAmount here too
-          // But for now, let's just set status. The webhook handler does updateRaisedAmount.
-          // Since we might not trigger webhook in demo, we should update amount here.
-          
-          await this.campaignsService.updateRaisedAmount(
-            campaign.id,
-            createDto.amount
-          );
-      } else {
-          savedTransaction.status = TransactionStatus.PENDING;
-      }
-
-      // In a real scenario, wait for webhook confirmation
-      // For now, we'll update to PENDING and let webhook handle completion
-      await this.transactionRepository.save(savedTransaction);
-
-      // Send notification about pending payment
-      await this.notificationsService.create(
-        userId,
-        NotificationType.PAYMENT_INITIATED,
-        `Payment initiated for ${campaign.title}. Amount: ${createDto.amount}`,
-        {
-          campaignId: campaign.id,
-          paymentIntentId: paymentIntent.paymentIntentId,
-        },
+    // Update campaign raised amount if it's a campaign donation
+    if (campaign) {
+      await this.campaignsService.updateRaisedAmount(
+        campaign.id,
+        createDto.amount
       );
-
-      return {
-        ...savedTransaction,
-        paymentIntent: paymentIntent,
-      } as any;
-    } catch (error) {
-      savedTransaction.status = TransactionStatus.FAILED;
-      await this.transactionRepository.save(savedTransaction);
-      throw new BadRequestException(`Payment initiation failed: ${error.message}`);
     }
+
+    // Send notification about successful donation
+    await this.notificationsService.create(
+      userId,
+      NotificationType.PAYMENT_SUCCESS,
+      `Thank you for your donation of $${createDto.amount} to ${targetTitle}!`,
+      {
+        campaignId: createDto.campaignId,
+        requestId: createDto.requestId,
+        transactionId: savedTransaction.id,
+        amount: createDto.amount,
+      },
+    );
+
+    return savedTransaction;
   }
 
   async findByDonor(donorId: string): Promise<Transaction[]> {
