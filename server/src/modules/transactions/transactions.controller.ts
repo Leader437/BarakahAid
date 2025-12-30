@@ -30,7 +30,7 @@ export class TransactionsController {
   }
 
   @Post()
-  @Roles(Role.DONOR)
+  @Roles(Role.DONOR, Role.VOLUNTEER)
   async create(
     @CurrentUser('id') userId: string,
     @Body() createDto: CreateTransactionDto,

@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import jsPDF from 'jspdf';
+import { useToast } from '../../components/ui/Toast';
 import {
     HiArrowLeft,
     HiDownload,
@@ -27,8 +29,10 @@ import {
 const Reports = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const toast = useToast();
     const campaigns = useSelector(selectMyCampaigns);
     const donations = useSelector(selectNgoDonations);
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         dispatch(fetchMyCampaigns());
@@ -72,6 +76,184 @@ const Reports = () => {
     const monthlyData = getMonthlyData();
     const maxMonthly = Math.max(...monthlyData.map(d => d.amount), 1);
 
+    // Export CSV function
+    const handleExportCSV = () => {
+        setExporting(true);
+        try {
+            // Create CSV content
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            
+            // Summary section
+            csvContent += 'REPORT SUMMARY\n';
+            csvContent += `Generated,${new Date().toLocaleDateString()}\n`;
+            csvContent += `Total Raised,${totalRaised}\n`;
+            csvContent += `Active Campaigns,${activeCampaigns}\n`;
+            csvContent += `Unique Donors,${uniqueDonors}\n`;
+            csvContent += `Average Donation,${avgDonation.toFixed(2)}\n\n`;
+            
+            // Campaigns section
+            csvContent += 'CAMPAIGNS\n';
+            csvContent += 'Title,Goal Amount,Raised Amount,Progress %,Status\n';
+            campaigns.forEach(c => {
+                const progress = c.goalAmount ? ((Number(c.raisedAmount || 0) / Number(c.goalAmount)) * 100).toFixed(1) : 0;
+                csvContent += `"${c.title}",${c.goalAmount || 0},${c.raisedAmount || 0},${progress}%,${c.status || 'ACTIVE'}\n`;
+            });
+            
+            csvContent += '\nDONATIONS\n';
+            csvContent += 'Date,Donor,Campaign,Amount,Status\n';
+            donations.forEach(d => {
+                const date = new Date(d.createdAt).toLocaleDateString();
+                csvContent += `${date},"${d.donor?.name || 'Anonymous'}","${d.campaign?.title || 'N/A'}",${d.amount},${d.status || 'COMPLETED'}\n`;
+            });
+            
+            csvContent += '\nMONTHLY BREAKDOWN\n';
+            csvContent += 'Month,Amount,Donations Count\n';
+            monthlyData.forEach(m => {
+                csvContent += `${m.month},${m.amount},${m.count}\n`;
+            });
+            
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `ngo-report-${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('CSV Export failed:', error);
+            toast.error('Failed to generate CSV report');
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    // Generate PDF function
+    const handleGeneratePDF = () => {
+        setExporting(true);
+        try {
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            
+            // Header
+            doc.setFontSize(22);
+            doc.setTextColor(16, 185, 129);
+            doc.text('BarakahAid', pageWidth / 2, 20, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text('NGO Analytics Report', pageWidth / 2, 30, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageWidth / 2, 38, { align: 'center' });
+            
+            // Summary Box
+            doc.setFillColor(243, 244, 246);
+            doc.rect(15, 45, pageWidth - 30, 35, 'F');
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Summary', 20, 55);
+            
+            doc.setFontSize(10);
+            doc.text(`Total Raised: ${formatCurrency(totalRaised)}`, 20, 65);
+            doc.text(`Active Campaigns: ${activeCampaigns}`, 20, 72);
+            doc.text(`Unique Donors: ${uniqueDonors}`, 110, 65);
+            doc.text(`Avg. Donation: ${formatCurrency(avgDonation)}`, 110, 72);
+            
+            // Top Campaigns Table
+            let yPos = 95;
+            doc.setFontSize(12);
+            doc.text('Top Campaigns', 15, yPos);
+            yPos += 10;
+            
+            // Table header
+            doc.setFillColor(229, 231, 235);
+            doc.rect(15, yPos - 5, pageWidth - 30, 8, 'F');
+            doc.setFontSize(9);
+            doc.setTextColor(50, 50, 50);
+            doc.text('Campaign', 17, yPos);
+            doc.text('Raised', 120, yPos);
+            doc.text('Goal', 150, yPos);
+            doc.text('Progress', 175, yPos);
+            
+            yPos += 10;
+            doc.setTextColor(0, 0, 0);
+            
+            topCampaigns.forEach((c, i) => {
+                if (i % 2 === 0) {
+                    doc.setFillColor(249, 250, 251);
+                    doc.rect(15, yPos - 4, pageWidth - 30, 7, 'F');
+                }
+                
+                const progress = c.goalAmount ? ((Number(c.raisedAmount || 0) / Number(c.goalAmount)) * 100).toFixed(0) : 0;
+                doc.setFontSize(8);
+                doc.text(c.title.substring(0, 40), 17, yPos);
+                doc.text(formatCurrency(c.raisedAmount || 0), 120, yPos);
+                doc.text(formatCurrency(c.goalAmount || 0), 150, yPos);
+                doc.text(`${progress}%`, 175, yPos);
+                yPos += 8;
+            });
+            
+            // Monthly Trends
+            yPos += 15;
+            doc.setFontSize(12);
+            doc.text('Monthly Donation Trends', 15, yPos);
+            yPos += 10;
+            
+            doc.setFillColor(229, 231, 235);
+            doc.rect(15, yPos - 5, pageWidth - 30, 8, 'F');
+            doc.setFontSize(9);
+            doc.setTextColor(50, 50, 50);
+            doc.text('Month', 17, yPos);
+            doc.text('Amount', 80, yPos);
+            doc.text('Donations', 130, yPos);
+            
+            yPos += 10;
+            doc.setTextColor(0, 0, 0);
+            
+            monthlyData.forEach((m, i) => {
+                if (i % 2 === 0) {
+                    doc.setFillColor(249, 250, 251);
+                    doc.rect(15, yPos - 4, pageWidth - 30, 7, 'F');
+                }
+                doc.setFontSize(8);
+                doc.text(m.month, 17, yPos);
+                doc.text(formatCurrency(m.amount), 80, yPos);
+                doc.text(String(m.count), 130, yPos);
+                yPos += 8;
+            });
+            
+            // Impact Summary
+            yPos += 15;
+            doc.setFontSize(12);
+            doc.text('Estimated Impact', 15, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.text(`• Families Helped: ${Math.floor(totalRaised / 50)}+`, 20, yPos);
+            yPos += 7;
+            doc.text(`• Children Educated: ${Math.floor(totalRaised / 100)}+`, 20, yPos);
+            yPos += 7;
+            doc.text(`• Meals Provided: ${Math.floor(totalRaised / 200)}+`, 20, yPos);
+            
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Page 1 of 1', pageWidth / 2, 285, { align: 'center' });
+            doc.text('BarakahAid - Empowering Communities Through Giving', pageWidth / 2, 290, { align: 'center' });
+            
+            // Save
+            doc.save(`ngo-report-${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error('PDF Generation failed:', error);
+            toast.error('Failed to generate PDF report');
+        } finally {
+            setExporting(false);
+        }
+    };
+
     return (
         <div className="min-h-screen py-8 bg-secondary-50">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -89,13 +271,13 @@ const Reports = () => {
                         <p className="mt-1 text-secondary-600">Comprehensive insights into your campaign performance</p>
                     </div>
                     <div className="flex gap-3">
-                        <SecondaryButton>
+                        <SecondaryButton onClick={handleExportCSV} disabled={exporting}>
                             <HiDownload className="w-4 h-4 mr-2" />
-                            Export CSV
+                            {exporting ? 'Exporting...' : 'Export CSV'}
                         </SecondaryButton>
-                        <PrimaryButton>
+                        <PrimaryButton onClick={handleGeneratePDF} disabled={exporting}>
                             <HiDocumentReport className="w-4 h-4 mr-2" />
-                            Generate PDF
+                            {exporting ? 'Generating...' : 'Generate PDF'}
                         </PrimaryButton>
                     </div>
                 </div>

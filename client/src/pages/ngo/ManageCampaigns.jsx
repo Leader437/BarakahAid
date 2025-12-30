@@ -172,20 +172,46 @@ const ManageCampaigns = () => {
         {/* Campaigns Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredCampaigns.map((campaign) => (
-            <Card key={campaign.id} padding="lg" hoverable>
-              <div className="mb-3">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${getStatusBadge(campaign.status)}`}>
-                    {getStatusIcon(campaign.status)}
-                    {(campaign.status || 'Active')}
-                  </span>
-                  <span className="text-xs text-secondary-500 whitespace-nowrap">{campaign.views || 0} views</span>
+            <Card key={campaign.id} padding="none" hoverable className="overflow-hidden">
+              {/* Campaign Image */}
+              {campaign.image ? (
+                <div className="relative h-40 bg-secondary-100">
+                  <img 
+                    src={campaign.image} 
+                    alt={campaign.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(campaign.status)}`}>
+                      {getStatusIcon(campaign.status)}
+                      {(campaign.status || 'Active')}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="mb-1 text-lg font-semibold break-words text-secondary-900 line-clamp-2 min-h-[3.5rem]">
-                  {campaign.title}
-                </h3>
-                <p className="text-sm truncate text-secondary-600">{campaign.category}</p>
-              </div>
+              ) : (
+                <div className="relative h-40 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                  <span className="text-4xl font-bold text-primary-300">
+                    {campaign.title?.charAt(0)?.toUpperCase() || 'C'}
+                  </span>
+                  <div className="absolute top-2 right-2">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(campaign.status)}`}>
+                      {getStatusIcon(campaign.status)}
+                      {(campaign.status || 'Active')}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="p-4">
+                <div className="mb-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs text-secondary-500 whitespace-nowrap">{campaign.views || 0} views</span>
+                  </div>
+                  <h3 className="mb-1 text-lg font-semibold break-words text-secondary-900 line-clamp-2 min-h-[3.5rem]">
+                    {campaign.title}
+                  </h3>
+                  <p className="text-sm truncate text-secondary-600">{campaign.category}</p>
+                </div>
 
               {campaign.status !== 'draft' && (
                 <>
@@ -241,6 +267,7 @@ const ManageCampaigns = () => {
                   className="p-2 transition-colors rounded-lg text-error-600 hover:bg-error-50 shrink-0">
                   <HiTrash className="w-4 h-4" />
                 </button>
+              </div>
               </div>
             </Card>
           ))}

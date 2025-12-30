@@ -1,54 +1,47 @@
-import React, { useState } from 'react';
-import { HiSave, HiCamera, HiCheckCircle, HiClock } from 'react-icons/hi';
+import React, { useState, useEffect, useRef } from 'react';
+import { HiSave, HiCamera, HiCheckCircle, HiClock, HiMail, HiPhone, HiLocationMarker, HiCalendar } from 'react-icons/hi';
+import { useSelector, useDispatch } from 'react-redux';
 import Card from '../../components/ui/Card';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import SecondaryButton from '../../components/ui/SecondaryButton';
+import api from '../../utils/api';
+import { updateProfile } from '../../store/userSlice';
+
 
 const OrganizationProfile = () => {
-  // const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    organizationName: 'Hope Foundation',
-    registrationNumber: 'NGO-2020-12345',
-    taxId: 'TAX-987654321',
-    email: 'contact@hopefoundation.org',
-    phone: '+1 (555) 123-4567',
-    website: 'www.hopefoundation.org',
-    address: '123 Charity Lane',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10001',
-    country: 'United States',
-    mission: 'To provide humanitarian aid and support to communities in need across the globe.',
-    description: 'Hope Foundation is a non-profit organization dedicated to delivering emergency relief, healthcare, education, and sustainable development programs to vulnerable populations worldwide.',
-    established: '2020',
-    verificationStatus: 'verified'
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    bio: '',
+    profileImage: '',
+    verificationStatus: 'UNVERIFIED'
   });
 
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      role: 'Executive Director',
-      email: 'sarah@hopefoundation.org',
-      phone: '+1 (555) 234-5678'
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      role: 'Program Manager',
-      email: 'michael@hopefoundation.org',
-      phone: '+1 (555) 345-6789'
-    },
-    {
-      id: 3,
-      name: 'Lisa Ahmed',
-      role: 'Finance Director',
-      email: 'lisa@hopefoundation.org',
-      phone: '+1 (555) 456-7890'
+  // Initialize form data from user state
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        location: user.location || '',
+        bio: user.bio || '',
+        profileImage: user.profileImage || user.avatar || '',
+        verificationStatus: user.verificationStatus || 'UNVERIFIED'
+      });
     }
-  ];
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,13 +51,87 @@ const OrganizationProfile = () => {
     }));
   };
 
-  const handleSave = () => {
-    // Save logic here
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.put('/users/profile', {
+        name: formData.name,
+        phone: formData.phone,
+        location: formData.location,
+        bio: formData.bio
+      });
+      // Update Redux store with new user data
+      const updatedUser = response.data?.data || response.data;
+      dispatch(updateProfile(updatedUser));
+      setSuccess(true);
+      setIsEditing(false);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setError(null);
+
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', file);
+
+      const response = await api.put('/users/profile/image', formDataUpload, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const updatedUser = response.data?.data || response.data;
+      
+      // Update local state
+      setFormData(prev => ({
+        ...prev,
+        profileImage: updatedUser.profileImage || updatedUser.avatar
+      }));
+
+      // Update Redux store
+      dispatch(updateProfile(updatedUser));
+      
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const getVerificationBadge = (status) => {
-    if (status === 'verified') {
+    const normalizedStatus = status?.toLowerCase();
+    if (normalizedStatus === 'verified') {
       return (
         <span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full bg-success-100 text-success-700">
           <HiCheckCircle className="w-4 h-4" />
@@ -80,15 +147,28 @@ const OrganizationProfile = () => {
     );
   };
 
+  const getInitials = (name) => {
+    if (!name) return 'NG';
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long'
+    });
+  };
+
   return (
     <div className="min-h-screen py-8 bg-secondary-50">
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-secondary-900" data-text-split data-letters-slide-up>Organization Profile</h1>
+            <h1 className="text-3xl font-bold text-secondary-900">Organization Profile</h1>
             <p className="mt-1 text-secondary-600">
-              Manage your organization's information and settings
+              Manage your organization's information
             </p>
           </div>
           {!isEditing ? (
@@ -97,16 +177,42 @@ const OrganizationProfile = () => {
             </SecondaryButton>
           ) : (
             <div className="flex gap-3">
-              <SecondaryButton onClick={() => setIsEditing(false)}>
+              <SecondaryButton onClick={() => {
+                setIsEditing(false);
+                // Reset form to original user data
+                if (user) {
+                  setFormData({
+                    name: user.name || '',
+                    email: user.email || '',
+                    phone: user.phone || '',
+                    location: user.location || '',
+                    bio: user.bio || '',
+                    profileImage: user.profileImage || user.avatar || '',
+                    verificationStatus: user.verificationStatus || 'UNVERIFIED'
+                  });
+                }
+              }}>
                 Cancel
               </SecondaryButton>
-              <PrimaryButton onClick={handleSave}>
+              <PrimaryButton onClick={handleSave} disabled={loading}>
                 <HiSave className="w-4 h-4" />
-                Save Changes
+                {loading ? 'Saving...' : 'Save Changes'}
               </PrimaryButton>
             </div>
           )}
         </div>
+
+        {/* Messages */}
+        {error && (
+          <div className="p-4 mb-6 border rounded-lg bg-danger-50 border-danger-200">
+            <p className="text-danger-700">{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="p-4 mb-6 border rounded-lg bg-success-50 border-success-200">
+            <p className="text-success-700">Profile updated successfully!</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Main Content */}
@@ -124,81 +230,52 @@ const OrganizationProfile = () => {
                   Organization Logo
                 </label>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-24 h-24 rounded-lg bg-secondary-200">
-                    <span className="text-3xl font-bold text-secondary-600">HF</span>
-                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  {formData.profileImage ? (
+                    <img 
+                      src={formData.profileImage} 
+                      alt={formData.name}
+                      className={`w-24 h-24 rounded-lg object-cover ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
+                      onClick={handleImageClick}
+                    />
+                  ) : (
+                    <div 
+                      className={`flex items-center justify-center w-24 h-24 rounded-lg bg-primary-100 ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
+                      onClick={handleImageClick}
+                    >
+                      <span className="text-3xl font-bold text-primary-600">{getInitials(formData.name)}</span>
+                    </div>
+                  )}
                   {isEditing && (
-                    <SecondaryButton>
+                    <SecondaryButton onClick={handleImageClick} disabled={uploadingImage}>
                       <HiCamera className="w-4 h-4" />
-                      Change Logo
+                      {uploadingImage ? 'Uploading...' : 'Change Logo'}
                     </SecondaryButton>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
+                <div className="md:col-span-2">
                   <label className="block mb-2 text-sm font-medium text-secondary-700">
                     Organization Name *
                   </label>
                   <input
                     type="text"
-                    name="organizationName"
-                    value={formData.organizationName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     disabled={!isEditing}
                     className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
                   />
                 </div>
 
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Registration Number *
-                  </label>
-                  <input
-                    type="text"
-                    name="registrationNumber"
-                    value={formData.registrationNumber}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Tax ID
-                  </label>
-                  <input
-                    type="text"
-                    name="taxId"
-                    value={formData.taxId}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Year Established
-                  </label>
-                  <input
-                    type="text"
-                    name="established"
-                    value={formData.established}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-              </div>
-            </Card>
-
-            {/* Contact Information */}
-            <Card padding="lg">
-              <h2 className="mb-6 text-xl font-bold text-secondary-900">Contact Information</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="block mb-2 text-sm font-medium text-secondary-700">
                     Email *
@@ -207,15 +284,15 @@ const OrganizationProfile = () => {
                     type="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
+                    disabled
+                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 bg-secondary-100 cursor-not-allowed"
                   />
+                  <p className="mt-1 text-xs text-secondary-500">Email cannot be changed</p>
                 </div>
 
                 <div>
                   <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Phone *
+                    Phone
                   </label>
                   <input
                     type="tel"
@@ -223,213 +300,107 @@ const OrganizationProfile = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     disabled={!isEditing}
+                    placeholder="Enter phone number"
                     className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Website
-                  </label>
-                  <input
-                    type="url"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Address *
+                    Location
                   </label>
                   <input
                     type="text"
-                    name="address"
-                    value={formData.address}
+                    name="location"
+                    value={formData.location}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    State/Province
-                  </label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    ZIP/Postal Code
-                  </label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Country *
-                  </label>
-                  <input
-                    type="text"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
+                    placeholder="Enter organization location"
                     className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
             </Card>
 
-            {/* Mission & Description */}
+            {/* Description */}
             <Card padding="lg">
-              <h2 className="mb-6 text-xl font-bold text-secondary-900">Mission & Description</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Mission Statement *
-                  </label>
-                  <textarea
-                    name="mission"
-                    value={formData.mission}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    rows="3"
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-secondary-700">
-                    Organization Description *
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    rows="5"
-                    className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-              </div>
-            </Card>
-
-            {/* Team Members */}
-            <Card padding="lg">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-secondary-900">Team Members</h2>
-                {isEditing && (
-                  <SecondaryButton>Add Member</SecondaryButton>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                {teamMembers.map((member) => (
-                  <div key={member.id} className="p-4 border rounded-lg border-secondary-200">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <div>
-                        <p className="text-sm text-secondary-600">Name</p>
-                        <p className="font-semibold text-secondary-900">{member.name}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-secondary-600">Role</p>
-                        <p className="font-semibold text-secondary-900">{member.role}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-secondary-600">Email</p>
-                        <p className="text-secondary-900">{member.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-secondary-600">Phone</p>
-                        <p className="text-secondary-900">{member.phone}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <h2 className="mb-6 text-xl font-bold text-secondary-900">About Organization</h2>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-secondary-700">
+                  Description
+                </label>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  rows="5"
+                  placeholder="Tell donors about your organization, mission, and the work you do..."
+                  className="w-full px-4 py-2 border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed"
+                />
               </div>
             </Card>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6 lg:col-span-1">
+            {/* Quick Info */}
+            <Card padding="lg">
+              <h3 className="mb-4 text-lg font-bold text-secondary-900">Quick Info</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <HiMail className="w-5 h-5 text-primary-600" />
+                  <div>
+                    <p className="text-xs text-secondary-500">Email</p>
+                    <p className="text-sm font-medium text-secondary-900">{formData.email || 'Not set'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <HiPhone className="w-5 h-5 text-primary-600" />
+                  <div>
+                    <p className="text-xs text-secondary-500">Phone</p>
+                    <p className="text-sm font-medium text-secondary-900">{formData.phone || 'Not set'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <HiLocationMarker className="w-5 h-5 text-primary-600" />
+                  <div>
+                    <p className="text-xs text-secondary-500">Location</p>
+                    <p className="text-sm font-medium text-secondary-900">{formData.location || 'Not set'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <HiCalendar className="w-5 h-5 text-primary-600" />
+                  <div>
+                    <p className="text-xs text-secondary-500">Member Since</p>
+                    <p className="text-sm font-medium text-secondary-900">{formatDate(user?.createdAt)}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
             {/* Verification Status */}
             <Card padding="lg">
               <h3 className="mb-4 text-lg font-bold text-secondary-900">Verification Status</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-success-600" />
-                  <span className="text-sm text-secondary-900">Registration Documents</span>
+                  {formData.verificationStatus?.toLowerCase() === 'verified' ? (
+                    <HiCheckCircle className="w-5 h-5 text-success-600" />
+                  ) : (
+                    <HiClock className="w-5 h-5 text-warning-600" />
+                  )}
+                  <span className="text-sm text-secondary-900">
+                    {formData.verificationStatus?.toLowerCase() === 'verified' 
+                      ? 'Your organization is verified' 
+                      : 'Verification pending'}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-success-600" />
-                  <span className="text-sm text-secondary-900">Tax Documentation</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-success-600" />
-                  <span className="text-sm text-secondary-900">Bank Account Verified</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-success-600" />
-                  <span className="text-sm text-secondary-900">Identity Verification</span>
-                </div>
+                {formData.verificationStatus?.toLowerCase() !== 'verified' && (
+                  <p className="text-xs text-secondary-600">
+                    Complete your profile and submit verification documents to get verified.
+                  </p>
+                )}
               </div>
-            </Card>
-
-            {/* Documents */}
-            <Card padding="lg">
-              <h3 className="mb-4 text-lg font-bold text-secondary-900">Documents</h3>
-              <div className="space-y-3">
-                <div className="p-3 border rounded-lg border-secondary-200">
-                  <p className="text-sm font-semibold text-secondary-900">Registration Certificate</p>
-                  <p className="text-xs text-secondary-600">Uploaded: Jan 15, 2024</p>
-                </div>
-                <div className="p-3 border rounded-lg border-secondary-200">
-                  <p className="text-sm font-semibold text-secondary-900">Tax ID Document</p>
-                  <p className="text-xs text-secondary-600">Uploaded: Jan 15, 2024</p>
-                </div>
-                <div className="p-3 border rounded-lg border-secondary-200">
-                  <p className="text-sm font-semibold text-secondary-900">Bank Statement</p>
-                  <p className="text-xs text-secondary-600">Uploaded: Jan 15, 2024</p>
-                </div>
-              </div>
-              {isEditing && (
-                <SecondaryButton className="w-full mt-4">
-                  Upload Document
-                </SecondaryButton>
-              )}
             </Card>
 
             {/* Statistics */}
@@ -438,19 +409,11 @@ const OrganizationProfile = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-secondary-700">Member Since</span>
-                  <span className="font-semibold text-secondary-900">January 2024</span>
+                  <span className="font-semibold text-secondary-900">{formatDate(user?.createdAt)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-secondary-700">Total Campaigns</span>
-                  <span className="font-semibold text-secondary-900">24</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Total Raised</span>
-                  <span className="font-semibold text-secondary-900">$850,000</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">People Helped</span>
-                  <span className="font-semibold text-secondary-900">12,500+</span>
+                  <span className="font-semibold text-secondary-900">{user?.campaigns?.length || 0}</span>
                 </div>
               </div>
             </Card>

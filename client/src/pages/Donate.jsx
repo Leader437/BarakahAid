@@ -22,11 +22,13 @@ import DemoPaymentForm from '../components/payment/DemoPaymentForm';
 import PayPalDemoForm from '../components/payment/PayPalDemoForm';
 import GooglePayDemoForm from '../components/payment/GooglePayDemoForm';
 import DonationSuccessModal from '../components/payment/DonationSuccessModal';
+import { useToast } from '../components/ui/Toast';
 
 const Donate = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
   const { user } = useSelector((state) => state.user);
   
   const [loading, setLoading] = useState(true);
@@ -155,7 +157,7 @@ const Donate = () => {
       setFormKey(prev => prev + 1);
     } catch (err) {
       console.error('Donation processing failed', err);
-      alert('Payment was successful but we failed to record it in our system: ' + (err.response?.data?.message || err.message));
+      toast.warning('Payment was successful but we failed to record it in our system: ' + (err.response?.data?.message || err.message));
     }
   };
 

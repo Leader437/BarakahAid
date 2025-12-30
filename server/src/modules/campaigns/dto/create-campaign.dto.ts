@@ -5,8 +5,11 @@ import {
   IsDate,
   IsBoolean,
   IsOptional,
+  IsEnum,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CampaignStatus } from '../../../common/enums/status.enum';
 
 export class CreateCampaignDto {
   @IsString()
@@ -32,4 +35,13 @@ export class CreateCampaignDto {
   @IsOptional()
   @IsBoolean()
   isEmergency?: boolean;
+
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
+
+  @IsOptional()
+  @IsEnum(CampaignStatus)
+  status?: CampaignStatus;
 }
+

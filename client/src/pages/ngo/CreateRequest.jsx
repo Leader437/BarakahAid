@@ -5,9 +5,11 @@ import api from '../../utils/api';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import SecondaryButton from '../../components/ui/SecondaryButton';
 import Card from '../../components/ui/Card';
+import { useToast } from '../../components/ui/Toast';
 
 const CreateRequest = () => {
     const navigate = useNavigate();
+    const toast = useToast();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
@@ -65,31 +67,46 @@ const CreateRequest = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const formDataPayload = new FormData();
-            formDataPayload.append('title', formData.title);
-            formDataPayload.append('description', formData.description);
-            formDataPayload.append('amount', formData.amount);
-            formDataPayload.append('urgency', formData.urgency);
-            formDataPayload.append('categoryId', formData.category);
-            formDataPayload.append('location', JSON.stringify({
-                type: 'Point',
-                coordinates: [0, 0],
-                address: formData.location
-            }));
-            
-            if (media) {
-                formDataPayload.append('media', media);
-            }
+            // Build the request body as JSON
+            const requestBody = {
+                title: formData.title,
+                description: formData.description,
+                categoryId: formData.category,
+                amount: Number(formData.amount) || 0,
+                urgency: formData.urgency,
+                location: formData.location ? {
+                    type: 'Point',
+                    coordinates: [0, 0],
+                    address: formData.location
+                } : undefined
+            };
 
-            await api.post('/donation-requests', formDataPayload, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
+            // If there's media, we need to use FormData
+            if (media) {
+                const formDataPayload = new FormData();
+                formDataPayload.append('title', requestBody.title);
+                formDataPayload.append('description', requestBody.description);
+                formDataPayload.append('categoryId', requestBody.categoryId);
+                formDataPayload.append('amount', requestBody.amount);
+                formDataPayload.append('urgency', requestBody.urgency);
+                if (requestBody.location) {
+                    formDataPayload.append('location', JSON.stringify(requestBody.location));
                 }
-            });
+                formDataPayload.append('media', media);
+
+                await api.post('/donation-requests', formDataPayload, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            } else {
+                await api.post('/donation-requests', requestBody);
+            }
+            
             navigate('/ngo/dashboard');
         } catch (error) {
             console.error('Failed to create request', error);
-            alert('Failed to create request: ' + (error.response?.data?.message || error.message));
+            toast.error('Failed to create request: ' + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
@@ -120,7 +137,7 @@ const CreateRequest = () => {
                                 required
                                 value={formData.title}
                                 onChange={handleChange}
-                                className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                 placeholder="e.g. School Supplies for Orphanage"
                             />
                         </div>
@@ -132,7 +149,7 @@ const CreateRequest = () => {
                                 required
                                 value={formData.category}
                                 onChange={handleChange}
-                                className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                             >
                                 <option value="">Select a Category</option>
                                 {Array.isArray(categories) && categories.map(cat => (
@@ -149,7 +166,7 @@ const CreateRequest = () => {
                                 rows={4}
                                 value={formData.description}
                                 onChange={handleChange}
-                                className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                 placeholder="Describe the need and urgency..."
                             />
                         </div>
@@ -189,7 +206,7 @@ const CreateRequest = () => {
                                     min="1"
                                     value={formData.amount}
                                     onChange={handleChange}
-                                    className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                    className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                     placeholder="0.00"
                                 />
                             </div>
@@ -200,7 +217,7 @@ const CreateRequest = () => {
                                     name="urgency"
                                     value={formData.urgency}
                                     onChange={handleChange}
-                                    className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                    className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                 >
                                     <option value="LOW">Low</option>
                                     <option value="MEDIUM">Medium</option>
@@ -217,7 +234,7 @@ const CreateRequest = () => {
                                 name="location"
                                 value={formData.location}
                                 onChange={handleChange}
-                                className="block w-full mt-1 border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                 placeholder="City, Country or Address"
                             />
                         </div>

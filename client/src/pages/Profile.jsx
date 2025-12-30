@@ -9,9 +9,11 @@ import api from '../utils/api';
 import { updateProfile } from '../store/userSlice';
 import { fetchDonations, selectDonationsStats } from '../store/donationsSlice';
 import { formatCurrency } from '../utils/helpers';
+import { useToast } from '../components/ui/Toast';
 
 const Profile = () => {
   const dispatch = useDispatch();
+  const toast = useToast();
   const { user } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,10 +94,10 @@ const Profile = () => {
       const updatedData = response.data?.data || response.data;
       dispatch(updateProfile(updatedData));
       setIsEditing(false);
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!');
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile: ' + (error.response?.data?.message || error.message));
+      toast.error('Failed to update profile: ' + (error.response?.data?.message || error.message));
     } finally {
       setIsSaving(false);
     }
@@ -147,14 +149,14 @@ const Profile = () => {
         setAvatarPreview(imageUrl);
         // Update Redux state with new profileImage
         dispatch(updateProfile({ profileImage: imageUrl, avatar: imageUrl }));
-        alert('Profile picture updated!');
+        toast.success('Profile picture updated!');
       } else {
         console.error('No image URL in response:', userData);
-        alert('Upload succeeded but no image URL returned');
+        toast.error('Upload succeeded but no image URL returned');
       }
     } catch (error) {
       console.error('Failed to upload avatar:', error);
-      alert('Failed to upload image: ' + (error.response?.data?.message || error.message));
+      toast.error('Failed to upload image: ' + (error.response?.data?.message || error.message));
       // Revert preview
       setAvatarPreview(user?.profileImage || user?.avatar || null);
     } finally {

@@ -21,7 +21,7 @@ const GooglePayDemoForm = ({ amount, campaignId, donorEmail, donorName, onSucces
     setMessage('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // Generate demo OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -48,7 +48,7 @@ const GooglePayDemoForm = ({ amount, campaignId, donorEmail, donorName, onSucces
         throw new Error('Invalid OTP. Use 123456 or the generated code');
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 300));
       setMessage('✅ Identity verified');
       setMessageType('info');
       setStep(3);
@@ -66,7 +66,7 @@ const GooglePayDemoForm = ({ amount, campaignId, donorEmail, donorName, onSucces
     setMessage('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       setMessage('✅ Payment Successful! Thank you for your donation via Google Pay.');
       setMessageType('success');

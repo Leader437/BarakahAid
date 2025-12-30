@@ -83,6 +83,10 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
+  async findByRole(role: any): Promise<User | null> {
+    return this.userRepository.findOne({ where: { role } });
+  }
+
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }

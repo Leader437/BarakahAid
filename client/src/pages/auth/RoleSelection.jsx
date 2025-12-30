@@ -7,12 +7,14 @@ import Card from '../../components/ui/Card';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import logo from "./../../assets/logo-main.png";
 import api from '../../utils/api';
+import { useToast } from '../../components/ui/Toast';
 
 const RoleSelection = () => {
   const [selectedRole, setSelectedRole] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const toast = useToast();
   const { user } = useSelector((state) => state.user);
 
   const roles = [
@@ -76,7 +78,7 @@ const RoleSelection = () => {
       }
     } catch (error) {
       console.error('Role update error:', error);
-      alert('An error occurred: ' + (error.response?.data?.message || error.message));
+      toast.error('An error occurred: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }

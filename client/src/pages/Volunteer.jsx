@@ -18,11 +18,13 @@ import SecondaryButton from '../components/ui/SecondaryButton';
 import Footer from '../components/layout/Footer';
 import useTextAnimation from '../hooks/useTextAnimation';
 import { fetchEvents, selectEvents, selectVolunteerLoading } from '../store/volunteerSlice';
+import { useToast } from '../components/ui/Toast';
 
 const Volunteer = () => {
   useTextAnimation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
   const { user, isAuthenticated } = useSelector((state) => state.user);
   const events = useSelector(selectEvents);
   const loading = useSelector(selectVolunteerLoading);
@@ -65,7 +67,7 @@ const Volunteer = () => {
     }
 
     if (user?.role?.toLowerCase() !== 'volunteer') {
-      alert('You must be registered as a volunteer to apply for events.');
+      toast.warning('You must be registered as a volunteer to apply for events.');
       return;
     }
 

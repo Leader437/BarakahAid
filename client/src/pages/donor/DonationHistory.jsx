@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchDonations } from '../../store/donationsSlice';
 import { formatCurrency } from '../../utils/helpers';
 import api from '../../utils/api';
+import { useToast } from '../../components/ui/Toast';
 
 const DonationHistory = () => {
   const dispatch = useDispatch();
+  const toast = useToast();
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -74,7 +76,7 @@ const DonationHistory = () => {
       }
 
       if (error.message !== 'canceled') {
-        alert(`Failed to export donation history: ${errorMessage}`);
+        toast.error(`Failed to export donation history: ${errorMessage}`);
       }
     }
   };
@@ -128,7 +130,7 @@ const DonationHistory = () => {
       }
 
       if (error.message !== 'canceled') {
-        alert(`Failed to download receipt: ${errorMessage}`);
+        toast.error(`Failed to download receipt: ${errorMessage}`);
       }
     }
   };

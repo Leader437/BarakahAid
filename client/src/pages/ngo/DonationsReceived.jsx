@@ -7,19 +7,23 @@ import {
   HiClock,
   HiXCircle
 } from 'react-icons/hi';
+import jsPDF from 'jspdf';
 import Card from '../../components/ui/Card';
 import SecondaryButton from '../../components/ui/SecondaryButton';
 import { formatCurrency } from '../../utils/helpers';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNgoDonations, selectNgoDonations, selectNgoLoading } from '../../store/ngoSlice';
+import { useToast } from '../../components/ui/Toast';
 
 const DonationsReceived = () => {
   const dispatch = useDispatch();
   const donations = useSelector(selectNgoDonations);
   const loading = useSelector(selectNgoLoading);
+  const toast = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('all');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     dispatch(fetchNgoDonations());
@@ -35,6 +39,104 @@ const DonationsReceived = () => {
     // Period filtering logic can be added here
     return matchesSearch;
   });
+
+  const handleExport = () => {
+    setExporting(true);
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(16, 185, 129); // Primary green
+      doc.text('BarakahAid', pageWidth / 2, 20, { align: 'center' });
+      
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Donations Received Report', pageWidth / 2, 30, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageWidth / 2, 38, { align: 'center' });
+      
+      // Summary section
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Summary', 15, 55);
+      
+      const totalAmount = filteredDonations.reduce((sum, d) => sum + Number(d.amount), 0);
+      const completedCount = filteredDonations.filter(d => !d.status || d.status === 'COMPLETED').length;
+      
+      doc.setFontSize(10);
+      doc.text(`Total Amount Received: ${formatCurrency(totalAmount)}`, 15, 65);
+      doc.text(`Total Donations: ${filteredDonations.length}`, 15, 72);
+      doc.text(`Completed Donations: ${completedCount}`, 15, 79);
+      
+      // Table header
+      let yPos = 95;
+      doc.setFillColor(243, 244, 246);
+      doc.rect(15, yPos - 5, pageWidth - 30, 8, 'F');
+      
+      doc.setFontSize(9);
+      doc.setTextColor(50, 50, 50);
+      doc.text('Date', 17, yPos);
+      doc.text('Donor', 45, yPos);
+      doc.text('Campaign', 90, yPos);
+      doc.text('Amount', 150, yPos);
+      doc.text('Status', 175, yPos);
+      
+      // Table rows
+      yPos += 10;
+      doc.setTextColor(0, 0, 0);
+      
+      filteredDonations.forEach((donation, index) => {
+        // Check if we need a new page
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        // Alternate row colors
+        if (index % 2 === 0) {
+          doc.setFillColor(249, 250, 251);
+          doc.rect(15, yPos - 4, pageWidth - 30, 7, 'F');
+        }
+        
+        const date = new Date(donation.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+        const donor = (donation.donor?.name || 'Anonymous').substring(0, 18);
+        const campaign = (donation.campaign?.title || 'N/A').substring(0, 25);
+        const amount = formatCurrency(Number(donation.amount));
+        const status = donation.status || 'COMPLETED';
+        
+        doc.setFontSize(8);
+        doc.text(date, 17, yPos);
+        doc.text(donor, 45, yPos);
+        doc.text(campaign, 90, yPos);
+        doc.text(amount, 150, yPos);
+        doc.text(status, 175, yPos);
+        
+        yPos += 8;
+      });
+      
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, 290, { align: 'center' });
+        doc.text('BarakahAid - Empowering Communities Through Giving', pageWidth / 2, 295, { align: 'center' });
+      }
+      
+      // Save the PDF
+      doc.save(`donations-received-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to generate PDF report');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const getStatusBadge = (status) => {
     const s = status ? status.toLowerCase() : 'completed'; // Default to completed for seeded data
@@ -138,10 +240,10 @@ const DonationsReceived = () => {
 
         {/* Export Button */}
         <div className="flex justify-end mb-4">
-          <SecondaryButton>
+          <SecondaryButton onClick={handleExport} disabled={exporting || filteredDonations.length === 0}>
             <HiDownload className="w-4 h-4" />
-            <span className="hidden sm:inline">Export Report</span>
-            <span className="sm:hidden">Export</span>
+            <span className="hidden sm:inline">{exporting ? 'Generating...' : 'Export Report'}</span>
+            <span className="sm:hidden">{exporting ? '...' : 'Export'}</span>
           </SecondaryButton>
         </div>
 
@@ -210,9 +312,6 @@ const DonationsReceived = () => {
                     <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
-                      Actions
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-secondary-200">
@@ -241,11 +340,6 @@ const DonationsReceived = () => {
                           {getStatusIcon(donation.status)}
                           {(donation.status || 'COMPLETED')}
                         </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button className="p-1 transition-colors text-secondary-600 hover:text-primary-600">
-                          <HiEye className="w-5 h-5" />
-                        </button>
                       </td>
                     </tr>
                   ))}

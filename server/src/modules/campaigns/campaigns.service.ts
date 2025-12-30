@@ -112,6 +112,7 @@ export class CampaignsService {
   async updateRaisedAmount(campaignId: string, amount: number): Promise<void> {
     const campaign = await this.findOne(campaignId);
     campaign.raisedAmount = Number(campaign.raisedAmount) + amount;
+    campaign.donorsCount = (campaign.donorsCount || 0) + 1;
 
     if (campaign.raisedAmount >= campaign.goalAmount) {
       campaign.status = CampaignStatus.COMPLETED;

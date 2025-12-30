@@ -52,22 +52,35 @@ const CreateCampaign = () => {
     };
 
     const onSubmit = async (data) => {
-        const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('description', data.description);
-        formData.append('goalAmount', Number(data.targetAmount));
-        formData.append('startDate', new Date(data.startDate).toISOString());
-        formData.append('endDate', new Date(data.endDate).toISOString());
-        formData.append('categoryId', data.categoryId);
-        formData.append('status', 'ACTIVE');
-        
-        if (image) {
-            formData.append('image', image);
-        }
+        console.log('Form submitted with data:', data);
+        try {
+            const formData = new FormData();
+            formData.append('title', data.title);
+            formData.append('description', data.description);
+            formData.append('goalAmount', Number(data.targetAmount));
+            formData.append('startDate', new Date(data.startDate).toISOString());
+            formData.append('endDate', new Date(data.endDate).toISOString());
+            if (data.categoryId) {
+                formData.append('categoryId', data.categoryId);
+            }
+            formData.append('status', 'ACTIVE');
+            
+            if (image) {
+                formData.append('image', image);
+            }
 
-        const resultAction = await dispatch(createCampaign(formData));
-        if (createCampaign.fulfilled.match(resultAction)) {
-            navigate('/ngo/campaigns');
+            console.log('Dispatching createCampaign...');
+            const resultAction = await dispatch(createCampaign(formData));
+            console.log('Result action:', resultAction);
+            
+            if (createCampaign.fulfilled.match(resultAction)) {
+                console.log('Campaign created successfully!');
+                navigate('/ngo/campaigns');
+            } else {
+                console.error('Campaign creation failed:', resultAction.payload);
+            }
+        } catch (err) {
+            console.error('Error in onSubmit:', err);
         }
     };
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { HiCheck, HiDownload, HiShare, HiX, HiHeart, HiCalendar, HiCreditCard } from 'react-icons/hi';
 import jsPDF from 'jspdf';
+import { useToast } from '../ui/Toast';
 
 const DonationSuccessModal = ({
   isOpen,
@@ -13,6 +14,7 @@ const DonationSuccessModal = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const [confetti, setConfetti] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -225,7 +227,7 @@ const DonationSuccessModal = ({
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(shareText).then(() => {
-        alert('Donation message copied to clipboard! You can share it manually.');
+        toast.info('Donation message copied to clipboard! You can share it manually.');
       });
     }
     

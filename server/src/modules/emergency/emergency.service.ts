@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { DisasterFeedUtil, DisasterAlert } from './utils/disaster-feed.util';
+import { UsersService } from '../users/users.service';
+import { Role } from '../../common/enums/role.enum';
 
 @Injectable()
 export class EmergencyService {
@@ -11,6 +13,7 @@ export class EmergencyService {
   constructor(
     private readonly campaignsService: CampaignsService,
     private readonly disasterFeedUtil: DisasterFeedUtil,
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -61,8 +64,17 @@ export class EmergencyService {
       // Mark as processed
       this.processedAlerts.add(alertKey);
 
-      // Use system admin user (or create a special "Emergency Bot" user in production)
-      const adminUserId = '00000000-0000-0000-0000-000000000001';
+      // Find a valid admin or NGO user to create the campaign
+      let creatorUser = await this.usersService.findByRole(Role.ADMIN);
+      if (!creatorUser) {
+        creatorUser = await this.usersService.findByRole(Role.NGO);
+      }
+      
+      if (!creatorUser) {
+        this.logger.error('❌ No admin or NGO user found to create emergency campaign');
+        this.processedAlerts.delete(alertKey); // Allow retry
+        return;
+      }
 
       const startDate = new Date();
       const endDate = new Date();
@@ -100,7 +112,7 @@ ${disaster.estimatedDamage ? `**Estimated Damage:** ${disaster.estimatedDamage}`
       };
 
       // Create campaign in draft status (status: 'draft')
-      const campaign = await this.campaignsService.create(adminUserId, campaignData);
+      const campaign = await this.campaignsService.create(creatorUser.id, campaignData);
 
       this.logger.warn(`✅ Emergency campaign DRAFT created: ${campaign.id}`);
       this.logger.warn(`⚠️ Admin review required before going live!`);
