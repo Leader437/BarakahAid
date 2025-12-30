@@ -38,16 +38,33 @@ export class VolunteersService {
   }
 
   async getProfile(userId: string): Promise<VolunteerProfile> {
-    const profile = await this.profileRepository.findOne({
+    const existing = await this.profileRepository.findOne({
       where: { user: { id: userId } },
       relations: ['events'],
     });
 
-    if (!profile) {
-      throw new NotFoundException('Volunteer profile not found');
+    if (existing) {
+      return existing;
     }
 
-    return profile;
+    // Auto-create basic profile if it doesn't exist
+    const newProfile = this.profileRepository.create({
+      skills: [],
+      user: { id: userId } as any,
+    });
+    const savedProfile = await this.profileRepository.save(newProfile);
+    
+    // Load relations for consistency
+    const reloaded = await this.profileRepository.findOne({
+      where: { id: savedProfile.id },
+      relations: ['events'],
+    });
+
+    if (!reloaded) {
+       throw new Error('Failed to create/reload volunteer profile');
+    }
+
+    return reloaded;
   }
 
   async updateProfile(
@@ -72,7 +89,7 @@ export class VolunteersService {
 
   async findAllEvents(): Promise<VolunteerEvent[]> {
     return this.eventRepository.find({
-      relations: ['volunteers'],
+      relations: ['volunteers', 'volunteers.user'],
       order: { eventDate: 'ASC' },
     });
   }

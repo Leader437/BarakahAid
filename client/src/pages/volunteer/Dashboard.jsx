@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   HiCalendar,
   HiClock,
@@ -14,11 +14,12 @@ import Card from "../../components/ui/Card";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import SecondaryButton from "../../components/ui/SecondaryButton";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEvents, selectEvents, fetchVolunteerProfile, selectVolunteerProfile, registerForEventAsync } from "../../store/volunteerSlice";
+import { fetchEvents, selectEvents, fetchVolunteerProfile, selectVolunteerProfile } from "../../store/volunteerSlice";
 
 const VolunteerDashboard = () => {
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const rawEvents = useSelector(selectEvents);
   const profile = useSelector(selectVolunteerProfile);
 
@@ -27,29 +28,31 @@ const VolunteerDashboard = () => {
     dispatch(fetchVolunteerProfile());
   }, [dispatch]);
 
-  const handleRegister = async (eventId) => {
-    try {
-      await dispatch(registerForEventAsync(eventId)).unwrap();
-      // Refetch profile to update stats/my activities
-      dispatch(fetchVolunteerProfile());
-      alert('Successfully registered!');
-    } catch (err) {
-      alert(`Registration failed: ${err}`);
-    }
+  const handleRegister = (eventId) => {
+    navigate(`/volunteer/events/${eventId}/register`);
   };
 
   // Map real events
   const safeEvents = Array.isArray(rawEvents) ? rawEvents : [];
-  const upcomingEvents = safeEvents.slice(0, 3).map(e => ({
-    id: e.id,
-    title: e.title,
-    date: e.eventDate,
-    time: new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    location: e.location?.address || 'TBD',
-    spotsLeft: (e.maxVolunteers || 0) - (e.volunteers?.length || 0),
-    totalSpots: e.maxVolunteers || 0,
-    type: e.title.includes('Food') ? 'Food Relief' : (e.title.includes('Medical') ? 'Healthcare' : 'General'), // Simple inference
-  }));
+  const now = new Date();
+  const upcomingEvents = safeEvents
+    .filter(e => new Date(e.eventDate) > now)
+    .slice(0, 3)
+    .map(e => {
+      const totalSpots = e.maxVolunteers || 10;
+      const spotsLeft = totalSpots - (e.volunteers?.length || 0);
+      return {
+        id: e.id,
+        title: e.title,
+        date: e.eventDate,
+        time: new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        location: e.location?.address || 'TBD',
+        spotsLeft: spotsLeft,
+        totalSpots: totalSpots,
+        isRegistered: e.volunteers?.some(v => v.user?.id === user?.id),
+        type: e.title.includes('Food') ? 'Food Relief' : (e.title.includes('Medical') ? 'Healthcare' : 'General'), // Simple inference
+      };
+    });
 
   // Map real stats
   const stats = [
@@ -223,7 +226,16 @@ const VolunteerDashboard = () => {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <PrimaryButton onClick={() => handleRegister(event.id)}>Register</PrimaryButton>
+                        <PrimaryButton 
+                          onClick={() => handleRegister(event.id)}
+                          disabled={event.isRegistered || event.spotsLeft <= 0}
+                        >
+                          {event.isRegistered 
+                            ? 'Registered' 
+                            : event.spotsLeft <= 0 
+                              ? 'Full' 
+                              : 'Register'}
+                        </PrimaryButton>
                       </div>
                     </div>
                   </div>

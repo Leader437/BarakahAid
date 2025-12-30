@@ -71,6 +71,41 @@ const MyActivities = () => {
 
   const completedCount = activities.filter(a => a.status === 'completed').length;
   const upcomingCount = activities.filter(a => a.status === 'upcoming').length;
+  
+  const handleExport = () => {
+    if (filteredActivities.length === 0) return;
+
+    // CSV Headers
+    const headers = ['Activity ID', 'Title', 'Category', 'Date', 'Location', 'Hours', 'Status'];
+    
+    // CSV Rows
+    const rows = filteredActivities.map(a => [
+      a.id,
+      `"${(a.title || '').replace(/"/g, '""')}"`,
+      a.category,
+      new Date(a.date).toLocaleDateString(),
+      `"${(a.location || '').replace(/"/g, '""')}"`,
+      a.hours,
+      a.status
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `volunteer_activities_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="min-h-screen py-8 bg-secondary-50">
@@ -149,7 +184,7 @@ const MyActivities = () => {
 
         {/* Export Button */}
         <div className="flex justify-end mb-4">
-          <SecondaryButton>
+          <SecondaryButton onClick={handleExport} disabled={filteredActivities.length === 0}>
             <HiDownload className="w-4 h-4" />
             Export Activity Report
           </SecondaryButton>
@@ -178,9 +213,6 @@ const MyActivities = () => {
                   </th>
                   <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
                     Status
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
-                    Actions
                   </th>
                 </tr>
               </thead>
@@ -219,18 +251,6 @@ const MyActivities = () => {
                         {getStatusIcon(activity.status)}
                         {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button className="p-1 transition-colors text-secondary-600 hover:text-primary-600">
-                          <HiEye className="w-5 h-5" />
-                        </button>
-                        {activity.status === 'completed' && (
-                          <button className="p-1 transition-colors text-secondary-600 hover:text-primary-600">
-                            <HiDownload className="w-5 h-5" />
-                          </button>
-                        )}
-                      </div>
                     </td>
                   </tr>
                 ))}

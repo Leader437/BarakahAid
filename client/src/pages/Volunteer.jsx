@@ -58,9 +58,9 @@ const Volunteer = () => {
     }
   ];
 
-  const handleApply = async (eventId) => {
+  const handleApply = (eventId) => {
     if (!isAuthenticated) {
-      navigate(`/register?role=volunteer&redirect=/volunteer`);
+      navigate(`/register?role=volunteer&redirect=/volunteer/events/${eventId}/register`);
       return;
     }
 
@@ -69,14 +69,7 @@ const Volunteer = () => {
       return;
     }
 
-    try {
-      await api.post(`/volunteers/events/${eventId}/signup`);
-      alert('Successfully registered for the event!');
-      dispatch(fetchEvents()); // Refresh to update spots
-    } catch (err) {
-      console.error('Failed to sign up for event', err);
-      alert('Failed: ' + (err.response?.data?.message || err.message));
-    }
+    navigate(`/volunteer/events/${eventId}/register`);
   };
 
   const volunteerOpportunities = events.map(e => ({
@@ -94,6 +87,7 @@ const Volunteer = () => {
     description: e.description,
     // Use correct backend field name
     skills: e.requiredSkills || [],
+    isRegistered: e.volunteers?.some(v => v.user?.id === user?.id),
     urgent: e.isUrgent || false
   }));
 
@@ -226,7 +220,17 @@ const Volunteer = () => {
                     <span className="text-sm font-medium text-secondary-700">
                       Date: {opportunity.date}
                     </span>
-                    <PrimaryButton size="sm" onClick={() => handleApply(opportunity.id)}>Apply Now</PrimaryButton>
+                    <PrimaryButton 
+                      size="sm" 
+                      onClick={() => handleApply(opportunity.id)}
+                      disabled={opportunity.isRegistered || (opportunity.needed - opportunity.volunteers <= 0)}
+                    >
+                      {opportunity.isRegistered 
+                        ? 'Registered' 
+                        : (opportunity.needed - opportunity.volunteers <= 0) 
+                          ? 'Event Full' 
+                          : 'Apply Now'}
+                    </PrimaryButton>
                   </div>
 
                   {/* Progress Bar */}

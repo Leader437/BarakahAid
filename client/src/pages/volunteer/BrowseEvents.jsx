@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   HiSearch,
@@ -11,10 +11,12 @@ import {
 } from 'react-icons/hi';
 import Card from '../../components/ui/Card';
 import PrimaryButton from '../../components/ui/PrimaryButton';
-import { fetchEvents, selectEvents, selectVolunteerLoading, registerForEventAsync } from '../../store/volunteerSlice';
+import { fetchEvents, selectEvents, selectVolunteerLoading } from '../../store/volunteerSlice';
 
 const BrowseEvents = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.user);
   const rawEvents = useSelector(selectEvents);
   const loading = useSelector(selectVolunteerLoading);
 
@@ -26,14 +28,8 @@ const BrowseEvents = () => {
     dispatch(fetchEvents());
   }, [dispatch]);
 
-  const handleRegister = async (eventId) => {
-    try {
-      await dispatch(registerForEventAsync(eventId)).unwrap();
-      dispatch(fetchEvents());
-      alert('Successfully registered!');
-    } catch (err) {
-      alert(`Registration failed: ${err}`);
-    }
+  const handleRegister = (eventId) => {
+    navigate(`/volunteer/events/${eventId}/register`);
   };
 
   // Helper to infer category from title (since backend doesn't save it yet)
@@ -64,6 +60,7 @@ const BrowseEvents = () => {
   // Map backend events to UI structure
   const events = rawEvents.map(e => {
     const category = inferCategory(e.title);
+    const totalSpots = e.maxVolunteers || 10;
     return {
       id: e.id,
       title: e.title,
@@ -74,11 +71,13 @@ const BrowseEvents = () => {
       time: new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       duration: '4 hours', // Placeholder
       location: e.location?.address || 'TBD',
-      spotsLeft: (e.maxVolunteers || 0) - (e.volunteers?.length || 0),
-      totalSpots: e.maxVolunteers || 0,
+      spotsLeft: totalSpots - (e.volunteers?.length || 0),
+      totalSpots: totalSpots,
+      isRegistered: e.volunteers?.some(v => v.user?.id === user?.id),
       organizer: 'BarakahAid',
       requirements: e.requiredSkills || [],
-      image: getRandomImage(category)
+      image: getRandomImage(category),
+      isPassed: new Date(e.eventDate) < new Date()
     };
   });
 
@@ -229,8 +228,18 @@ const BrowseEvents = () => {
                 </div>
 
                 {/* Action Button */}
-                <PrimaryButton className="w-full" onClick={() => handleRegister(event.id)}>
-                  Register for Event
+                <PrimaryButton 
+                  className="w-full" 
+                  onClick={() => handleRegister(event.id)}
+                  disabled={event.isRegistered || (event.spotsLeft <= 0 && !event.isPassed)}
+                >
+                  {event.isRegistered 
+                    ? 'Already Registered' 
+                    : event.isPassed
+                      ? 'View Details'
+                      : event.spotsLeft <= 0 
+                        ? 'Event Full' 
+                        : 'Register for Event'}
                 </PrimaryButton>
               </div>
             </Card>

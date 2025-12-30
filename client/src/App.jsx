@@ -40,6 +40,7 @@ import DonationHistory from './pages/donor/DonationHistory';
 import VolunteerDashboard from './pages/volunteer/Dashboard';
 import BrowseEvents from './pages/volunteer/BrowseEvents';
 import MyActivities from './pages/volunteer/MyActivities';
+import EventRegistration from './pages/volunteer/EventRegistration';
 
 // NGO Pages
 import NgoDashboard from './pages/ngo/Dashboard';
@@ -284,6 +285,7 @@ function App() {
             <Route path="dashboard" element={<VolunteerDashboard />} />
             <Route path="browse-events" element={<BrowseEvents />} />
             <Route path="my-activities" element={<MyActivities />} />
+            <Route path="events/:id/register" element={<EventRegistration />} />
           </Route>
 
           {/* NGO Routes */}

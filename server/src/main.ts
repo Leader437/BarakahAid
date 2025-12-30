@@ -32,7 +32,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const port = configService.get('PORT') || 5000;
+  const port = configService.get('PORT') || 5500;
   await app.listen(port);
 }
 
