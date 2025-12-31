@@ -30,7 +30,7 @@ const CreateCampaign = () => {
                 const res = await api.get('/categories');
                 setCategories(res.data.data || res.data);
             } catch (err) {
-                console.error("Failed to fetch categories", err);
+                // Silent fail
             }
         };
         fetchCategories();
@@ -52,7 +52,6 @@ const CreateCampaign = () => {
     };
 
     const onSubmit = async (data) => {
-        console.log('Form submitted with data:', data);
         try {
             const formData = new FormData();
             formData.append('title', data.title);
@@ -69,18 +68,13 @@ const CreateCampaign = () => {
                 formData.append('image', image);
             }
 
-            console.log('Dispatching createCampaign...');
             const resultAction = await dispatch(createCampaign(formData));
-            console.log('Result action:', resultAction);
             
             if (createCampaign.fulfilled.match(resultAction)) {
-                console.log('Campaign created successfully!');
                 navigate('/ngo/campaigns');
-            } else {
-                console.error('Campaign creation failed:', resultAction.payload);
             }
         } catch (err) {
-            console.error('Error in onSubmit:', err);
+            // Error handled by Redux
         }
     };
 

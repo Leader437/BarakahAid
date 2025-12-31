@@ -57,8 +57,6 @@ export class AuthController {
 
     const { password, refreshToken: _, ...userResult } = user;
 
-    console.log('LOGIN SUCCESS: Returning payload:', { user: userResult, accessToken }); // DEBUG LOG
-
     return {
       user: userResult,
       accessToken,
@@ -131,9 +129,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const oauthUser = req.user as any;
-    console.log('🔍 OAuth User Data from Google:', JSON.stringify(oauthUser, null, 2));
     const { user, accessToken, refreshToken } = await this.authService.validateOAuthLogin(oauthUser);
-    console.log('✅ User saved to database:', JSON.stringify({ id: user.id, name: user.name, email: user.email, avatar: user.avatar, googleId: user.googleId }, null, 2));
 
     // Set refresh token cookie
     response.cookie('refreshToken', refreshToken, {

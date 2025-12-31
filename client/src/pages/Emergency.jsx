@@ -33,12 +33,9 @@ const Emergency = () => {
       if (response.ok) {
         const campaignResponse = await response.json();
         const campaign = campaignResponse.data || campaignResponse;
-        console.log('✅ Emergency campaign created:', campaign);
         
-        // Update the alert with campaign ID
         const updatedAlert = { ...alert, campaignId: campaign.id };
         
-        // Update alerts list to include campaign ID
         setAlerts((prevAlerts) =>
           prevAlerts.map((a) =>
             (a.id === alert.id || a.location === alert.location) ? updatedAlert : a
@@ -50,7 +47,7 @@ const Emergency = () => {
         return campaign;
       }
     } catch (err) {
-      console.error('Error creating emergency campaign:', err);
+      // Silent fail
     }
   };
 
@@ -109,9 +106,7 @@ const Emergency = () => {
       setDemoMode(data?.demoMode || false);
       setError(null);
     } catch (err) {
-      console.error('Error fetching alerts:', err);
       setError('Failed to load disaster alerts. Please try again.');
-      // Use mock data for demo if API fails
       setAlerts(getMockAlerts());
     } finally {
       setLoading(false);
@@ -121,18 +116,13 @@ const Emergency = () => {
   // Toggle demo mode
   const toggleDemoMode = async () => {
     const newDemoMode = !demoMode;
-    console.log('Toggling demo mode:', newDemoMode);
     const url = `http://localhost:5000/api/emergency/alerts${newDemoMode ? '?demo=true' : ''}`;
-    console.log('Fetching from URL:', url);
     
     try {
       setLoading(true);
       const response = await fetch(url);
       const responseData = await response.json();
       
-      console.log('API Response:', responseData);
-      
-      // Handle wrapped response format: { success: true, data: {...} }
       const actualData = responseData.data || responseData;
       
       let alertsArray = [];
@@ -153,9 +143,7 @@ const Emergency = () => {
       setDemoMode(newDemoMode);
       setLastUpdate(new Date());
       setError(null);
-      console.log('✅ Demo mode set to:', newDemoMode, '| Alerts count:', processedAlerts.length);
     } catch (err) {
-      console.error('Error toggling demo mode:', err);
       setError('Failed to load disaster alerts.');
     } finally {
       setLoading(false);

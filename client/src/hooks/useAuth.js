@@ -10,16 +10,13 @@ import { getDashboardPath } from '../utils/helpers';
 const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   const { user, isAuthenticated, loading, error } = useSelector((state) => state.user);
 
   const login = async (credentials) => {
     const result = await dispatch(loginUser(credentials));
     if (result.success && result.user) {
-      console.log('Login successful, user:', result.user);
-      
       const dashboardPath = getDashboardPath(result.user.role);
-      console.log('Redirecting to:', dashboardPath);
       navigate(dashboardPath);
     }
     return result;
@@ -28,10 +25,7 @@ const useAuth = () => {
   const register = async (userData) => {
     const result = await dispatch(registerUser(userData));
     if (result.success && result.user) {
-      console.log('Registration successful, user:', result.user);
-      
       const dashboardPath = getDashboardPath(result.user.role);
-      console.log('Redirecting to:', dashboardPath);
       navigate(dashboardPath);
     }
     return result;

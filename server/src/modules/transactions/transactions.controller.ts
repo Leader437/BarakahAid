@@ -64,7 +64,6 @@ export class TransactionsController {
     @Res() response: Response,
   ) {
     try {
-      console.log(`Generating yearly report for user ${userId}, year ${year}`);
       const pdfBuffer = await this.transactionsService.generateYearlyReport(
         userId,
         year,
@@ -78,7 +77,6 @@ export class TransactionsController {
 
       response.end(pdfBuffer);
     } catch (error) {
-      console.error('Failed to generate yearly report:', error);
       response.status(500).json({ message: 'Failed to generate report', error: error.message });
     }
   }

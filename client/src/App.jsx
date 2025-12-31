@@ -81,7 +81,6 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     const isAllowed = allowedRoles.some(role => role.toLowerCase() === userRole);
     
     if (!isAllowed) {
-      console.warn('🚫 Access denied. User role:', user?.role, 'Allowed roles:', allowedRoles);
       return <Navigate to="/" replace />;
     }
   }
@@ -222,7 +221,7 @@ function App() {
           const profileData = response.data?.data || response.data;
           dispatch(updateProfile(profileData));
         } catch (error) {
-          console.error('Failed to fetch user profile on app load:', error);
+          // Silent fail - user will see stale data
         }
       }
     };
@@ -230,7 +229,6 @@ function App() {
   }, [isAuthenticated, dispatch]);
 
   /* Shared getDashboardPath used from utils */
-  console.log('App Render:', { isAuthenticated, user, role: user?.role, path: window.location.pathname });
 
   return (
     <Router>

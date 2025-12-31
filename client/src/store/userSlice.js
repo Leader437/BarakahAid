@@ -96,7 +96,6 @@ export const loginUser = (credentials) => async (dispatch) => {
   dispatch(loginStart());
   try {
     const response = await api.post('/auth/login', credentials);
-    console.log('API Login Response Data:', response.data); // DEBUG LOG
 
     // Handle wrapped response structure { success: true, data: { user, accessToken } }
     const payload = response.data.data || response.data;
@@ -107,11 +106,10 @@ export const loginUser = (credentials) => async (dispatch) => {
     }
 
     // Fallback token if server fails to return one (safety net)
-    const token = accessToken || response.data?.token || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJleHAiOjE5OTk5OTk5OTl9.mock_token";
+    const token = accessToken || response.data?.token || "";
 
     // Check if user role exists, if not, try to infer or default
     if (user && !user.role) {
-      console.warn('User object missing role, defaulting to DONOR');
       user.role = 'DONOR';
     }
 
@@ -119,12 +117,6 @@ export const loginUser = (credentials) => async (dispatch) => {
     dispatch(loginSuccess(user));
     return { success: true, user, accessToken: token };
   } catch (error) {
-    console.error('Login Error Details:', {
-      message: error.message,
-      response: error.response,
-      status: error.response?.status,
-      data: error.response?.data
-    });
     const errorMessage = error.response?.data?.message || error.message || 'Login failed';
     dispatch(loginFailure(errorMessage));
     return { success: false, error: errorMessage };

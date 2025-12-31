@@ -45,23 +45,15 @@ const RoleSelection = () => {
     e.preventDefault();
     if (!selectedRole) return;
 
-    console.log('📝 Submitting role selection:', selectedRole);
     setLoading(true);
     try {
       const response = await api.patch('/users/update-role', { role: selectedRole });
-      console.log('📡 Response:', response.data);
 
-      // Extract user data from wrapped response
       const updatedUser = response.data?.data || response.data;
-      console.log('✅ Role updated:', JSON.stringify(updatedUser, null, 2));
       
-      // Update Redux state with new role
       dispatch(updateProfile({ role: updatedUser.role || selectedRole }));
-      console.log('✅ Redux state updated with new role:', updatedUser.role);
       
-      // Redirect based on selected role (use uppercase from state)
       const roleUpper = selectedRole.toUpperCase();
-      console.log('🔀 Redirecting with role:', roleUpper);
       
       switch (roleUpper) {
         case 'DONOR':
@@ -77,7 +69,6 @@ const RoleSelection = () => {
           navigate('/donor');
       }
     } catch (error) {
-      console.error('Role update error:', error);
       toast.error('An error occurred: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);

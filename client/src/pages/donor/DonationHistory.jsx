@@ -22,16 +22,12 @@ const DonationHistory = () => {
   }, [dispatch]);
 
   const handleExport = async () => {
-    console.log('🚀 Starting export...');
     try {
       const year = new Date().getFullYear();
       const response = await api.get(`/transactions/reports/yearly?year=${year}`, {
         responseType: 'blob',
       });
-      
-      console.log('📡 Response received:', response.status, response.data.type, response.data.size);
 
-      // Check if the response is actually a JSON error hidden as a blob
       if (response.data.type === 'application/json' && response.data.size < 1000) {
           const text = await response.data.text();
           try {
@@ -53,25 +49,15 @@ const DonationHistory = () => {
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup with a slight delay to ensure browser handles the click
       setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
       }, 100);
-      
-      console.log('✅ Export successful');
     } catch (error) {
-      console.error('❌ Export failed:', error);
-      
-      // Axios "Network Error" can be flaky on some environments even if data was received.
-      // If the error message is simply "Network Error" and we managed to initiate the download,
-      // we might want to be less alarming.
       const isNetworkError = error.message === 'Network Error';
       const errorMessage = error.response?.data?.message || error.message;
 
       if (isNetworkError) {
-        console.warn('⚠️ Network Error reported, but file may have still downloaded.');
-        // Only alert if we really didn't get any data
         return; 
       }
 
@@ -82,15 +68,11 @@ const DonationHistory = () => {
   };
 
   const handleDownloadReceipt = async (transactionId) => {
-    console.log(`🚀 Starting receipt download for ${transactionId}...`);
     try {
       const response = await api.get(`/transactions/${transactionId}/receipt`, {
         responseType: 'blob',
       });
-      
-      console.log('📡 Response received:', response.status, response.data.type, response.data.size);
 
-      // Check if the response is actually a JSON error hidden as a blob
       if (response.data.type === 'application/json' && response.data.size < 1000) {
           const text = await response.data.text();
           try {
@@ -112,20 +94,15 @@ const DonationHistory = () => {
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
       setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
       }, 100);
-
-      console.log('✅ Receipt download successful');
     } catch (error) {
-      console.error('❌ Receipt download failed:', error);
       const isNetworkError = error.message === 'Network Error';
       const errorMessage = error.response?.data?.message || error.message;
 
       if (isNetworkError) {
-        console.warn('⚠️ Network Error reported on receipt, but file may have still downloaded.');
         return; 
       }
 

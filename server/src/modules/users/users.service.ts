@@ -98,10 +98,8 @@ export class UsersService {
 
   async updateUserRole(userId: string, role: any): Promise<User> {
     const user = await this.findById(userId);
-    console.log('📝 Updating user role from', user.role, 'to', role);
     user.role = role;
     const updatedUser = await this.userRepository.save(user);
-    console.log('✅ User role updated successfully:', { id: updatedUser.id, role: updatedUser.role });
     return updatedUser;
   }
 }

@@ -43,15 +43,12 @@ const Profile = () => {
       try {
         const response = await api.get('/users/profile');
         const profileData = response.data?.data || response.data;
-        console.log('Fetched profile data:', profileData);
-        // Update Redux with full profile data
         dispatch(updateProfile(profileData));
       } catch (error) {
-        console.error('Failed to fetch profile:', error);
+        // Silent fail
       }
     };
     fetchProfile();
-    // Also fetch donations for stats
     dispatch(fetchDonations());
   }, [dispatch]);
 
@@ -85,18 +82,14 @@ const Profile = () => {
         phone: formData.phone,
         location: formData.location,
       };
-      console.log('Saving profile with payload:', payload);
       
       const response = await api.put('/users/profile', payload);
-      console.log('Profile save response:', response.data);
       
-      // Update Redux state with new profile data
       const updatedData = response.data?.data || response.data;
       dispatch(updateProfile(updatedData));
       setIsEditing(false);
       toast.success('Profile updated successfully!');
     } catch (error) {
-      console.error('Failed to update profile:', error);
       toast.error('Failed to update profile: ' + (error.response?.data?.message || error.message));
     } finally {
       setIsSaving(false);
@@ -105,7 +98,6 @@ const Profile = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset form data to original user data
     setFormData({
       name: user?.name || '',
       email: user?.email || '',
@@ -123,10 +115,8 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Preview
     setAvatarPreview(URL.createObjectURL(file));
 
-    // Upload
     setIsUploading(true);
     try {
       const uploadData = new FormData();
@@ -135,29 +125,18 @@ const Profile = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      // Debug: log the full response
-      console.log('Profile image upload response:', response.data);
-      
-      // Handle potentially wrapped response
       const userData = response.data?.data || response.data;
       const imageUrl = userData?.profileImage || userData?.avatar;
       
-      console.log('Extracted image URL:', imageUrl);
-      
       if (imageUrl) {
-        // Update local preview to show the actual uploaded image URL
         setAvatarPreview(imageUrl);
-        // Update Redux state with new profileImage
         dispatch(updateProfile({ profileImage: imageUrl, avatar: imageUrl }));
         toast.success('Profile picture updated!');
       } else {
-        console.error('No image URL in response:', userData);
         toast.error('Upload succeeded but no image URL returned');
       }
     } catch (error) {
-      console.error('Failed to upload avatar:', error);
       toast.error('Failed to upload image: ' + (error.response?.data?.message || error.message));
-      // Revert preview
       setAvatarPreview(user?.profileImage || user?.avatar || null);
     } finally {
       setIsUploading(false);
