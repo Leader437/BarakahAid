@@ -14,7 +14,7 @@ const CreateRequest = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        amount: '',
+        targetAmount: '',
         urgency: 'MEDIUM',
         category: '', // Would ideally fetch categories
         location: '',
@@ -72,7 +72,7 @@ const CreateRequest = () => {
                 title: formData.title,
                 description: formData.description,
                 categoryId: formData.category,
-                amount: Number(formData.amount) || 0,
+                targetAmount: Number(formData.targetAmount) || 0,
                 urgency: formData.urgency,
                 location: formData.location ? {
                     type: 'Point',
@@ -87,7 +87,7 @@ const CreateRequest = () => {
                 formDataPayload.append('title', requestBody.title);
                 formDataPayload.append('description', requestBody.description);
                 formDataPayload.append('categoryId', requestBody.categoryId);
-                formDataPayload.append('amount', requestBody.amount);
+                formDataPayload.append('targetAmount', requestBody.targetAmount);
                 formDataPayload.append('urgency', requestBody.urgency);
                 if (requestBody.location) {
                     formDataPayload.append('location', JSON.stringify(requestBody.location));
@@ -198,13 +198,13 @@ const CreateRequest = () => {
 
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
-                                <label className="block text-sm font-medium text-secondary-700">Amount Needed ($)</label>
+                                <label className="block text-sm font-medium text-secondary-700">Target Amount ($)</label>
                                 <input
                                     type="number"
-                                    name="amount"
+                                    name="targetAmount"
                                     required
                                     min="1"
-                                    value={formData.amount}
+                                    value={formData.targetAmount}
                                     onChange={handleChange}
                                     className="block w-full px-4 py-2 mt-1 border border-secondary-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                     placeholder="0.00"

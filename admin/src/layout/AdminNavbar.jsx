@@ -1,7 +1,9 @@
 // Admin Navbar Component
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Avatar } from '../components/ui';
+import { selectAdmin } from '../store/adminSlice';
 import logoMain from '../assets/logo-main.png';
-import { jwtDecode } from 'jwt-decode';
 
 /**
  * Admin Navbar with title, search bar, and admin profile avatar
@@ -9,32 +11,12 @@ import { jwtDecode } from 'jwt-decode';
 const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [adminUser, setAdminUser] = useState({ name: 'Admin', email: '' });
+  const admin = useSelector(selectAdmin);
 
-  // Get admin info from token
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setAdminUser({
-          name: decoded.name || 'Admin User',
-          email: decoded.email || 'admin@barakahaid.com',
-        });
-      } catch (error) {
-        console.error('Error decoding token:', error);
-      }
-    }
-  }, []);
+  // Fallback if admin isn't loaded yet
+  const displayAdmin = admin || { name: 'Admin User', email: 'admin@barakahaid.com' };
 
-  const getInitials = (name) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
+
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -114,17 +96,22 @@ const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-danger-500 rounded-full"></span>
           </button>
 
-          {/* Profile Avatar & Dropdown */}
+            {/* Profile Avatar & Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="flex items-center gap-2 p-1.5 hover:bg-secondary-100 rounded-lg transition-colors"
             >
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 ring-2 ring-primary-200">
-                <span className="text-sm font-semibold text-primary-700">{getInitials(adminUser.name)}</span>
+              <div className="flex-shrink-0 w-8 h-8">
+                <Avatar
+                    src={displayAdmin.avatar || displayAdmin.profileImage}
+                    name={displayAdmin.name}
+                    size="sm"
+                    shape="circle"
+                />
               </div>
               <div className="hidden text-left lg:block">
-                <p className="text-sm font-medium text-secondary-900">{adminUser.name}</p>
+                <p className="text-sm font-medium text-secondary-900">{displayAdmin.name}</p>
                 <p className="text-xs text-secondary-500">Administrator</p>
               </div>
               <svg className="hidden w-4 h-4 text-secondary-400 lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,8 +128,8 @@ const AdminNavbar = ({ onMenuToggle, isSidebarOpen }) => {
                 />
                 <div className="absolute right-0 z-20 w-56 mt-2 bg-white border rounded-lg border-secondary-200 shadow-dropdown animate-fade-in">
                   <div className="p-3 border-b border-secondary-200">
-                    <p className="font-medium text-secondary-900">{adminUser.name}</p>
-                    <p className="text-sm text-secondary-700">{adminUser.email}</p>
+                    <p className="font-medium text-secondary-900">{displayAdmin.name}</p>
+                    <p className="text-sm text-secondary-700">{displayAdmin.email}</p>
                   </div>
                   <div className="py-1">
                     <a href="/settings" className="flex items-center gap-2 px-4 py-2 text-sm transition-colors text-secondary-700 hover:bg-secondary-50">

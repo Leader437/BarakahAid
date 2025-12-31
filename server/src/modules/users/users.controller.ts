@@ -35,6 +35,7 @@ export class UsersController {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
+      profileImage: user.profileImage,
       role: user.role,
       authProvider: user.authProvider,
       createdAt: user.createdAt,

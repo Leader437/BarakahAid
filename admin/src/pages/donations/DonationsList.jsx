@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Badge } from '../../components/ui';
+import { Card, Button, Badge, Avatar } from '../../components/ui';
 import {
     selectFilteredDonations,
     selectDonationsFilters,
@@ -11,7 +11,7 @@ import {
     fetchDonations,
 } from '../../store/donationsSlice';
 import usePagination from '../../hooks/usePagination';
-import { formatCurrency, formatDateTime } from '../../utils/helpers';
+import { formatCurrency, formatDate } from '../../utils/helpers';
 
 const DonationsList = () => {
     const dispatch = useDispatch();
@@ -216,13 +216,12 @@ const DonationsList = () => {
                                         {/* Donor */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-success-700 font-semibold text-sm">
-                                                        {donation.donor?.name
-                                                            ? donation.donor.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
-                                                            : 'AN'}
-                                                    </span>
-                                                </div>
+                                                <Avatar
+                                                    src={donation.donor?.profileImage || donation.donor?.avatar}
+                                                    name={donation.donor?.name || 'Anonymous'}
+                                                    size="md"
+                                                    shape="circle"
+                                                />
                                                 <div>
                                                     <p className="font-medium text-secondary-900">
                                                         {donation.donor?.name || 'Anonymous'}
@@ -249,7 +248,7 @@ const DonationsList = () => {
 
                                         {/* Date */}
                                         <td className="px-6 py-4 text-secondary-800">
-                                            {formatDateTime(donation.createdAt)}
+                                            {formatDate(donation.createdAt)}
                                         </td>
 
                                         {/* Status */}

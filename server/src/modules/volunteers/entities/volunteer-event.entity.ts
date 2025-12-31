@@ -5,9 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import { VolunteerProfile } from './volunteer-profile.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('volunteer_events')
 export class VolunteerEvent {
@@ -32,8 +35,15 @@ export class VolunteerEvent {
   @Column({ type: 'jsonb', default: [] })
   requiredSkills: string[];
 
+  @Column({ type: 'varchar', nullable: true })
+  image: string | null;
+
   @Column({ type: 'int', default: 0 })
   maxVolunteers: number;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn()
+  createdBy: User;
 
   @ManyToMany(() => VolunteerProfile, (profile) => profile.events)
   @JoinTable()

@@ -20,12 +20,16 @@ export class Transaction {
   @JoinColumn()
   donor: User;
 
-  @ManyToOne(() => Campaign, (campaign) => campaign.transactions, { nullable: true })
+  @ManyToOne(() => Campaign, (campaign) => campaign.transactions, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn()
   campaign: Campaign;
 
   @Column({ type: 'uuid', nullable: true })
   requestId: string;
+
+  @ManyToOne('DonationRequest', { nullable: true, onDelete: 'SET NULL', createForeignKeyConstraints: false })
+  @JoinColumn({ name: 'requestId' })
+  request: any;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;

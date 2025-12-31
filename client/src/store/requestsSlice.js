@@ -10,7 +10,7 @@ const initialState = {
   filters: {
     category: '',
     urgency: '',
-    status: 'active',
+    status: 'APPROVED',
     searchQuery: '',
   },
 };

@@ -17,7 +17,7 @@ const Campaigns = () => {
   const [selectedType, setSelectedType] = useState('all');
 
   useEffect(() => {
-    dispatch(fetchCampaigns());
+    dispatch(fetchCampaigns({ status: 'ACTIVE' }));
   }, [dispatch]);
 
   const getDaysLeft = (endDate) => {

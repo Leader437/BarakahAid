@@ -32,7 +32,7 @@ export class CreateDonationRequestDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  amount?: number;
+  targetAmount?: number;
 
   @IsOptional()
   @IsEnum(Urgency)

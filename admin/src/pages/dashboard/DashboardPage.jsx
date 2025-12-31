@@ -26,7 +26,7 @@ import {
 import { selectPendingRequestsCount, fetchRequests } from '../../store/requestsSlice';
 import { selectActiveCampaignsCount, fetchCampaigns } from '../../store/campaignsSlice';
 import { fetchDonations, selectDonations } from '../../store/donationsSlice';
-import { formatCurrency } from '../../utils/helpers';
+import { formatCurrency, formatDate } from '../../utils/helpers';
 
 // Chart colors matching theme
 const COLORS = {
@@ -59,25 +59,7 @@ const DashboardPage = () => {
         dispatch(fetchRequests());
     }, [dispatch]);
 
-    // Helper function for time ago
-    const getTimeAgo = (date) => {
-        const seconds = Math.floor((new Date() - date) / 1000);
-        const intervals = [
-            { label: 'year', seconds: 31536000 },
-            { label: 'month', seconds: 2592000 },
-            { label: 'day', seconds: 86400 },
-            { label: 'hour', seconds: 3600 },
-            { label: 'minute', seconds: 60 },
-        ];
 
-        for (const interval of intervals) {
-            const count = Math.floor(seconds / interval.seconds);
-            if (count >= 1) {
-                return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
-            }
-        }
-        return 'Just now';
-    };
 
     // Generate recent activity from real donations
     const generatedActivity = React.useMemo(() => {
@@ -90,12 +72,11 @@ const DashboardPage = () => {
                 const donorName = donation.donor?.name || 'Anonymous';
                 const amount = formatCurrency(donation.amount || 0);
                 const campaignTitle = donation.campaign?.title || 'General Donation';
-                const timeAgo = getTimeAgo(new Date(donation.createdAt));
 
                 return {
                     type: 'donation',
                     description: `${donorName} donated ${amount} to ${campaignTitle}`,
-                    time: timeAgo,
+                    date: donation.createdAt,
                 };
             });
     }, [donations]);
@@ -107,7 +88,7 @@ const DashboardPage = () => {
     const metrics = [
         {
             label: 'Total Users',
-            value: dashboardStats?.totalUsers?.toLocaleString() || '0',
+            value: (dashboardStats?.totalUsers || 0).toLocaleString(),
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -117,7 +98,7 @@ const DashboardPage = () => {
         },
         {
             label: 'Total Donations',
-            value: `$${dashboardStats?.totalDonations?.toLocaleString() || '0'}`,
+            value: formatCurrency(dashboardStats?.totalAmountRaised || 0),
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -409,7 +390,7 @@ const DashboardPage = () => {
                                             <p className="text-sm font-medium text-secondary-900">
                                                 {activity.description}
                                             </p>
-                                            <p className="text-xs text-secondary-700">{activity.time}</p>
+                                            <p className="text-xs text-secondary-700">{formatDate(activity.date || activity.time)}</p>
                                         </div>
                                     </div>
                                 ))

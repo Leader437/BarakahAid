@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Input, Badge, Modal } from '../../components/ui';
+import { Card, Button, Input, Badge, Modal, useToast, Avatar } from '../../components/ui';
 import {
     selectFilteredUsers,
     selectUsersFilters,
@@ -17,6 +17,7 @@ import { ROLES, VERIFICATION_STATUS } from '../../utils/constants';
 
 const UsersList = () => {
     const dispatch = useDispatch();
+    const toast = useToast();
     const users = useSelector(selectFilteredUsers);
     const filters = useSelector(selectUsersFilters);
     const paginationState = useSelector(selectUsersPagination);
@@ -64,20 +65,32 @@ const UsersList = () => {
     };
 
     // Handle verify user
-    const handleVerifyUser = () => {
+    const handleVerifyUser = async () => {
         if (selectedUser) {
-            dispatch(verifyUser(selectedUser.id));
-            setShowActionModal(false);
-            setSelectedUser(null);
+            try {
+                await dispatch(verifyUser(selectedUser.id)).unwrap();
+                toast.success(`User ${selectedUser.name} has been verified successfully.`);
+            } catch (err) {
+                toast.error(err || 'Failed to verify user');
+            } finally {
+                setShowActionModal(false);
+                setSelectedUser(null);
+            }
         }
     };
 
     // Handle reject user
-    const handleRejectUser = () => {
+    const handleRejectUser = async () => {
         if (selectedUser) {
-            dispatch(rejectUser(selectedUser.id));
-            setShowActionModal(false);
-            setSelectedUser(null);
+            try {
+                await dispatch(rejectUser(selectedUser.id)).unwrap();
+                toast.warning(`User ${selectedUser.name} has been rejected.`);
+            } catch (err) {
+                toast.error(err || 'Failed to reject user');
+            } finally {
+                setShowActionModal(false);
+                setSelectedUser(null);
+            }
         }
     };
 
@@ -200,11 +213,12 @@ const UsersList = () => {
                                         {/* Name with Avatar */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-primary-100">
-                                                    <span className="text-sm font-semibold text-primary-700">
-                                                        {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                    </span>
-                                                </div>
+                                                <Avatar
+                                                    src={user.profileImage || user.avatar}
+                                                    name={user.name}
+                                                    size="md"
+                                                    shape="circle"
+                                                />
                                                 <div>
                                                     <p className="font-medium text-secondary-900">{user.name}</p>
                                                     <p className="text-xs text-secondary-600">{user.location || 'Location not set'}</p>
@@ -242,7 +256,7 @@ const UsersList = () => {
                                                     </Button>
                                                 </Link>
 
-                                                {user.verificationStatus === 'PENDING' && (
+                                                {user.verificationStatus !== 'VERIFIED' && (
                                                     <>
                                                         <Button
                                                             variant="success"

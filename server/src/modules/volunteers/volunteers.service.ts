@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { VolunteerProfile } from './entities/volunteer-profile.entity';
@@ -6,7 +6,9 @@ import { VolunteerEvent } from './entities/volunteer-event.entity';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
 import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
 import { LogHoursDto } from './dto/log-hours.dto';
+import { FileUploadUtil } from '../../utils/file-upload.util';
 
 @Injectable()
 export class VolunteersService {
@@ -82,13 +84,57 @@ export class VolunteersService {
     return this.profileRepository.save(profile);
   }
 
-  async createEvent(createDto: CreateEventDto): Promise<VolunteerEvent> {
-    const event = this.eventRepository.create(createDto);
+  async createEvent(
+    userId: string, 
+    createDto: CreateEventDto, 
+    file?: Express.Multer.File
+  ): Promise<VolunteerEvent> {
+    let imageUrl: string | null = null;
+
+    if (file) {
+      imageUrl = await FileUploadUtil.uploadToCloudinary(file, 'events');
+    }
+
+    const event = this.eventRepository.create({
+      ...createDto,
+      image: imageUrl,
+      createdBy: { id: userId } as any,
+    });
+    return this.eventRepository.save(event);
+  }
+
+  async updateEvent(
+    id: string, 
+    userId: string, 
+    updateDto: UpdateEventDto,
+    file?: Express.Multer.File
+  ): Promise<VolunteerEvent> {
+    const event = await this.findEvent(id);
+    
+    // Check ownership
+    if (event.createdBy?.id !== userId) {
+      throw new ForbiddenException('You can only update your own events');
+    }
+
+    if (file) {
+      const imageUrl = await FileUploadUtil.uploadToCloudinary(file, 'events');
+      event.image = imageUrl;
+    }
+
+    Object.assign(event, updateDto);
     return this.eventRepository.save(event);
   }
 
   async findAllEvents(): Promise<VolunteerEvent[]> {
     return this.eventRepository.find({
+      relations: ['volunteers', 'volunteers.user', 'createdBy'],
+      order: { eventDate: 'ASC' },
+    });
+  }
+
+  async findEventsByUser(userId: string): Promise<VolunteerEvent[]> {
+    return this.eventRepository.find({
+      where: { createdBy: { id: userId } },
       relations: ['volunteers', 'volunteers.user'],
       order: { eventDate: 'ASC' },
     });
@@ -97,7 +143,7 @@ export class VolunteersService {
   async findEvent(id: string): Promise<VolunteerEvent> {
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['volunteers', 'volunteers.user'],
+      relations: ['volunteers', 'volunteers.user', 'createdBy'],
     });
 
     if (!event) {
@@ -123,8 +169,14 @@ export class VolunteersService {
     return this.eventRepository.save(event);
   }
 
-  async removeEvent(id: string): Promise<void> {
+  async removeEvent(id: string, userId: string): Promise<void> {
     const event = await this.findEvent(id);
+    
+    // Check ownership
+    if (event.createdBy?.id !== userId) {
+      throw new ForbiddenException('You can only delete your own events');
+    }
+
     await this.eventRepository.remove(event);
   }
 }

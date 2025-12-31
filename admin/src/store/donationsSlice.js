@@ -26,8 +26,8 @@ export const selectFilteredDonations = createSelector(
       const donorName = donation.donor?.name || donation.donorName || '';
       const campaignTitle = donation.campaign?.title || donation.campaignTitle || '';
       const txId = donation.transactionId || '';
-      
-      const matchesSearch = !search || 
+
+      const matchesSearch = !search ||
         donorName.toLowerCase().includes(search.toLowerCase()) ||
         campaignTitle.toLowerCase().includes(search.toLowerCase()) ||
         txId.toLowerCase().includes(search.toLowerCase());
@@ -64,8 +64,8 @@ export const updateDonationStatus = createAsyncThunk(
 export const updateDonation = createAsyncThunk(
   'donations/update',
   async ({ id, status }, { dispatch, rejectWithValue }) => {
-      // Alias for updateDonationStatus for now
-      return dispatch(updateDonationStatus({ id, status }));
+    // Alias for updateDonationStatus for now
+    return dispatch(updateDonationStatus({ id, status }));
   }
 );
 
@@ -87,7 +87,7 @@ export const refundDonation = createAsyncThunk(
 // Calculate stats helper
 const calculateStats = (donations) => {
   if (!Array.isArray(donations)) return { total: 0, completed: 0, pending: 0, totalAmount: 0 };
-  
+
   const completed = donations.filter((d) => d.status === 'COMPLETED');
   const pending = donations.filter((d) => d.status === 'PENDING');
   const totalAmount = completed.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
@@ -142,57 +142,57 @@ const donationsSlice = createSlice({
       state.pagination.page = 1;
     },
     clearError: (state) => {
-        state.error = null;
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
     // Fetch
     builder
-        .addCase(fetchDonations.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        })
-        .addCase(fetchDonations.fulfilled, (state, action) => {
-            state.loading = false;
-            let data = [];
-            if (Array.isArray(action.payload)) {
-                data = action.payload;
-                state.pagination.total = action.payload.length;
-            } else {
-                data = action.payload.data || [];
-                state.pagination.total = action.payload.total || 0;
-            }
-            state.donations = data;
-            state.stats = calculateStats(data);
-        })
-        .addCase(fetchDonations.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        });
+      .addCase(fetchDonations.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDonations.fulfilled, (state, action) => {
+        state.loading = false;
+        let data = [];
+        if (Array.isArray(action.payload)) {
+          data = action.payload;
+          state.pagination.total = action.payload.length;
+        } else {
+          data = action.payload.data || [];
+          state.pagination.total = action.payload.total || 0;
+        }
+        state.donations = data;
+        state.stats = calculateStats(data);
+      })
+      .addCase(fetchDonations.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
     // Update Status
     // Update Status & Refund
     builder
-        .addCase(updateDonationStatus.fulfilled, (state, action) => {
-            const index = state.donations.findIndex(d => d.id === action.payload.id);
-            if (index !== -1) {
-                state.donations[index].status = action.payload.status;
-                state.stats = calculateStats(state.donations);
-            }
-            if (state.selectedDonation?.id === action.payload.id) {
-                state.selectedDonation.status = action.payload.status;
-            }
-        })
-        .addCase(refundDonation.fulfilled, (state, action) => {
-            const index = state.donations.findIndex(d => d.id === action.payload.id);
-            if (index !== -1) {
-                state.donations[index].status = 'REFUNDED';
-                state.stats = calculateStats(state.donations);
-            }
-            if (state.selectedDonation?.id === action.payload.id) {
-                state.selectedDonation.status = 'REFUNDED';
-            }
-        });
+      .addCase(updateDonationStatus.fulfilled, (state, action) => {
+        const index = state.donations.findIndex(d => d.id === action.payload.id);
+        if (index !== -1) {
+          state.donations[index].status = action.payload.status;
+          state.stats = calculateStats(state.donations);
+        }
+        if (state.selectedDonation?.id === action.payload.id) {
+          state.selectedDonation.status = action.payload.status;
+        }
+      })
+      .addCase(refundDonation.fulfilled, (state, action) => {
+        const index = state.donations.findIndex(d => d.id === action.payload.id);
+        if (index !== -1) {
+          state.donations[index].status = 'REFUNDED';
+          state.stats = calculateStats(state.donations);
+        }
+        if (state.selectedDonation?.id === action.payload.id) {
+          state.selectedDonation.status = 'REFUNDED';
+        }
+      });
   }
 });
 

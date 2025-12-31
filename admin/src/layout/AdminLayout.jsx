@@ -6,7 +6,7 @@ import AdminSidebar from './AdminSidebar';
 import AdminFooter from './AdminFooter';
 
 import { useDispatch } from 'react-redux';
-import { setAdminData } from '../store/adminSlice';
+import { setAdminData, getAdminProfile } from '../store/adminSlice';
 
 /**
  * Admin Layout combining Sidebar + Navbar + Outlet (react-router)
@@ -24,6 +24,8 @@ const AdminLayout = ({ children }) => {
                 const user = JSON.parse(userStr);
                 if (user.role && (user.role.toLowerCase() === 'admin')) {
                     dispatch(setAdminData(user));
+                    // Fetch latest profile to get avatar
+                    dispatch(getAdminProfile());
                 }
             } catch (e) {
                 console.error("Failed to parse user from localStorage", e);

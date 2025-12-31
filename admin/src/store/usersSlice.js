@@ -21,16 +21,16 @@ export const selectFilteredUsers = createSelector(
 
     // Assuming API currently fetches ALL users (based on GetAllUsers), we filter locally for now.
     // If API supports filtering, we should rely on that and remove this selector or make it pass-through.
-    
+
     return users.filter((user) => {
       const matchesRole = role === 'all' || user.role === role;
       const matchesStatus = status === 'all' || user.verificationStatus === status;
       // Check fields carefully, might vary.
       const nameMatch = user.name?.toLowerCase().includes(search.toLowerCase());
       const emailMatch = user.email?.toLowerCase().includes(search.toLowerCase());
-      
+
       const matchesSearch = !search || nameMatch || emailMatch;
-      
+
       return matchesRole && matchesStatus && matchesSearch;
     });
   }
@@ -48,7 +48,7 @@ export const fetchUsers = createAsyncThunk(
       // Based on controller, getAllUsers returns this.usersService.findAll().
       // I should assume it returns an array for now as per simple service pattern usually unless paginated.
       // Let's assume array for now, or check service later.
-      return response; 
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
     }
@@ -73,7 +73,8 @@ export const verifyUser = createAsyncThunk(
     try {
       // Backend expects PUT /users/:id/verification with { status: 'VERIFIED' }
       const response = await api.put(`/users/${userId}/verification`, { status: 'VERIFIED' });
-      return { id: userId, status: 'VERIFIED' };
+      const result = response.data || response;
+      return { id: userId, status: 'VERIFIED', user: result.data || result };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to verify user');
     }
@@ -86,9 +87,10 @@ export const rejectUser = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await api.put(`/users/${userId}/verification`, { status: 'REJECTED' });
-      return { id: userId, status: 'REJECTED' };
+      const result = response.data || response;
+      return { id: userId, status: 'REJECTED', user: result.data || result };
     } catch (error) {
-       return rejectWithValue(error.response?.data?.message || 'Failed to reject user');
+      return rejectWithValue(error.response?.data?.message || 'Failed to reject user');
     }
   }
 );
@@ -106,11 +108,11 @@ export const updateUserStatus = createAsyncThunk(
       const payload = {};
       if (status) payload.status = status;
       if (isBlocked !== undefined) payload.isBlocked = isBlocked;
-      
+
       const response = await api.patch(`/admin/users/${id}/status`, payload);
       return { id, ...payload, data: response.data };
     } catch (error) {
-       return rejectWithValue(error.response?.data?.message || 'Failed to update user status');
+      return rejectWithValue(error.response?.data?.message || 'Failed to update user status');
     }
   }
 );
@@ -151,63 +153,77 @@ const usersSlice = createSlice({
       state.pagination.page = 1;
     },
     clearError: (state) => {
-        state.error = null;
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
     // Fetch Users
     builder
-        .addCase(fetchUsers.pending, (state) => {
+      .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
-        })
-        .addCase(fetchUsers.fulfilled, (state, action) => {
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
         // If payload is array
         if (Array.isArray(action.payload)) {
-            state.users = action.payload;
-            state.pagination.total = action.payload.length;
+          state.users = action.payload;
+          state.pagination.total = action.payload.length;
         } else {
-            // Assume paginated structure
-            state.users = action.payload.data || [];
-            state.pagination.total = action.payload.total || 0;
+          // Assume paginated structure
+          state.users = action.payload.data || [];
+          state.pagination.total = action.payload.total || 0;
         }
-        })
-        .addCase(fetchUsers.rejected, (state, action) => {
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        });
+      });
 
     // Delete User
     builder
-        .addCase(deleteUser.fulfilled, (state, action) => {
+      .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter((u) => u.id !== action.payload);
         state.pagination.total -= 1;
         if (state.selectedUser?.id === action.payload) {
-            state.selectedUser = null;
+          state.selectedUser = null;
         }
-        });
+      });
 
     // Verify/Reject User
     builder
-        .addCase(verifyUser.fulfilled, (state, action) => {
-             const index = state.users.findIndex((u) => u.id === action.payload.id);
-             if (index !== -1) {
-                 state.users[index].verificationStatus = action.payload.status;
-             }
-             if (state.selectedUser?.id === action.payload.id) {
-                 state.selectedUser.verificationStatus = action.payload.status;
-             }
-        })
-        .addCase(rejectUser.fulfilled, (state, action) => {
-             const index = state.users.findIndex((u) => u.id === action.payload.id);
-             if (index !== -1) {
-                 state.users[index].verificationStatus = action.payload.status;
-             }
-             if (state.selectedUser?.id === action.payload.id) {
-                 state.selectedUser.verificationStatus = action.payload.status;
-             }
-        });
+      .addCase(verifyUser.fulfilled, (state, action) => {
+        const index = state.users.findIndex((u) => u.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index].verificationStatus = action.payload.status;
+        }
+        if (state.selectedUser?.id === action.payload.id) {
+          state.selectedUser.verificationStatus = action.payload.status;
+        }
+      })
+      .addCase(rejectUser.fulfilled, (state, action) => {
+        const index = state.users.findIndex((u) => u.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index].verificationStatus = action.payload.status;
+        }
+        if (state.selectedUser?.id === action.payload.id) {
+          state.selectedUser.verificationStatus = action.payload.status;
+        }
+      })
+      .addCase(updateUserStatus.fulfilled, (state, action) => {
+        const { id, status, isBlocked, isSuspended } = action.payload;
+        const index = state.users.findIndex((u) => u.id === id);
+        if (index !== -1) {
+          if (status) state.users[index].status = status;
+          if (isBlocked !== undefined) state.users[index].isBlocked = isBlocked;
+          if (isSuspended !== undefined) state.users[index].isSuspended = isSuspended;
+        }
+        if (state.selectedUser?.id === id) {
+          if (status) state.selectedUser.status = status;
+          if (isBlocked !== undefined) state.selectedUser.isBlocked = isBlocked;
+          if (isSuspended !== undefined) state.selectedUser.isSuspended = isSuspended;
+        }
+      });
   },
 });
 

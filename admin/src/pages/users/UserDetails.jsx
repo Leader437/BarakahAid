@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Badge, Modal } from '../../components/ui';
+import { Card, Button, Badge, Modal, useToast, Avatar } from '../../components/ui';
 import {
     selectUsers,
     setSelectedUser,
-    updateUserStatus,
     verifyUser,
+    rejectUser,
 } from '../../store/usersSlice';
 import { selectDonations } from '../../store/donationsSlice';
 import { formatDate, formatCurrency } from '../../utils/helpers';
@@ -16,15 +16,12 @@ const UserDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const toast = useToast();
 
     // Get user from Redux store
     const users = useSelector(selectUsers);
     const donations = useSelector(selectDonations);
     const user = users.find((u) => u.id === id);
-
-    // Local state
-    const [showStatusModal, setShowStatusModal] = useState(false);
-    const [newStatus, setNewStatus] = useState('');
 
     // Redirect if user not found
     useEffect(() => {
@@ -50,35 +47,26 @@ const UserDetails = () => {
 
     // Get user's donations
     const userDonations = donations.filter((d) => d.donor?.id === user.id);
-    const totalDonated = userDonations.reduce((sum, d) => sum + d.amount, 0);
-
-    // Status options based on current status
-    const getStatusOptions = () => {
-        if (user.isBlocked) {
-            return [{ value: 'active', label: 'Activate (Unblock)' }];
-        }
-        return [
-            { value: 'suspended', label: 'Suspend User' },
-            { value: 'blocked', label: 'Block User' },
-        ];
-    };
-
-    // Handle status update
-    const handleStatusUpdate = () => {
-        if (newStatus === 'active') {
-            dispatch(updateUserStatus({ id: user.id, isBlocked: false, isSuspended: false }));
-        } else if (newStatus === 'suspended') {
-            dispatch(updateUserStatus({ id: user.id, isSuspended: true }));
-        } else if (newStatus === 'blocked') {
-            dispatch(updateUserStatus({ id: user.id, isBlocked: true }));
-        }
-        setShowStatusModal(false);
-        setNewStatus('');
-    };
+    const totalDonated = userDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
 
     // Handle verify user
-    const handleVerify = () => {
-        dispatch(verifyUser(user.id));
+    const handleVerify = async () => {
+        try {
+            await dispatch(verifyUser(user.id)).unwrap();
+            toast.success(`User ${user.name} has been verified successfully.`);
+        } catch (err) {
+            toast.error(err || 'Failed to verify user');
+        }
+    };
+
+    // Handle reject user
+    const handleReject = async () => {
+        try {
+            await dispatch(rejectUser(user.id)).unwrap();
+            toast.warning(`User ${user.name} has been rejected.`);
+        } catch (err) {
+            toast.error(err || 'Failed to reject user');
+        }
     };
 
     // Get badge variants
@@ -119,18 +107,18 @@ const UserDetails = () => {
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div className="flex items-start gap-4">
                     {/* Avatar */}
-                    <div className="w-20 h-20 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <span className="text-primary-700 font-bold text-2xl">
-                            {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                        </span>
-                    </div>
+                    <Avatar
+                        src={user.profileImage || user.avatar}
+                        name={user.name}
+                        size="2xl"
+                        shape="square"
+                        className="rounded-xl"
+                    />
 
                     {/* User Info */}
                     <div>
                         <div className="flex items-center gap-3">
                             <h1 className="text-2xl font-bold text-secondary-900 font-heading">{user.name}</h1>
-                            {user.isBlocked && <Badge variant="danger">Blocked</Badge>}
-                            {user.isSuspended && <Badge variant="warning">Suspended</Badge>}
                         </div>
                         <p className="text-secondary-700 mt-1">{user.email}</p>
                         <div className="flex items-center gap-2 mt-2">
@@ -144,23 +132,25 @@ const UserDetails = () => {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
-                    {user.verificationStatus === 'PENDING' && (
-                        <Button variant="success" onClick={handleVerify}>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Verify User
-                        </Button>
+                    {user.verificationStatus !== 'VERIFIED' && (
+                        <>
+                            <Button variant="success" onClick={handleVerify}>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Verify User
+                            </Button>
+                            {user.verificationStatus !== 'REJECTED' && (
+                                <Button variant="danger" onClick={handleReject}>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reject User
+                                </Button>
+                            )}
+
+                        </>
                     )}
-                    <Button
-                        variant={user.isBlocked ? 'warning' : 'danger'}
-                        onClick={() => setShowStatusModal(true)}
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        {user.isBlocked ? 'Unblock' : 'Update Status'}
-                    </Button>
                 </div>
             </div>
 
@@ -256,7 +246,7 @@ const UserDetails = () => {
                                         <div>
                                             <p className="text-sm text-primary-600">Total Donated</p>
                                             <p className="text-xl font-bold text-primary-700">
-                                                {formatCurrency(user.totalDonations || totalDonated)}
+                                                {formatCurrency(user.totalDonations !== undefined && user.totalDonations !== null ? Number(user.totalDonations) : totalDonated)}
                                             </p>
                                         </div>
                                         <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -358,12 +348,6 @@ const UserDetails = () => {
                                 </Badge>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-secondary-600">Account Status</span>
-                                <Badge variant={user.isBlocked ? 'danger' : user.isSuspended ? 'warning' : 'success'}>
-                                    {user.isBlocked ? 'Blocked' : user.isSuspended ? 'Suspended' : 'Active'}
-                                </Badge>
-                            </div>
-                            <div className="flex items-center justify-between">
                                 <span className="text-sm text-secondary-600">Member Since</span>
                                 <span className="text-sm text-secondary-900">{user.joinedDate}</span>
                             </div>
@@ -372,54 +356,6 @@ const UserDetails = () => {
                 </div>
             </div>
 
-            {/* Status Update Modal */}
-            <Modal
-                isOpen={showStatusModal}
-                onClose={() => setShowStatusModal(false)}
-                title="Update Account Status"
-                size="sm"
-                footer={
-                    <>
-                        <Button variant="outline" onClick={() => setShowStatusModal(false)}>
-                            Cancel
-                        </Button>
-                        <Button
-                            variant={newStatus === 'active' ? 'success' : 'danger'}
-                            onClick={handleStatusUpdate}
-                            disabled={!newStatus}
-                        >
-                            Update Status
-                        </Button>
-                    </>
-                }
-            >
-                <div className="space-y-4">
-                    <p className="text-secondary-600">
-                        Select a new status for <strong>{user.name}</strong>:
-                    </p>
-                    <div className="space-y-2">
-                        {getStatusOptions().map((option) => (
-                            <label
-                                key={option.value}
-                                className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${newStatus === option.value
-                                    ? 'border-primary-500 bg-primary-50'
-                                    : 'border-secondary-200 hover:bg-secondary-50'
-                                    }`}
-                            >
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    value={option.value}
-                                    checked={newStatus === option.value}
-                                    onChange={(e) => setNewStatus(e.target.value)}
-                                    className="w-4 h-4 text-primary-600"
-                                />
-                                <span className="text-secondary-900">{option.label}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-            </Modal>
         </div>
     );
 };

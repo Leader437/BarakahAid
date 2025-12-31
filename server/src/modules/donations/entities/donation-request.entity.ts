@@ -41,7 +41,10 @@ export class DonationRequest {
   createdBy: User;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  amount: number;
+  targetAmount: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  currentAmount: number;
 
   @Column({ type: 'varchar', default: 'MEDIUM' })
   urgency: string;

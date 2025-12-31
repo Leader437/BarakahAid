@@ -5,8 +5,9 @@ import { User } from '../users/entities/user.entity';
 import { Campaign } from '../campaigns/entities/campaign.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { Role } from '../../common/enums/role.enum';
-import { TransactionStatus } from '../../common/enums/status.enum';
+import { TransactionStatus, DonationRequestStatus } from '../../common/enums/status.enum';
 import { PdfGeneratorUtil } from '../../utils/pdf-generator.util';
+import { DonationRequest } from '../donations/entities/donation-request.entity';
 
 @Injectable()
 export class AdminService {
@@ -17,6 +18,8 @@ export class AdminService {
     private readonly campaignRepository: Repository<Campaign>,
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+    @InjectRepository(DonationRequest)
+    private readonly donationRequestRepository: Repository<DonationRequest>,
   ) {}
 
   async getGlobalAnalytics(): Promise<any> {
@@ -26,6 +29,7 @@ export class AdminService {
       totalDonations,
       activeDonors,
       activeNGOs,
+      pendingRequests,
     ] = await Promise.all([
       this.userRepository.count(),
       this.campaignRepository.count(),
@@ -34,6 +38,9 @@ export class AdminService {
       }),
       this.userRepository.count({ where: { role: Role.DONOR } }),
       this.userRepository.count({ where: { role: Role.NGO } }),
+      this.donationRequestRepository.count({
+        where: { status: DonationRequestStatus.PENDING },
+      }),
     ]);
 
     const totalAmountResult = await this.transactionRepository
@@ -48,9 +55,10 @@ export class AdminService {
       totalUsers,
       totalCampaigns,
       totalDonations,
-      totalAmountRaised: parseFloat(totalAmount),
+      totalAmountRaised: parseFloat(totalAmount as any) || 0,
       activeDonors,
       activeNGOs,
+      pendingRequests,
     };
   }
 

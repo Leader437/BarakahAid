@@ -76,7 +76,7 @@ const BrowseEvents = () => {
       isRegistered: e.volunteers?.some(v => v.user?.id === user?.id),
       organizer: 'BarakahAid',
       requirements: e.requiredSkills || [],
-      image: getRandomImage(category),
+      image: e.image || getRandomImage(category),
       isPassed: new Date(e.eventDate) < new Date()
     };
   });

@@ -18,7 +18,7 @@ const BrowseRequests = () => {
   const [selectedUrgency, setSelectedUrgency] = useState('all');
 
   useEffect(() => {
-    dispatch(fetchRequests());
+    dispatch(fetchRequests({ status: 'APPROVED' }));
   }, [dispatch]);
 
   const categories = ['All', ...new Set((requests || []).map(r => r.category).filter(Boolean))];

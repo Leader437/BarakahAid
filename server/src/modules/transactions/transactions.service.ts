@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
@@ -9,6 +9,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { PaymentService } from '../payments/payment.service';
 import { PdfGeneratorUtil } from '../../utils/pdf-generator.util';
 import { FileUploadUtil } from '../../utils/file-upload.util';
+import { DonationsService } from '../donations/donations.service';
 
 @Injectable()
 export class TransactionsService {
@@ -18,6 +19,8 @@ export class TransactionsService {
     private readonly campaignsService: CampaignsService,
     private readonly notificationsService: NotificationsService,
     private readonly paymentService: PaymentService,
+    @Inject(forwardRef(() => DonationsService))
+    private readonly donationsService: DonationsService,
   ) {}
 
   async create(userId: string, createDto: CreateTransactionDto): Promise<Transaction> {
@@ -59,6 +62,19 @@ export class TransactionsService {
       );
     }
 
+    // Update request currentAmount if it's a donation request donation
+    if (createDto.requestId) {
+      try {
+        await this.donationsService.updateCurrentAmount(
+          createDto.requestId,
+          createDto.amount
+        );
+      } catch (error) {
+        // Log but don't fail the transaction if request update fails
+        console.error('Failed to update request currentAmount:', error.message);
+      }
+    }
+
     // Send notification about successful donation
     await this.notificationsService.create(
       userId,
@@ -75,12 +91,32 @@ export class TransactionsService {
     return savedTransaction;
   }
 
-  async findByDonor(donorId: string): Promise<Transaction[]> {
-    return this.transactionRepository.find({
+  async findByDonor(donorId: string): Promise<any[]> {
+    const transactions = await this.transactionRepository.find({
       where: { donor: { id: donorId } },
       relations: ['campaign'],
       order: { createdAt: 'DESC' },
     });
+
+    // For transactions with requestId but no campaign, fetch request title
+    const enhancedTransactions = await Promise.all(
+      transactions.map(async (tx) => {
+        if (tx.requestId && !tx.campaign) {
+          try {
+            const request = await this.donationsService.findOne(tx.requestId);
+            return {
+              ...tx,
+              requestTitle: request.title,
+            };
+          } catch {
+            return tx;
+          }
+        }
+        return tx;
+      })
+    );
+
+    return enhancedTransactions;
   }
 
   async findByCampaign(campaignId: string): Promise<Transaction[]> {
@@ -93,12 +129,19 @@ export class TransactionsService {
 
   async findReceivedByNgo(ngoId: string): Promise<Transaction[]> {
     return this.transactionRepository.find({
-      where: {
-        campaign: {
-          createdBy: { id: ngoId },
+      where: [
+        {
+          campaign: {
+            createdBy: { id: ngoId },
+          },
         },
-      },
-      relations: ['campaign', 'donor'],
+        {
+          request: {
+            createdBy: { id: ngoId },
+          },
+        },
+      ],
+      relations: ['campaign', 'request', 'donor'],
       order: { createdAt: 'DESC' },
     });
   }

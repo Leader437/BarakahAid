@@ -2,20 +2,27 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Badge } from '../../components/ui';
+import { Card, Button, Badge, Modal } from '../../components/ui';
+import { useToast } from '../../components/ui/Toast';
 import {
     selectFilteredCampaigns,
     selectCampaignsFilters,
     setFilters,
     fetchCampaigns,
+    deleteCampaign,
 } from '../../store/campaignsSlice';
 import usePagination from '../../hooks/usePagination';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 
 const CampaignsList = () => {
     const dispatch = useDispatch();
+    const toast = useToast();
     const campaigns = useSelector(selectFilteredCampaigns);
     const filters = useSelector(selectCampaignsFilters);
+
+    // Local state for deletion modal
+    const [selectedCampaign, setSelectedCampaign] = React.useState(null);
+    const [showDeleteModal, setShowDeleteModal] = React.useState(false);
 
     useEffect(() => {
         dispatch(fetchCampaigns());
@@ -67,6 +74,29 @@ const CampaignsList = () => {
     const activeCampaigns = campaigns.filter((c) => c.status === 'ACTIVE').length;
     const totalRaised = campaigns.reduce((sum, c) => sum + Number(c.raisedAmount || 0), 0);
     const totalGoal = campaigns.reduce((sum, c) => sum + Number(c.goalAmount || 0), 0);
+
+    // Handle Delete
+    const handleDelete = async () => {
+        if (selectedCampaign) {
+            try {
+                const result = await dispatch(deleteCampaign(selectedCampaign.id));
+                if (deleteCampaign.fulfilled.match(result)) {
+                    toast.success('Campaign deleted successfully');
+                } else {
+                    toast.error(result.payload || 'Failed to delete campaign');
+                }
+            } catch (error) {
+                toast.error('An error occurred while deleting');
+            }
+            setShowDeleteModal(false);
+            setSelectedCampaign(null);
+        }
+    };
+
+    const confirmDelete = (campaign) => {
+        setSelectedCampaign(campaign);
+        setShowDeleteModal(true);
+    };
 
     return (
         <div className="space-y-6">
@@ -262,7 +292,17 @@ const CampaignsList = () => {
                                                         </svg>
                                                         View
                                                     </Button>
-                                                </Link>
+                                                    </Link>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm"
+                                                    className="text-danger-500 hover:text-danger-700 hover:bg-danger-50"
+                                                    onClick={() => confirmDelete(campaign)}
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
@@ -289,6 +329,38 @@ const CampaignsList = () => {
                     </div>
                 )}
             </Card>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                title="Delete Campaign"
+                size="sm"
+                footer={
+                    <>
+                        <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={handleDelete}>
+                            Delete
+                        </Button>
+                    </>
+                }
+            >
+                <div className="text-center py-4">
+                    <div className="w-16 h-16 bg-danger-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-danger-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                    <p className="text-secondary-600">
+                        Are you sure you want to delete <strong>{selectedCampaign?.title}</strong>?
+                    </p>
+                    <p className="text-sm text-secondary-500 mt-2">
+                        This action cannot be undone.
+                    </p>
+                </div>
+            </Modal>
         </div>
     );
 };

@@ -13,7 +13,7 @@ const OAuthCallback = () => {
     
     if (token) {
       // Store token
-      localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
       
       // Fetch user profile and redirect
       fetchUserProfile(token);
@@ -27,7 +27,8 @@ const OAuthCallback = () => {
     try {
       console.log('🔍 Fetching user profile with token:', token.substring(0, 20) + '...');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/profile`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5500';
+      const response = await fetch(`${apiUrl}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -44,7 +45,7 @@ const OAuthCallback = () => {
         console.log('✅ Extracted user object:', JSON.stringify(user, null, 2));
         
         // Store token in localStorage
-        localStorage.setItem('token', token);
+        localStorage.setItem('accessToken', token);
         
         // Dispatch to Redux to update authentication state
         dispatch(loginSuccess(user));

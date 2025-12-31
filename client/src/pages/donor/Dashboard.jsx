@@ -19,7 +19,7 @@ const DonorDashboard = () => {
   const stats = useSelector((state) => state.donations.stats);
 
   useEffect(() => {
-    dispatch(fetchRequests({ status: 'active' }));
+    dispatch(fetchRequests({ status: 'APPROVED' }));
     if (user?.id) {
       dispatch(fetchDonations());
     }

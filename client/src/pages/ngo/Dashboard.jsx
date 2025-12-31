@@ -264,14 +264,25 @@ const NgoDashboard = () => {
                     key={request.id}
                     className="p-3 border rounded-lg border-warning-200 bg-warning-50"
                   >
-                    <div className="flex items-start gap-2 mb-2">
-                      <HiClock className="w-4 h-4 mt-1 text-warning-600 shrink-0" />
+                    <div className="flex items-start gap-3 mb-2">
+                      {/* Thumbnail */}
+                      {request.media && request.media.length > 0 ? (
+                        <img 
+                          src={request.media[0]} 
+                          alt={request.title}
+                          className="w-12 h-12 rounded-lg object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center shrink-0">
+                          <span className="text-lg font-bold text-primary-400">
+                            {request.title?.charAt(0)?.toUpperCase() || 'R'}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-secondary-900 wrap-break-word">{request.title}</h3>
                         <p className="text-sm text-secondary-600">
-                          {(request.description && request.description.match(/\[Amount Needed: \$(\d+)\]/))
-                            ? formatCurrency(Number(request.description.match(/\[Amount Needed: \$(\d+)\]/)[1]))
-                            : 'See details'}
+                          {request.targetAmount ? formatCurrency(Number(request.targetAmount)) : 'See details'}
                         </p>
                         <p className="text-xs text-secondary-500">
                           Requested: {new Date(request.createdAt).toLocaleDateString()}

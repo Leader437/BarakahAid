@@ -170,9 +170,9 @@ export const copyToClipboard = async (text) => {
  */
 export const getDashboardPath = (role) => {
   if (!role) return '/';
-  
+
   const normalizedRole = role.toLowerCase();
-  
+
   switch (normalizedRole) {
     case 'donor':
       return '/donor/dashboard';

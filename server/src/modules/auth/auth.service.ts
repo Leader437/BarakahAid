@@ -175,6 +175,7 @@ export class AuthService {
     firstName?: string;
     lastName?: string;
     avatar?: string;
+    profileImage?: string;
     authProvider: 'GOOGLE';
     isEmailVerified?: boolean;
   }): Promise<{ user: User; accessToken: string; refreshToken: string }> {
@@ -193,16 +194,20 @@ export class AuthService {
         where: { email: oauthUser.email },
       });
 
-      // Update existing user with OAuth ID and latest profile info
+    // Update existing user with OAuth ID and latest profile info
       if (user) {
         if (oauthUser.googleId) {
           user.googleId = oauthUser.googleId;
         }
         user.authProvider = oauthUser.authProvider;
         user.name = oauthUser.name; // Update name from Google
-        if (oauthUser.avatar && !user.avatar) {
-          user.avatar = oauthUser.avatar; // Update avatar if not set
+        
+        // Force update avatar/profileImage from Google to keep it fresh
+        if (oauthUser.avatar) {
+          user.avatar = oauthUser.avatar;
+          user.profileImage = oauthUser.avatar; // Sync both fields
         }
+        
         if (oauthUser.isEmailVerified) {
           user.verificationStatus = 'VERIFIED' as any; // Mark as verified if Google email is verified
         }
@@ -217,6 +222,7 @@ export class AuthService {
         name: oauthUser.name,
         googleId: oauthUser.googleId,
         avatar: oauthUser.avatar,
+        profileImage: oauthUser.avatar, // Save to profileImage as well
         authProvider: oauthUser.authProvider,
         password: '', // OAuth users don't need password but field is required
         verificationStatus: oauthUser.isEmailVerified ? 'VERIFIED' as any : 'UNVERIFIED' as any,

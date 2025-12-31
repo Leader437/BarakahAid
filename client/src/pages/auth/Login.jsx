@@ -135,7 +135,8 @@ const Login = () => {
             <p className="mb-4 text-sm text-center text-secondary-600">Or continue with</p>
             <button
               onClick={() => {
-                window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/auth/google`;
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5500';
+                window.location.href = `${apiUrl}/api/auth/google`;
               }}
               className="flex items-center justify-center w-full gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 bg-white border rounded-lg border-secondary-300 text-secondary-700 hover:bg-secondary-50 hover:border-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >

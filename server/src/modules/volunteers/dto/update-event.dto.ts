@@ -1,42 +1,45 @@
 import {
   IsString,
-  IsNotEmpty,
+  IsOptional,
   IsDate,
   IsArray,
   IsInt,
   IsObject,
   Min,
-  IsOptional,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
-export class CreateEventDto {
+export class UpdateEventDto {
   @IsString()
-  @IsNotEmpty()
-  title: string;
+  @IsOptional()
+  title?: string;
 
   @IsString()
-  @IsNotEmpty()
-  description: string;
+  @IsOptional()
+  description?: string;
 
   @IsObject()
+  @IsOptional()
   @Transform(({ value }) => typeof value === 'string' ? JSON.parse(value) : value)
-  location: {
+  location?: {
     address: string;
     coordinates?: [number, number];
   };
 
   @IsDate()
   @Type(() => Date)
-  eventDate: Date;
+  @IsOptional()
+  eventDate?: Date;
 
   @IsArray()
   @IsString({ each: true })
+  @IsOptional()
   @Transform(({ value }) => typeof value === 'string' ? JSON.parse(value) : value)
-  requiredSkills: string[];
+  requiredSkills?: string[];
 
   @IsInt()
-  @Transform(({ value }) => typeof value === 'string' ? parseInt(value, 10) : value)
   @Min(1)
-  maxVolunteers: number;
+  @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? parseInt(value, 10) : value)
+  maxVolunteers?: number;
 }

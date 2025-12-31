@@ -21,13 +21,13 @@ export const selectFilteredCampaigns = createSelector(
 
     return campaigns.filter((campaign) => {
       const matchesStatus = status === 'all' || campaign.status === status;
-      const matchesEmergency = isEmergency === 'all' || 
+      const matchesEmergency = isEmergency === 'all' ||
         (isEmergency === 'true' ? campaign.isEmergency : !campaign.isEmergency);
-      const matchesSearch = !search || 
+      const matchesSearch = !search ||
         campaign.title.toLowerCase().includes(search.toLowerCase()) ||
         campaign.description.toLowerCase().includes(search.toLowerCase());
       return matchesStatus && matchesEmergency && matchesSearch;
-    });
+    }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 );
 
@@ -52,10 +52,10 @@ export const createCampaign = createAsyncThunk(
       // Currently assuming JSON for simplicity, but if image is needed, use FormData
       // Controller uses @UseInterceptors(FileInterceptor('image'))
       // So checks if campaignData is FormData
-      
+
       const response = await api.post('/campaigns', campaignData, {
         headers: {
-            'Content-Type': campaignData instanceof FormData ? 'multipart/form-data' : 'application/json'
+          'Content-Type': campaignData instanceof FormData ? 'multipart/form-data' : 'application/json'
         }
       });
       return response;
@@ -72,7 +72,7 @@ export const updateCampaign = createAsyncThunk(
       const response = await api.put(`/campaigns/${id}`, data);
       return response;
     } catch (error) {
-       return rejectWithValue(error.response?.data?.message || 'Failed to update campaign');
+      return rejectWithValue(error.response?.data?.message || 'Failed to update campaign');
     }
   }
 );
@@ -84,7 +84,7 @@ export const deleteCampaign = createAsyncThunk(
       await api.delete(`/campaigns/${id}`);
       return id;
     } catch (error) {
-       return rejectWithValue(error.response?.data?.message || 'Failed to delete campaign');
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete campaign');
     }
   }
 );
@@ -93,10 +93,10 @@ export const updateCampaignStatus = createAsyncThunk(
   'campaigns/updateStatus',
   async ({ id, status }, { rejectWithValue }) => {
     try {
-        const response = await api.put(`/campaigns/${id}/status`, { status });
-        return { id, status, data: response };
+      const response = await api.put(`/campaigns/${id}/status`, { status });
+      return { id, status, data: response };
     } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Failed to update status');
+      return rejectWithValue(error.response?.data?.message || 'Failed to update status');
     }
   }
 );
@@ -157,65 +157,65 @@ const campaignsSlice = createSlice({
       state.pagination.page = 1;
     },
     clearError: (state) => {
-        state.error = null;
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
     // Fetch
     builder
-        .addCase(fetchCampaigns.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        })
-        .addCase(fetchCampaigns.fulfilled, (state, action) => {
-            state.loading = false;
-             if (Array.isArray(action.payload)) {
-                state.campaigns = action.payload;
-                state.pagination.total = action.payload.length;
-            } else {
-                state.campaigns = action.payload.data || [];
-                state.pagination.total = action.payload.total || 0;
-            }
-        })
-        .addCase(fetchCampaigns.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        });
+      .addCase(fetchCampaigns.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCampaigns.fulfilled, (state, action) => {
+        state.loading = false;
+        if (Array.isArray(action.payload)) {
+          state.campaigns = action.payload;
+          state.pagination.total = action.payload.length;
+        } else {
+          state.campaigns = action.payload.data || [];
+          state.pagination.total = action.payload.total || 0;
+        }
+      })
+      .addCase(fetchCampaigns.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
     // Create
     builder.addCase(createCampaign.fulfilled, (state, action) => {
-        state.campaigns.unshift(action.payload);
-        state.pagination.total += 1;
+      state.campaigns.unshift(action.payload);
+      state.pagination.total += 1;
     });
 
     // Update & Update Status
     builder
-        .addCase(updateCampaign.fulfilled, (state, action) => {
-            const index = state.campaigns.findIndex(c => c.id === action.payload.id);
-            if (index !== -1) {
-                state.campaigns[index] = action.payload;
-            }
-            if (state.selectedCampaign?.id === action.payload.id) {
-                state.selectedCampaign = action.payload;
-            }
-        })
-        .addCase(updateCampaignStatus.fulfilled, (state, action) => {
-             const index = state.campaigns.findIndex(c => c.id === action.payload.id);
-             if (index !== -1) {
-                 state.campaigns[index].status = action.payload.status;
-             }
-             if (state.selectedCampaign?.id === action.payload.id) {
-                 state.selectedCampaign.status = action.payload.status;
-             }
-        });
+      .addCase(updateCampaign.fulfilled, (state, action) => {
+        const index = state.campaigns.findIndex(c => c.id === action.payload.id);
+        if (index !== -1) {
+          state.campaigns[index] = action.payload;
+        }
+        if (state.selectedCampaign?.id === action.payload.id) {
+          state.selectedCampaign = action.payload;
+        }
+      })
+      .addCase(updateCampaignStatus.fulfilled, (state, action) => {
+        const index = state.campaigns.findIndex(c => c.id === action.payload.id);
+        if (index !== -1) {
+          state.campaigns[index].status = action.payload.status;
+        }
+        if (state.selectedCampaign?.id === action.payload.id) {
+          state.selectedCampaign.status = action.payload.status;
+        }
+      });
 
     // Delete
     builder.addCase(deleteCampaign.fulfilled, (state, action) => {
-        state.campaigns = state.campaigns.filter(c => c.id !== action.payload);
-        state.pagination.total -= 1;
-         if (state.selectedCampaign?.id === action.payload) {
-            state.selectedCampaign = null;
-        }
+      state.campaigns = state.campaigns.filter(c => c.id !== action.payload);
+      state.pagination.total -= 1;
+      if (state.selectedCampaign?.id === action.payload) {
+        state.selectedCampaign = null;
+      }
     });
   }
 });

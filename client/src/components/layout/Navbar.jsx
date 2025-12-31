@@ -59,25 +59,29 @@ const Navbar = () => {
           <div className="items-center hidden gap-8 lg:flex">
             {isAuthenticated ? (
               <>
-                <Link
-                  to="/browse-requests"
-                  className="font-medium transition-colors text-secondary-700 hover:text-primary-600"
-                >
-                  Browse Requests
-                </Link>
-                <Link
-                  to="/campaigns"
-                  className="font-medium transition-colors text-secondary-700 hover:text-primary-600"
-                >
-                  Campaigns
-                </Link>
-                <Link
-                  to="/emergency"
-                  className="inline-flex items-center gap-1 font-medium transition-colors text-secondary-700 hover:text-primary-600"
-                >
-                  <HiExclamation className="w-5 h-5" />
-                  Emergency
-                </Link>
+                {!['ngo', 'admin'].includes(user?.role?.toLowerCase()) && (
+                  <>
+                    <Link
+                      to="/browse-requests"
+                      className="font-medium transition-colors text-secondary-700 hover:text-primary-600"
+                    >
+                      Browse Requests
+                    </Link>
+                    <Link
+                      to="/campaigns"
+                      className="font-medium transition-colors text-secondary-700 hover:text-primary-600"
+                    >
+                      Campaigns
+                    </Link>
+                    <Link
+                      to="/emergency"
+                      className="inline-flex items-center gap-1 font-medium transition-colors text-secondary-700 hover:text-primary-600"
+                    >
+                      <HiExclamation className="w-5 h-5" />
+                      Emergency
+                    </Link>
+                  </>
+                )}
                 {user?.role === 'volunteer' && (
                   <Link
                     to="/volunteer/browse-events"
@@ -212,28 +216,32 @@ const Navbar = () => {
                 >
                   Dashboard
                 </Link>
-                <Link
-                  to="/browse-requests"
-                  className="block py-2 font-medium text-secondary-700 hover:text-primary-600"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Browse Requests
-                </Link>
-                <Link
-                  to="/campaigns"
-                  className="block py-2 font-medium text-secondary-700 hover:text-primary-600"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Campaigns
-                </Link>
-                <Link
-                  to="/emergency"
-                  className="inline-flex items-center gap-2 py-2 font-medium text-secondary-700 hover:text-primary-600"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <HiExclamation className="w-5 h-5" />
-                  Emergency
-                </Link>
+                {!['ngo', 'admin'].includes(user?.role?.toLowerCase()) && (
+                  <>
+                    <Link
+                      to="/browse-requests"
+                      className="block py-2 font-medium text-secondary-700 hover:text-primary-600"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      Browse Requests
+                    </Link>
+                    <Link
+                      to="/campaigns"
+                      className="block py-2 font-medium text-secondary-700 hover:text-primary-600"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      Campaigns
+                    </Link>
+                    <Link
+                      to="/emergency"
+                      className="inline-flex items-center gap-2 py-2 font-medium text-secondary-700 hover:text-primary-600"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      <HiExclamation className="w-5 h-5" />
+                      Emergency
+                    </Link>
+                  </>
+                )}
                 <Link
                   to="/profile"
                   className="block py-2 font-medium text-secondary-700 hover:text-primary-600"
