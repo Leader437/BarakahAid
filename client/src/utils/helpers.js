@@ -164,3 +164,28 @@ export const copyToClipboard = async (text) => {
     return false;
   }
 };
+
+/**
+ * Get dashboard path based on role
+ */
+export const getDashboardPath = (role) => {
+  if (!role) return '/';
+
+  const normalizedRole = role.toLowerCase();
+
+  switch (normalizedRole) {
+    case 'donor':
+      return '/donor/dashboard';
+    case 'volunteer':
+      return '/volunteer/dashboard';
+    case 'recipient':
+      return '/recipient/dashboard'; // Placeholder
+    case 'ngo':
+      return '/ngo/dashboard';
+    case 'admin':
+      return '/admin/dashboard';
+    default:
+      console.warn(`Unknown role encountered: ${role}. Defaulting to /donor/dashboard`);
+      return '/donor/dashboard';
+  }
+};

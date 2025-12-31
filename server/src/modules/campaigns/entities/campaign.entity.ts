@@ -52,6 +52,9 @@ export class Campaign {
   })
   status: CampaignStatus;
 
+  @Column({ type: 'int', default: 0 })
+  donorsCount: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

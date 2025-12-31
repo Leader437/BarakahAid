@@ -62,6 +62,18 @@
   --color-danger-800: #991b1b;
   --color-danger-900: #7f1d1d;
 
+  /* Error colors (alias to danger) */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+
   --color-accent-50: #e8f8f5;
   --color-accent-100: #d1f2eb;
   --color-accent-200: #a3e4d7;
@@ -108,12 +120,19 @@ body {
   font-weight: 400;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Tajawal', var(--font-family-display);
   font-weight: 700;
 }
 
-p, span, div {
+p,
+span,
+div {
   font-family: 'Poppins', var(--font-family-display);
 }
 
@@ -122,7 +141,9 @@ button {
   font-weight: 500;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: 'Poppins', var(--font-family-display);
   font-weight: 400;
 }
@@ -177,35 +198,47 @@ label {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     transform: translateY(10px);
     opacity: 0;
   }
-  to { 
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes slideDown {
-  from { 
+  from {
     transform: translateY(-10px);
     opacity: 0;
   }
-  to { 
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
 }
 
 /* Utility Classes */
@@ -271,8 +304,10 @@ label {
 /* Animated Button Styles */
 /* Primary Button - Main Type (default) */
 .primary-animated-button {
-  --button-color: #1e8449; /* primary-500 */
-  --button-hover-color: #145a32; /* primary-700 */
+  --button-color: #1e8449;
+  /* primary-500 */
+  --button-hover-color: #145a32;
+  /* primary-700 */
   position: relative;
   font-size: 16px;
   text-transform: uppercase;
@@ -319,7 +354,8 @@ label {
 /* Primary Button - Secondary Type (for green backgrounds) */
 .primary-animated-button.secondary-type {
   --button-color: #ffffff;
-  --button-hover-color: #f1f5f9; /* secondary-100 */
+  --button-hover-color: #f1f5f9;
+  /* secondary-100 */
   color: #1e8449;
   background-color: var(--button-color);
 }
@@ -341,8 +377,10 @@ label {
 
 /* Secondary Animated Button - Main Type (default) */
 .secondary-animated-button {
-  --button-color: #1e8449; /* primary-500 */
-  --button-hover-color: #145a32; /* primary-700 */
+  --button-color: #1e8449;
+  /* primary-500 */
+  --button-hover-color: #145a32;
+  /* primary-700 */
   font-family: inherit;
   display: inline-flex;
   align-items: center;
@@ -409,7 +447,8 @@ label {
 /* Secondary Animated Button - Secondary Type (for green backgrounds) */
 .secondary-animated-button.secondary-type {
   --button-color: #ffffff;
-  --button-hover-color: #f1f5f9; /* secondary-100 */
+  --button-hover-color: #f1f5f9;
+  /* secondary-100 */
   border-color: var(--button-color);
   color: var(--button-color);
   background: transparent;
@@ -459,4 +498,21 @@ label {
   .no-print {
     display: none !important;
   }
+}
+
+/* Toast Animation */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }

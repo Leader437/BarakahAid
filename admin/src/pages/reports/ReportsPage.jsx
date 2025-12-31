@@ -1,5 +1,5 @@
 // Reports Page - Analytics and PDF Export
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     BarChart,
@@ -18,29 +18,17 @@ import {
 } from 'recharts';
 import { jsPDF } from 'jspdf';
 import { Card, Button, Badge } from '../../components/ui';
-import { selectDashboardStats, selectMonthlyDonations, selectUsersByRole } from '../../store/adminSlice';
-import { selectDonationsStats } from '../../store/donationsSlice';
-import { selectUsers } from '../../store/usersSlice';
-import { selectCampaigns } from '../../store/campaignsSlice';
-import useFetch from '../../hooks/useFetch';
+import { selectDashboardStats, selectMonthlyDonations, selectUsersByRole, fetchDashboardStats } from '../../store/adminSlice';
+import { selectDonationsStats, selectDonations, fetchDonations } from '../../store/donationsSlice';
+import { selectUsers, fetchUsers } from '../../store/usersSlice';
+import { selectCampaigns, fetchCampaigns } from '../../store/campaignsSlice';
+import { selectRequests, fetchRequests } from '../../store/requestsSlice';
 import { formatCurrency } from '../../utils/helpers';
 
 // Chart colors
 const COLORS = ['#0ea5e9', '#22c55e', '#eab308', '#ef4444', '#d946ef', '#64748b'];
 
-// Mock fetch function for useFetch (will be replaced with API calls)
-const fetchReportData = async (type, dateRange) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Return mock data based on type
-    return {
-        generated: true,
-        type,
-        dateRange,
-        timestamp: new Date().toISOString(),
-    };
-};
 
 const ReportsPage = () => {
     const dispatch = useDispatch();
@@ -50,8 +38,19 @@ const ReportsPage = () => {
     const monthlyDonations = useSelector(selectMonthlyDonations);
     const usersByRole = useSelector(selectUsersByRole);
     const donationsStats = useSelector(selectDonationsStats);
+    const donations = useSelector(selectDonations);
     const users = useSelector(selectUsers);
     const campaigns = useSelector(selectCampaigns);
+    const requests = useSelector(selectRequests);
+
+    useEffect(() => {
+        // Fetch all required data for reports
+        dispatch(fetchDashboardStats());
+        dispatch(fetchUsers());
+        dispatch(fetchDonations());
+        dispatch(fetchCampaigns());
+        dispatch(fetchRequests());
+    }, [dispatch]);
 
     // Local state
     const [reportType, setReportType] = useState('donations');
@@ -59,10 +58,18 @@ const ReportsPage = () => {
     const [category, setCategory] = useState('all');
     const [isGenerating, setIsGenerating] = useState(false);
 
-    // Calculated KPIs
+    // Calculated KPIs from real data
     const verifiedNGOs = users.filter((u) => u.role === 'NGO' && u.verificationStatus === 'VERIFIED').length;
     const activeUsers = users.filter((u) => !u.isBlocked && !u.isSuspended).length;
     const activeCampaigns = campaigns.filter((c) => c.status === 'ACTIVE').length;
+    const pendingRequestsCount = requests.filter((r) => r.status === 'PENDING').length;
+
+    // Calculate donation stats from actual donations array
+    const completedDonations = donations.filter((d) => d.status === 'COMPLETED').length;
+    const totalDonationAmount = donations
+        .filter((d) => d.status === 'COMPLETED')
+        .reduce((sum, d) => sum + Number(d.amount || 0), 0);
+    const avgDonation = completedDonations > 0 ? totalDonationAmount / completedDonations : 0;
 
     // Transform data for pie chart
     const roleData = Object.entries(usersByRole).map(([role, count]) => ({
@@ -70,14 +77,34 @@ const ReportsPage = () => {
         value: count,
     }));
 
-    // Category distribution (mock data)
-    const categoryData = [
-        { name: 'Education', value: 35000 },
-        { name: 'Healthcare', value: 28000 },
-        { name: 'Food', value: 22000 },
-        { name: 'Shelter', value: 18000 },
-        { name: 'Disaster Relief', value: 42000 },
-    ];
+    // Category distribution - computed from real campaign data
+    const categoryData = React.useMemo(() => {
+        // Group campaigns by category and sum their raised amounts
+        const categoryMap = {};
+        campaigns.forEach(campaign => {
+            const categoryName = campaign.category?.name || campaign.category || 'General';
+            const amount = Number(campaign.raisedAmount || 0);
+            if (categoryMap[categoryName]) {
+                categoryMap[categoryName] += amount;
+            } else {
+                categoryMap[categoryName] = amount;
+            }
+        });
+
+        // Convert to array format for chart
+        const data = Object.entries(categoryMap)
+            .map(([name, value]) => ({ name, value }))
+            .filter(item => item.value > 0)
+            .sort((a, b) => b.value - a.value);
+
+        // If no data, return some placeholder categories with 0
+        if (data.length === 0) {
+            return [
+                { name: 'No campaign data', value: 1 }
+            ];
+        }
+        return data;
+    }, [campaigns]);
 
     // Generate PDF Report
     const generatePDF = useCallback(() => {
@@ -250,7 +277,7 @@ const ReportsPage = () => {
                 <Card>
                     <div className="text-center">
                         <p className="text-secondary-700 text-sm">Pending Requests</p>
-                        <p className="text-2xl font-bold text-secondary-900">{dashboardStats.pendingRequests}</p>
+                        <p className="text-2xl font-bold text-secondary-900">{pendingRequestsCount}</p>
                     </div>
                 </Card>
             </div>
@@ -316,7 +343,7 @@ const ReportsPage = () => {
                         <h2 className="text-lg font-semibold text-secondary-900">Monthly Donations</h2>
                     </Card.Header>
                     <Card.Body>
-                        <div className="h-72">
+                        <div style={{ height: '300px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={monthlyDonations}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -346,7 +373,7 @@ const ReportsPage = () => {
                         <h2 className="text-lg font-semibold text-secondary-900">Users by Role</h2>
                     </Card.Header>
                     <Card.Body>
-                        <div className="h-72">
+                        <div style={{ height: '300px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -382,7 +409,7 @@ const ReportsPage = () => {
                         <h2 className="text-lg font-semibold text-secondary-900">Donations by Category</h2>
                     </Card.Header>
                     <Card.Body>
-                        <div className="h-72">
+                        <div style={{ height: '300px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -418,7 +445,7 @@ const ReportsPage = () => {
                         <h2 className="text-lg font-semibold text-secondary-900">Donation Trend</h2>
                     </Card.Header>
                     <Card.Body>
-                        <div className="h-72">
+                        <div style={{ height: '300px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={monthlyDonations}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -458,11 +485,11 @@ const ReportsPage = () => {
                 <Card.Body>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div className="text-center p-4 bg-secondary-50 rounded-lg">
-                            <p className="text-3xl font-bold text-primary-600">{dashboardStats.totalUsers}</p>
+                            <p className="text-3xl font-bold text-primary-600">{users.length}</p>
                             <p className="text-sm text-secondary-600 mt-1">Total Users</p>
                         </div>
                         <div className="text-center p-4 bg-secondary-50 rounded-lg">
-                            <p className="text-3xl font-bold text-success-600">{donationsStats.completed}</p>
+                            <p className="text-3xl font-bold text-success-600">{completedDonations}</p>
                             <p className="text-sm text-secondary-600 mt-1">Completed Donations</p>
                         </div>
                         <div className="text-center p-4 bg-secondary-50 rounded-lg">
@@ -471,7 +498,7 @@ const ReportsPage = () => {
                         </div>
                         <div className="text-center p-4 bg-secondary-50 rounded-lg">
                             <p className="text-3xl font-bold text-warning-600">
-                                ${Math.round(donationsStats.totalAmount / Math.max(1, donationsStats.completed))}
+                                {formatCurrency(avgDonation)}
                             </p>
                             <p className="text-sm text-secondary-600 mt-1">Avg. Donation</p>
                         </div>

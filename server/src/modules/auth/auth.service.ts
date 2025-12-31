@@ -25,7 +25,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<User> {
+  async register(registerDto: RegisterDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -41,7 +41,16 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+
+    // Generate tokens for the new user (auto-login after registration)
+    const tokens = await this.generateTokens(savedUser);
+    await this.updateRefreshToken(savedUser.id, tokens.refreshToken);
+
+    return {
+      user: savedUser,
+      ...tokens,
+    };
   }
 
   async login(loginDto: LoginDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
@@ -166,6 +175,7 @@ export class AuthService {
     firstName?: string;
     lastName?: string;
     avatar?: string;
+    profileImage?: string;
     authProvider: 'GOOGLE';
     isEmailVerified?: boolean;
   }): Promise<{ user: User; accessToken: string; refreshToken: string }> {
@@ -184,16 +194,20 @@ export class AuthService {
         where: { email: oauthUser.email },
       });
 
-      // Update existing user with OAuth ID and latest profile info
+    // Update existing user with OAuth ID and latest profile info
       if (user) {
         if (oauthUser.googleId) {
           user.googleId = oauthUser.googleId;
         }
         user.authProvider = oauthUser.authProvider;
         user.name = oauthUser.name; // Update name from Google
-        if (oauthUser.avatar && !user.avatar) {
-          user.avatar = oauthUser.avatar; // Update avatar if not set
+        
+        // Force update avatar/profileImage from Google to keep it fresh
+        if (oauthUser.avatar) {
+          user.avatar = oauthUser.avatar;
+          user.profileImage = oauthUser.avatar; // Sync both fields
         }
+        
         if (oauthUser.isEmailVerified) {
           user.verificationStatus = 'VERIFIED' as any; // Mark as verified if Google email is verified
         }
@@ -208,6 +222,7 @@ export class AuthService {
         name: oauthUser.name,
         googleId: oauthUser.googleId,
         avatar: oauthUser.avatar,
+        profileImage: oauthUser.avatar, // Save to profileImage as well
         authProvider: oauthUser.authProvider,
         password: '', // OAuth users don't need password but field is required
         verificationStatus: oauthUser.isEmailVerified ? 'VERIFIED' as any : 'UNVERIFIED' as any,

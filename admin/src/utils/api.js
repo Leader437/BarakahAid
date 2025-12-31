@@ -1,173 +1,138 @@
-// Admin API Helper - Mock Data Implementation
-// Matches client-side behavior by using dummyData
+// Admin API Helper - Real API Implementation
+import axios from 'axios';
 
-import { 
-  mockUsers, 
-  mockDonations, 
-  mockRequests, 
-  mockCampaigns, 
-  mockAnalytics,
-  mockVerificationRequests
-} from '../../../client/src/utils/dummyData';
+// Create an Axios instance for Admin
+const api = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}/api` || 'http://localhost:5000/api',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-// Simulate network delay
-const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
+// Request interceptor
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('adminAccessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor
+api.interceptors.response.use(
+  (response) => response.data, // Return data directly from API responses
+  (error) => {
+    // If 401, maybe logout admin
+    if (error.response?.status === 401) {
+      // dispatch logout action if we had access to store, or just clear storage
+      // localStorage.removeItem('adminAccessToken');
+      // localStorage.removeItem('adminUser');
+    }
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Dashboard & Overview
  */
 export const getOverview = async () => {
-  await delay();
-  return {
-    users: mockUsers.length,
-    donations: mockDonations.length,
-    campaigns: mockCampaigns.length,
-    requests: mockRequests.length,
-    totalDonationsAmount: mockAnalytics.totalDonations,
-    recentActivity: mockAnalytics.recentActivity
-  };
+  return await api.get('/admin/analytics');
+};
+
+export const getAnalyticsUsers = async () => {
+  return await api.get('/admin/analytics/users');
+};
+
+export const getAnalyticsActivity = async (limit = 10) => {
+  return await api.get(`/admin/analytics/activity?limit=${limit}`);
 };
 
 export const getReports = async () => {
-  await delay();
-  return mockAnalytics;
+  return await api.get('/admin/reports');
 };
 
 /**
  * Users Management
  */
 export const getUsers = async (params = {}) => {
-  await delay();
-  // Simple filtering implementation
-  let filtered = [...mockUsers];
-  
-  if (params.role) {
-    filtered = filtered.filter(u => u.role === params.role);
-  }
-  
-  return {
-    data: filtered,
-    total: filtered.length,
-    page: 1,
-    lastPage: 1
-  };
+  return await api.get('/users', { params });
 };
 
 export const getUserById = async (id) => {
-  await delay();
-  const user = mockUsers.find(u => u.id === id);
-  if (!user) throw new Error('User not found');
-  return user;
+  return await api.get(`/users/${id}`);
 };
 
 export const updateUserStatus = async (id, status) => {
-  await delay();
-  const user = mockUsers.find(u => u.id === id);
-  if (user) {
-    // In a real app we'd update the DB. Here we just return success.
-    return { ...user, status };
-  }
-  throw new Error('User not found');
+  return await api.put(`/users/${id}/status`, { status });
 };
 
 export const deleteUser = async (id) => {
-  await delay();
-  return { success: true, id };
+  return await api.delete(`/users/${id}`);
 };
 
 /**
  * Donations Management
  */
 export const getDonations = async (params = {}) => {
-  await delay();
-  return {
-    data: mockDonations,
-    total: mockDonations.length,
-    page: 1,
-    lastPage: 1
-  };
+  return await api.get('/donations', { params });
 };
 
 export const getDonationById = async (id) => {
-  await delay();
-  const donation = mockDonations.find(d => d.id === id);
-  if (!donation) throw new Error('Donation not found');
-  return donation;
+  return await api.get(`/donations/${id}`);
 };
 
 export const updateDonationStatus = async (id, status) => {
-  await delay();
-  return { success: true, id, status };
+  return await api.put(`/donations/${id}/status`, { status });
 };
 
 /**
  * Requests Management
  */
 export const getRequests = async (params = {}) => {
-  await delay();
-  return {
-    data: mockRequests,
-    total: mockRequests.length,
-    page: 1,
-    lastPage: 1
-  };
+  return await api.get('/requests', { params }); // Assuming module name is requests
 };
 
 export const getRequestById = async (id) => {
-  await delay();
-  const request = mockRequests.find(r => r.id === id);
-  if (!request) throw new Error('Request not found');
-  return request;
+  return await api.get(`/requests/${id}`);
 };
 
 export const approveRequest = async (id) => {
-  await delay();
-  return { success: true, id, status: 'approved' };
+  return await api.post(`/requests/${id}/approve`);
 };
 
 export const rejectRequest = async (id) => {
-  await delay();
-  return { success: true, id, status: 'rejected' };
+  return await api.post(`/requests/${id}/reject`);
 };
 
 /**
  * Campaigns Management
  */
 export const getCampaigns = async (params = {}) => {
-  await delay();
-  return {
-    data: mockCampaigns,
-    total: mockCampaigns.length,
-    page: 1,
-    lastPage: 1
-  };
+  return await api.get('/campaigns', { params });
 };
 
 export const getCampaignById = async (id) => {
-  await delay();
-  const campaign = mockCampaigns.find(c => c.id === id);
-  if (!campaign) throw new Error('Campaign not found');
-  return campaign;
+  return await api.get(`/campaigns/${id}`);
 };
 
 export const updateCampaignStatus = async (id, status) => {
-  await delay();
-  return { success: true, id, status };
+  return await api.put(`/campaigns/${id}/status`, { status });
 };
 
 export const publishCampaign = async (id) => {
-  await delay();
-  return { success: true, id, status: 'active' };
+  return await api.put(`/campaigns/${id}/publish`); // or status update
 };
 
 export const cancelCampaign = async (id) => {
-  await delay();
-  return { success: true, id, status: 'cancelled' };
+  return await api.put(`/campaigns/${id}/cancel`); // or status update
 };
 
-// =============================================================================
-// EXPORT ALL
-// =============================================================================
+// Export the axios instance as default or named for flexibility
+export { api };
 
 const adminApi = {
   getOverview,
@@ -188,6 +153,7 @@ const adminApi = {
   updateCampaignStatus,
   publishCampaign,
   cancelCampaign,
+  api // exposing the raw instance just in case
 };
 
 export default adminApi;

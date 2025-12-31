@@ -14,7 +14,8 @@ import {
     CartesianGrid,
     Tooltip,
 } from 'recharts';
-import { Card, Button, Badge, Modal } from '../../components/ui';
+import { Card, Button, Badge, Modal, Avatar } from '../../components/ui';
+import { useToast } from '../../components/ui/Toast';
 import {
     selectCampaigns,
     setSelectedCampaign,
@@ -25,26 +26,22 @@ import {
 } from '../../store/campaignsSlice';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 
-// Mock donation progress data
+// Generate progress data - shows current status only (no historical data available from backend)
 const generateProgressData = (campaign) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const total = campaign.raisedAmount || 0;
-    let cumulative = 0;
-
-    return months.map((month, i) => {
-        const portion = (total / months.length) * (0.5 + Math.random());
-        cumulative = Math.min(cumulative + portion, total);
-        return {
-            month,
-            amount: Math.round(cumulative),
-        };
-    });
+    // Since we don't have historical donation data from the backend,
+    // we show a simple progress indicator based on current and goal amounts
+    const raisedAmount = campaign.raisedAmount || 0;
+    return [
+        { month: 'Start', amount: 0 },
+        { month: 'Current', amount: raisedAmount },
+    ];
 };
 
 const CampaignDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const toast = useToast();
 
     // Get campaign from Redux store
     const campaigns = useSelector(selectCampaigns);
@@ -92,20 +89,40 @@ const CampaignDetails = () => {
     const COLORS = ['#0ea5e9', '#e2e8f0'];
 
     // Handle actions
-    const handleAction = () => {
+    const handleAction = async () => {
+        let action;
+        let successMessage = '';
+
         switch (actionType) {
             case 'publish':
-                dispatch(publishCampaign(campaign.id));
+                action = publishCampaign(campaign.id);
+                successMessage = 'Campaign published successfully';
                 break;
             case 'pause':
-                dispatch(pauseCampaign(campaign.id));
+                action = pauseCampaign(campaign.id);
+                successMessage = 'Campaign paused successfully';
                 break;
             case 'complete':
-                dispatch(completeCampaign(campaign.id));
+                action = completeCampaign(campaign.id);
+                successMessage = 'Campaign marked as complete';
                 break;
             case 'cancel':
-                dispatch(cancelCampaign(campaign.id));
+                action = cancelCampaign(campaign.id);
+                successMessage = 'Campaign cancelled';
                 break;
+            default:
+                return;
+        }
+
+        try {
+            const resultAction = await dispatch(action);
+            if (resultAction.meta.requestStatus === 'fulfilled') {
+                toast.success(successMessage);
+            } else {
+                toast.error(resultAction.payload || 'Failed to update campaign status');
+            }
+        } catch (error) {
+            toast.error('An unexpected error occurred');
         }
         setShowActionModal(false);
     };
@@ -269,10 +286,14 @@ const CampaignDetails = () => {
                         </Card.Header>
                         <Card.Body>
                             <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-accent-100 rounded-xl flex items-center justify-center">
-                                    <span className="text-accent-700 font-bold text-xl">
-                                        {campaign.createdBy?.name?.substring(0, 2).toUpperCase() || 'NA'}
-                                    </span>
+                                <div className="w-16 h-16 flex-shrink-0">
+                                    <Avatar
+                                        src={campaign.createdBy?.profileImage || campaign.createdBy?.avatar}
+                                        name={campaign.createdBy?.name || 'Unknown'}
+                                        size="lg"
+                                        shape="square"
+                                        className="w-full h-full text-xl"
+                                    />
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="text-lg font-semibold text-secondary-900">

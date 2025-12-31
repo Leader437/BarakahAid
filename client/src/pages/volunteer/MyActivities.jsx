@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  HiSearch, 
-  HiCheckCircle, 
-  HiClock, 
+import {
+  HiSearch,
+  HiCheckCircle,
+  HiClock,
   HiCalendar,
   HiDownload,
   HiEye,
@@ -11,115 +11,36 @@ import {
 import Card from '../../components/ui/Card';
 import SecondaryButton from '../../components/ui/SecondaryButton';
 
+import { useDispatch, useSelector } from "react-redux";
+import { fetchVolunteerProfile, selectVolunteerProfile } from "../../store/volunteerSlice";
+
 const MyActivities = () => {
+  const dispatch = useDispatch();
+  const profile = useSelector(selectVolunteerProfile);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
-  // Mock activities data
-  const activities = [
-    {
-      id: 'VA-2024-015',
-      title: 'Emergency Relief Package Assembly',
-      category: 'Emergency',
-      date: '2025-12-10',
-      hours: 6,
-      location: 'Warehouse District',
-      status: 'completed',
-      badge: 'Team Leader',
-      rating: 5,
-      feedback: 'Outstanding contribution'
-    },
-    {
-      id: 'VA-2024-014',
-      title: 'Community Meal Preparation',
-      category: 'Food Relief',
-      date: '2025-12-08',
-      hours: 4,
-      location: 'Community Kitchen',
-      status: 'completed',
-      badge: null,
-      rating: 5,
-      feedback: 'Great teamwork'
-    },
-    {
-      id: 'VA-2024-013',
-      title: 'Fundraising Event Support',
-      category: 'Event',
-      date: '2025-12-05',
-      hours: 5,
-      location: 'City Hall',
-      status: 'completed',
-      badge: 'Outstanding',
-      rating: 5,
-      feedback: 'Excellent organization skills'
-    },
-    {
-      id: 'VA-2024-012',
-      title: 'Winter Clothing Drive',
-      category: 'Clothing',
-      date: '2025-12-03',
-      hours: 3,
-      location: 'Community Center',
-      status: 'completed',
-      badge: null,
-      rating: 4,
-      feedback: null
-    },
-    {
-      id: 'VA-2024-011',
-      title: 'Educational Workshop',
-      category: 'Education',
-      date: '2025-12-01',
-      hours: 4,
-      location: 'Learning Center',
-      status: 'completed',
-      badge: null,
-      rating: 5,
-      feedback: 'Children loved the session'
-    },
-    {
-      id: 'VA-2024-010',
-      title: 'Medical Camp Setup',
-      category: 'Healthcare',
-      date: '2025-11-28',
-      hours: 6,
-      location: 'Central Hospital',
-      status: 'completed',
-      badge: null,
-      rating: 5,
-      feedback: null
-    },
-    {
-      id: 'VA-2025-001',
-      title: 'Food Distribution Drive',
-      category: 'Food Relief',
-      date: '2025-12-15',
-      hours: 5,
-      location: 'Community Center',
-      status: 'upcoming',
-      badge: null,
-      rating: null,
-      feedback: null
-    },
-    {
-      id: 'VA-2025-002',
-      title: 'Winter Clothing Collection',
-      category: 'Clothing',
-      date: '2025-12-18',
-      hours: 4,
-      location: 'City Plaza',
-      status: 'upcoming',
-      badge: null,
-      rating: null,
-      feedback: null
-    }
-  ];
+  React.useEffect(() => {
+    dispatch(fetchVolunteerProfile());
+  }, [dispatch]);
 
+  const activities = (profile?.events || []).map(e => ({
+    id: e.id,
+    title: e.title,
+    category: 'General', // Backend doesn't store category yet
+    date: e.eventDate,
+    hours: 4, // Placeholder for now, or 0
+    location: e.location?.address || 'TBD',
+    status: new Date(e.eventDate) < new Date() ? 'completed' : 'upcoming', // Infer status from date
+    badge: null,
+    rating: null,
+    feedback: null
+  }));
   const statuses = ['All', 'Upcoming', 'Completed', 'Cancelled'];
 
   const filteredActivities = activities.filter(activity => {
     const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         activity.category.toLowerCase().includes(searchQuery.toLowerCase());
+      activity.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || activity.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
@@ -146,12 +67,45 @@ const MyActivities = () => {
     }
   };
 
-  const totalHours = activities
-    .filter(a => a.status === 'completed')
-    .reduce((sum, a) => sum + a.hours, 0);
+  const totalHours = profile?.hoursLogged || 0;
 
   const completedCount = activities.filter(a => a.status === 'completed').length;
   const upcomingCount = activities.filter(a => a.status === 'upcoming').length;
+  
+  const handleExport = () => {
+    if (filteredActivities.length === 0) return;
+
+    // CSV Headers
+    const headers = ['Activity ID', 'Title', 'Category', 'Date', 'Location', 'Hours', 'Status'];
+    
+    // CSV Rows
+    const rows = filteredActivities.map(a => [
+      a.id,
+      `"${(a.title || '').replace(/"/g, '""')}"`,
+      a.category,
+      new Date(a.date).toLocaleDateString(),
+      `"${(a.location || '').replace(/"/g, '""')}"`,
+      a.hours,
+      a.status
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `volunteer_activities_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="min-h-screen py-8 bg-secondary-50">
@@ -215,11 +169,10 @@ const MyActivities = () => {
                   <button
                     key={status}
                     onClick={() => setSelectedStatus(status.toLowerCase())}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      status.toLowerCase() === selectedStatus
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${status.toLowerCase() === selectedStatus
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                      }`}
                   >
                     {status}
                   </button>
@@ -231,7 +184,7 @@ const MyActivities = () => {
 
         {/* Export Button */}
         <div className="flex justify-end mb-4">
-          <SecondaryButton>
+          <SecondaryButton onClick={handleExport} disabled={filteredActivities.length === 0}>
             <HiDownload className="w-4 h-4" />
             Export Activity Report
           </SecondaryButton>
@@ -260,9 +213,6 @@ const MyActivities = () => {
                   </th>
                   <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
                     Status
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold tracking-wider text-left uppercase text-secondary-700">
-                    Actions
                   </th>
                 </tr>
               </thead>
@@ -301,18 +251,6 @@ const MyActivities = () => {
                         {getStatusIcon(activity.status)}
                         {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button className="p-1 transition-colors text-secondary-600 hover:text-primary-600">
-                          <HiEye className="w-5 h-5" />
-                        </button>
-                        {activity.status === 'completed' && (
-                          <button className="p-1 transition-colors text-secondary-600 hover:text-primary-600">
-                            <HiDownload className="w-5 h-5" />
-                          </button>
-                        )}
-                      </div>
                     </td>
                   </tr>
                 ))}

@@ -7,6 +7,7 @@ import { UpdateDonationRequestDto } from './dto/update-donation-request.dto';
 import { FilterDonationRequestsDto } from './dto/filter-donation-requests.dto';
 import { FileUploadUtil } from '../../utils/file-upload.util';
 import { Role } from '../../common/enums/role.enum';
+import { DonationRequestStatus } from '../../common/enums/status.enum';
 
 @Injectable()
 export class DonationsService {
@@ -51,8 +52,14 @@ export class DonationsService {
       });
     }
 
-    if (filterDto?.status) {
-      query.andWhere('request.status = :status', { status: filterDto.status });
+    // Default to APPROVED status for public access if no status specified
+    // If includeAll is true, skip status filtering (for admin panel)
+    if (!filterDto?.includeAll) {
+      if (filterDto?.status) {
+        query.andWhere('request.status = :status', { status: filterDto.status });
+      } else {
+        query.andWhere('request.status = :status', { status: DonationRequestStatus.APPROVED });
+      }
     }
 
     if (filterDto?.search) {
@@ -109,5 +116,24 @@ export class DonationsService {
       where: { createdBy: { id: userId } },
       relations: ['category'],
     });
+  }
+
+  /**
+   * Update the currentAmount of a donation request when a donation is made
+   * @param requestId - The ID of the donation request
+   * @param amount - The amount to add to currentAmount
+   */
+  async updateCurrentAmount(requestId: string, amount: number): Promise<DonationRequest> {
+    const request = await this.donationRequestRepository.findOne({
+      where: { id: requestId },
+    });
+
+    if (!request) {
+      throw new NotFoundException('Donation request not found');
+    }
+
+    // Add the donation amount to the current amount
+    request.currentAmount = Number(request.currentAmount || 0) + Number(amount);
+    return this.donationRequestRepository.save(request);
   }
 }

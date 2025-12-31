@@ -22,7 +22,12 @@ export const formatDate = (date, options = {}) => {
   };
 
   try {
-    return new Date(date).toLocaleDateString('en-US', defaultOptions);
+    // Ensure date is treated as UTC if string doesn't specify timezone
+    const dateObj = typeof date === 'string' && !date.endsWith('Z') && !date.includes('+')
+      ? new Date(date + 'Z')
+      : new Date(date);
+
+    return dateObj.toLocaleDateString('en-US', defaultOptions);
   } catch {
     return 'Invalid Date';
   }
@@ -37,7 +42,12 @@ export const formatDateTime = (date) => {
   if (!date) return 'N/A';
 
   try {
-    return new Date(date).toLocaleString('en-US', {
+    // Ensure date is treated as UTC if string doesn't specify timezone
+    const dateObj = typeof date === 'string' && !date.endsWith('Z') && !date.includes('+')
+      ? new Date(date + 'Z')
+      : new Date(date);
+
+    return dateObj.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -57,7 +67,12 @@ export const formatDateTime = (date) => {
 export const timeAgo = (date) => {
   if (!date) return 'N/A';
 
-  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  // Ensure date is treated as UTC if string doesn't specify timezone
+  const dateObj = typeof date === 'string' && !date.endsWith('Z') && !date.includes('+')
+    ? new Date(date + 'Z')
+    : new Date(date);
+
+  const seconds = Math.floor((new Date() - dateObj) / 1000);
 
   if (seconds < 60) return 'Just now';
 

@@ -54,6 +54,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   bio: string;
 
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  location: string;
+
   @Column({
     type: 'enum',
     enum: VerificationStatus,

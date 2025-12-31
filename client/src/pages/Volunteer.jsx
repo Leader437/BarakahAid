@@ -1,7 +1,8 @@
-// Volunteer Page
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { 
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import api from '../utils/api';
+import {
   HiHeart,
   HiUserGroup,
   HiAcademicCap,
@@ -16,9 +17,21 @@ import PrimaryButton from '../components/ui/PrimaryButton';
 import SecondaryButton from '../components/ui/SecondaryButton';
 import Footer from '../components/layout/Footer';
 import useTextAnimation from '../hooks/useTextAnimation';
+import { fetchEvents, selectEvents, selectVolunteerLoading } from '../store/volunteerSlice';
+import { useToast } from '../components/ui/Toast';
 
 const Volunteer = () => {
   useTextAnimation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const events = useSelector(selectEvents);
+  const loading = useSelector(selectVolunteerLoading);
+
+  useEffect(() => {
+    dispatch(fetchEvents());
+  }, [dispatch]);
 
   const volunteerBenefits = [
     {
@@ -47,92 +60,38 @@ const Volunteer = () => {
     }
   ];
 
-  const volunteerOpportunities = [
-    {
-      id: 1,
-      title: 'Food Distribution Volunteer',
-      organization: 'Hope Foundation',
-      location: 'New York, NY',
-      type: 'On-site',
-      duration: '4 hours',
-      volunteers: 15,
-      needed: 20,
-      date: 'Dec 20, 2025',
-      description: 'Help distribute food packages to families in need during our weekly community outreach program.',
-      skills: ['Physical Work', 'Communication', 'Compassion'],
-      urgent: true
-    },
-    {
-      id: 2,
-      title: 'Education Support Tutor',
-      organization: 'Bright Futures NGO',
-      location: 'Los Angeles, CA',
-      type: 'Remote',
-      duration: '2 hours/week',
-      volunteers: 8,
-      needed: 12,
-      date: 'Ongoing',
-      description: 'Provide online tutoring to underprivileged children in math and science subjects.',
-      skills: ['Teaching', 'Patience', 'Subject Knowledge'],
-      urgent: false
-    },
-    {
-      id: 3,
-      title: 'Medical Camp Assistant',
-      organization: 'Health for All',
-      location: 'Chicago, IL',
-      type: 'On-site',
-      duration: '8 hours',
-      volunteers: 22,
-      needed: 25,
-      date: 'Dec 22, 2025',
-      description: 'Assist medical professionals during free health check-up camps in underserved communities.',
-      skills: ['Organization', 'Healthcare Interest', 'Communication'],
-      urgent: true
-    },
-    {
-      id: 4,
-      title: 'Community Clean-Up Organizer',
-      organization: 'Green Earth Initiative',
-      location: 'San Francisco, CA',
-      type: 'On-site',
-      duration: '5 hours',
-      volunteers: 30,
-      needed: 40,
-      date: 'Dec 18, 2025',
-      description: 'Lead and coordinate community clean-up efforts in local parks and neighborhoods.',
-      skills: ['Leadership', 'Environmental Awareness', 'Coordination'],
-      urgent: false
-    },
-    {
-      id: 5,
-      title: 'Senior Care Companion',
-      organization: 'Golden Years Foundation',
-      location: 'Boston, MA',
-      type: 'Hybrid',
-      duration: '3 hours/week',
-      volunteers: 12,
-      needed: 20,
-      date: 'Ongoing',
-      description: 'Spend quality time with elderly individuals, providing companionship and support.',
-      skills: ['Empathy', 'Communication', 'Patience'],
-      urgent: false
-    },
-    {
-      id: 6,
-      title: 'Disaster Relief Coordinator',
-      organization: 'Emergency Response Team',
-      location: 'Houston, TX',
-      type: 'On-site',
-      duration: '12 hours',
-      volunteers: 18,
-      needed: 30,
-      date: 'Dec 19, 2025',
-      description: 'Help coordinate relief efforts for families affected by recent natural disasters.',
-      skills: ['Crisis Management', 'Organization', 'Physical Stamina'],
-      urgent: true
+  const handleApply = (eventId) => {
+    if (!isAuthenticated) {
+      navigate(`/register?role=volunteer&redirect=/volunteer/events/${eventId}/register`);
+      return;
     }
-  ];
+
+    if (user?.role?.toLowerCase() !== 'volunteer') {
+      toast.warning('You must be registered as a volunteer to apply for events.');
+      return;
+    }
+
+    navigate(`/volunteer/events/${eventId}/register`);
+  };
+
+  const volunteerOpportunities = events.map(e => ({
+    id: e.id,
+    title: e.title,
+    // Use correct backend field names with fallbacks
+    organization: e.ngo?.name || e.createdBy?.name || 'BarakahAid',
+    location: e.location?.address || (typeof e.location === 'string' ? e.location : 'TBD'),
+    type: e.location?.address?.toLowerCase().includes('remote') ? 'Remote' : 'On-site',
+    duration: e.duration || 'Flexible',
+    // Use volunteers array length instead of fabricated field
+    volunteers: e.volunteers?.length || e.volunteersRegistered || 0,
+    needed: e.maxVolunteers || 10,
+    date: e.eventDate ? new Date(e.eventDate).toLocaleDateString() : 'TBD',
+    description: e.description,
+    // Use correct backend field name
+    skills: e.requiredSkills || [],
+    isRegistered: e.volunteers?.some(v => v.user?.id === user?.id),
+    urgent: e.isUrgent || false
+  }));
 
   const getColorClasses = (color) => {
     const colors = {
@@ -205,81 +164,95 @@ const Volunteer = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            {volunteerOpportunities.map((opportunity) => (
-              <Card key={opportunity.id} padding="lg" className="relative">
-                {opportunity.urgent && (
-                  <div className="absolute px-3 py-1 text-xs font-semibold text-white rounded-full top-4 right-4 bg-danger-600">
-                    Urgent
-                  </div>
-                )}
-                
-                <div className="mb-4">
-                  <h3 className="mb-2 text-xl font-bold text-secondary-900">{opportunity.title}</h3>
-                  <p className="flex items-center gap-1 text-sm text-secondary-600">
-                    <HiShieldCheck className="w-4 h-4 text-success-600" />
-                    {opportunity.organization}
-                  </p>
-                </div>
+          {loading ? (
+            <div className="text-center">Loading opportunities...</div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              {volunteerOpportunities.length > 0 ? volunteerOpportunities.map((opportunity) => (
+                <Card key={opportunity.id} padding="lg" className="relative">
+                  {opportunity.urgent && (
+                    <div className="absolute px-3 py-1 text-xs font-semibold text-white rounded-full top-4 right-4 bg-danger-600">
+                      Urgent
+                    </div>
+                  )}
 
-                <p className="mb-4 text-secondary-700">{opportunity.description}</p>
+                  <div className="mb-4">
+                    <h3 className="mb-2 text-xl font-bold text-secondary-900">{opportunity.title}</h3>
+                    <p className="flex items-center gap-1 text-sm text-secondary-600">
+                      <HiShieldCheck className="w-4 h-4 text-success-600" />
+                      {opportunity.organization}
+                    </p>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                  <div className="flex items-center gap-2 text-secondary-600">
-                    <HiLocationMarker className="w-4 h-4" />
-                    <span>{opportunity.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-secondary-600">
-                    <HiClock className="w-4 h-4" />
-                    <span>{opportunity.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-secondary-600">
-                    <HiUsers className="w-4 h-4" />
-                    <span>{opportunity.volunteers}/{opportunity.needed} volunteers</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-secondary-600">
-                    <span className="font-medium">{opportunity.type}</span>
-                  </div>
-                </div>
+                  <p className="mb-4 text-secondary-700">{opportunity.description}</p>
 
-                <div className="mb-4">
-                  <p className="mb-2 text-sm font-semibold text-secondary-900">Required Skills:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {opportunity.skills.map((skill, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <div className="flex items-center gap-2 text-secondary-600">
+                      <HiLocationMarker className="w-4 h-4" />
+                      <span>{opportunity.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-secondary-600">
+                      <HiClock className="w-4 h-4" />
+                      <span>{opportunity.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-secondary-600">
+                      <HiUsers className="w-4 h-4" />
+                      <span>{opportunity.volunteers}/{opportunity.needed} volunteers</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-secondary-600">
+                      <span className="font-medium">{opportunity.type}</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-secondary-200">
-                  <span className="text-sm font-medium text-secondary-700">
-                    Date: {opportunity.date}
-                  </span>
-                  <Link to="/register?role=volunteer">
-                    <PrimaryButton size="sm">Apply Now</PrimaryButton>
-                  </Link>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mt-4">
-                  <div className="w-full h-2 overflow-hidden rounded-full bg-secondary-200">
-                    <div
-                      className="h-full transition-all bg-primary-600"
-                      style={{ width: `${(opportunity.volunteers / opportunity.needed) * 100}%` }}
-                    />
+                  <div className="mb-4">
+                    <p className="mb-2 text-sm font-semibold text-secondary-900">Required Skills:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {opportunity.skills.map((skill, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <p className="mt-1 text-xs text-secondary-600">
-                    {opportunity.needed - opportunity.volunteers} spots remaining
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-secondary-200">
+                    <span className="text-sm font-medium text-secondary-700">
+                      Date: {opportunity.date}
+                    </span>
+                    <PrimaryButton 
+                      size="sm" 
+                      onClick={() => handleApply(opportunity.id)}
+                      disabled={opportunity.isRegistered || (opportunity.needed - opportunity.volunteers <= 0)}
+                    >
+                      {opportunity.isRegistered 
+                        ? 'Registered' 
+                        : (opportunity.needed - opportunity.volunteers <= 0) 
+                          ? 'Event Full' 
+                          : 'Apply Now'}
+                    </PrimaryButton>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mt-4">
+                    <div className="w-full h-2 overflow-hidden rounded-full bg-secondary-200">
+                      <div
+                        className="h-full transition-all bg-primary-600"
+                        style={{ width: `${(opportunity.volunteers / opportunity.needed) * 100}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-secondary-600">
+                      {Math.max(0, opportunity.needed - opportunity.volunteers)} spots remaining
+                    </p>
+                  </div>
+                </Card>
+              )) : (
+                <div className="col-span-2 text-center py-8">No volunteer opportunities found at this time.</div>
+              )}
+            </div>
+          )}
 
           <div className="mt-12 text-center">
             <Link to="/register?role=volunteer">
@@ -290,6 +263,8 @@ const Volunteer = () => {
           </div>
         </div>
       </section>
+
+
 
       {/* How It Works Section */}
       <section className="py-16 bg-white sm:py-20">
@@ -336,7 +311,7 @@ const Volunteer = () => {
             <h2 className="text-3xl font-bold text-white sm:text-4xl" data-text-split data-letters-slide-up>
               Ready to Make a Difference?
             </h2>
-            <p className="max-w-2xl mx-auto mt-4 text-lg text-primary-100">
+            <p className="max-w-2xl mx-auto mt-4 text-lg text-secondary-600">
               Join our community of dedicated volunteers today. Your time and skills can change lives.
             </p>
             <div className="flex flex-col justify-center gap-4 mt-8 sm:flex-row">

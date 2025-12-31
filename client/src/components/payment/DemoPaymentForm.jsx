@@ -55,8 +55,8 @@ const DemoPaymentForm = ({ amount, campaignId, onSuccess, onError }) => {
         throw new Error('Please use a test card number');
       }
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API call delay (reduced for faster UX)
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       if (testCard.status === 'declined') {
         setMessage('❌ Payment Declined - Use 4242 4242 4242 4242 for success');

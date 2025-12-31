@@ -34,8 +34,8 @@ const PayPalDemoForm = ({ amount, campaignId, donorEmail, donorName, onSuccess, 
         throw new Error('Invalid password for this test account');
       }
 
-      // Simulate PayPal login and payment
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate PayPal login and payment (reduced for faster UX)
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       if (testAccount.status === 'declined') {
         setMessage('❌ Payment Failed - Use demo@example.com for success');

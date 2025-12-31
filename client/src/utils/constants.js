@@ -1,78 +1,76 @@
 // Application-wide constants
 
 export const ROLES = {
-  DONOR: 'donor',
-  RECIPIENT: 'recipient',
-  VOLUNTEER: 'volunteer',
-  NGO: 'ngo',
-  ADMIN: 'admin',
+  DONOR: 'DONOR',
+  RECIPIENT: 'RECIPIENT',
+  VOLUNTEER: 'VOLUNTEER',
+  NGO: 'NGO',
+  ADMIN: 'ADMIN',
 };
 
 export const DONATION_CATEGORIES = {
-  EDUCATION: 'education',
-  HEALTHCARE: 'healthcare',
-  FOOD: 'food',
-  SHELTER: 'shelter',
-  DISASTER_RELIEF: 'disaster_relief',
-  ORPHAN_CARE: 'orphan_care',
-  CLEAN_WATER: 'clean_water',
-  CLOTHING: 'clothing',
-  LIVELIHOOD: 'livelihood',
-  OTHER: 'other',
+  EDUCATION: 'EDUCATION',
+  HEALTHCARE: 'HEALTHCARE',
+  FOOD: 'FOOD',
+  SHELTER: 'SHELTER',
+  DISASTER_RELIEF: 'DISASTER_RELIEF',
+  ORPHAN_CARE: 'ORPHAN_CARE',
+  CLEAN_WATER: 'CLEAN_WATER',
+  CLOTHING: 'CLOTHING',
+  LIVELIHOOD: 'LIVELIHOOD',
+  OTHER: 'OTHER',
 };
 
 export const REQUEST_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  ACTIVE: 'active',
-  FULFILLED: 'fulfilled',
-  REJECTED: 'rejected',
-  EXPIRED: 'expired',
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  ACTIVE: 'ACTIVE',
+  FULFILLED: 'FULFILLED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
 };
 
 export const DONATION_STATUS = {
-  PENDING: 'pending',
-  PROCESSING: 'processing',
-  COMPLETED: 'completed',
-  FAILED: 'failed',
-  REFUNDED: 'refunded',
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
 };
 
 export const VERIFICATION_STATUS = {
-  PENDING: 'pending',
-  VERIFIED: 'verified',
-  REJECTED: 'rejected',
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
 };
 
 export const VOLUNTEER_EVENT_STATUS = {
-  UPCOMING: 'upcoming',
-  ONGOING: 'ongoing',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
+  UPCOMING: 'UPCOMING',
+  ONGOING: 'ONGOING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
 };
 
 export const PAYMENT_METHODS = {
-  CARD: 'card',
-  BANK_TRANSFER: 'bank_transfer',
-  MOBILE_MONEY: 'mobile_money',
-  CRYPTO: 'crypto',
+  CARD: 'CARD',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  MOBILE_MONEY: 'MOBILE_MONEY',
+  CRYPTO: 'CRYPTO',
 };
 
 export const NOTIFICATION_TYPES = {
-  DONATION_RECEIVED: 'donation_received',
-  REQUEST_APPROVED: 'request_approved',
-  REQUEST_REJECTED: 'request_rejected',
-  VERIFICATION_PENDING: 'verification_pending',
-  VERIFICATION_APPROVED: 'verification_approved',
-  EVENT_REMINDER: 'event_reminder',
-  CAMPAIGN_UPDATE: 'campaign_update',
+  DONATION: 'DONATION',
+  CAMPAIGN: 'CAMPAIGN',
+  VOLUNTEER: 'VOLUNTEER',
+  SYSTEM: 'SYSTEM',
+  EMERGENCY: 'EMERGENCY',
 };
 
 export const URGENCY_LEVELS = {
-  LOW: 'low',
-  MEDIUM: 'medium',
-  HIGH: 'high',
-  CRITICAL: 'critical',
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL',
 };
 
 export const CURRENCY = 'USD';

@@ -21,7 +21,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    console.log('🔍 Raw Google Profile:', JSON.stringify(profile, null, 2));
     const { id, name, emails, photos, displayName } = profile;
     
     const user = {
@@ -31,11 +30,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       firstName: name?.givenName || '',
       lastName: name?.familyName || '',
       avatar: photos?.[0]?.value || null,
+      profileImage: photos?.[0]?.value || null,
       authProvider: 'GOOGLE' as const,
-      isEmailVerified: emails?.[0]?.verified || true, // Google emails are verified
+      isEmailVerified: emails?.[0]?.verified || true,
     };
     
-    console.log('✅ Processed User Data:', JSON.stringify(user, null, 2));
     done(null, user);
   }
 }

@@ -13,7 +13,7 @@ const OAuthCallback = () => {
     
     if (token) {
       // Store token
-      localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
       
       // Fetch user profile and redirect
       fetchUserProfile(token);
@@ -25,47 +25,34 @@ const OAuthCallback = () => {
 
   const fetchUserProfile = async (token) => {
     try {
-      console.log('🔍 Fetching user profile with token:', token.substring(0, 20) + '...');
-      
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/profile`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5500';
+      const response = await fetch(`${apiUrl}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      console.log('📡 Response status:', response.status);
-
       if (response.ok) {
         const responseData = await response.json();
-        console.log('✅ User profile fetched:', JSON.stringify(responseData, null, 2));
         
         // Extract user data from response (handle both wrapped and unwrapped responses)
         const user = responseData.data || responseData;
-        console.log('✅ Extracted user object:', JSON.stringify(user, null, 2));
         
         // Store token in localStorage
-        localStorage.setItem('token', token);
+        localStorage.setItem('accessToken', token);
         
         // Dispatch to Redux to update authentication state
         dispatch(loginSuccess(user));
-        console.log('✅ User data dispatched to Redux');
         
         // Check if this is a new OAuth user with default DONOR role
-        // If they logged in with OAuth and have DONOR role, they might need to select their actual role
-        // We can check if they just created their account (e.g., createdAt is recent)
         const isNewUser = user.authProvider === 'GOOGLE';
         const hasDefaultRole = user.role === 'DONOR';
         const accountAge = new Date() - new Date(user.createdAt);
         const isVeryNewAccount = accountAge < 60000; // Less than 1 minute old
         
-        console.log('📊 User check:', { isNewUser, hasDefaultRole, accountAge, isVeryNewAccount, role: user.role });
-        
         if (isNewUser && hasDefaultRole && isVeryNewAccount) {
-          // New OAuth user, redirect to role selection
-          console.log('🔀 Redirecting to role selection');
           navigate('/select-role');
         } else {
-          // Existing user or already selected role, redirect to dashboard
           const dashboardPath = {
             'DONOR': '/donor',
             'NGO': '/ngo',
@@ -73,15 +60,12 @@ const OAuthCallback = () => {
             'ADMIN': '/admin',
             'RECIPIENT': '/recipient',
           }[user.role?.toUpperCase()] || '/donor';
-          console.log('🔀 Redirecting to dashboard:', dashboardPath, 'for role:', user.role);
           navigate(dashboardPath);
         }
       } else {
-        console.error('❌ Profile fetch failed:', response.status, response.statusText);
         navigate('/login?error=profile_fetch_failed');
       }
     } catch (error) {
-      console.error('❌ OAuth callback error:', error);
       navigate('/login?error=authentication_failed');
     }
   };

@@ -1,10 +1,15 @@
-import { IsUUID, IsNumber, IsEnum, IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsUUID, IsNumber, IsEnum, IsString, IsEmail, IsOptional, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaymentGateway } from '../../../common/enums/status.enum';
 
 export class CreateTransactionDto {
   @IsUUID()
-  campaignId: string;
+  @IsOptional()
+  campaignId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  requestId?: string;
 
   @IsNumber()
   @Type(() => Number)
@@ -24,4 +29,12 @@ export class CreateTransactionDto {
   @IsString()
   @IsOptional()
   donorName?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isAnonymous?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isRecurring?: boolean;
 }

@@ -2,20 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Badge } from '../../components/ui';
-import { selectAdmin } from '../../store/adminSlice';
+
+import { useToast } from '../../components/ui/Toast';
+import { selectAdmin, updateAdminProfile, uploadAdminAvatar, getAdminProfile } from '../../store/adminSlice';
 import {
     selectGeneralSettings,
-    selectNotificationSettings,
     setGeneralSettings,
-    setNotificationSettings,
-    saveSettings,
 } from '../../store/settingsSlice';
 
 const SettingsPage = () => {
     const dispatch = useDispatch();
     const admin = useSelector(selectAdmin);
+    const toast = useToast();
     const generalSettings = useSelector(selectGeneralSettings);
-    const notificationSettings = useSelector(selectNotificationSettings);
+    // const notificationSettings = useSelector(selectNotificationSettings);
 
     // Local state for form
     const [profileData, setProfileData] = useState({
@@ -25,8 +25,23 @@ const SettingsPage = () => {
 
 
 
-    // Notification preferences
-    const [notifications, setNotifications] = useState(notificationSettings);
+
+    // Sync profile data with Redux
+    useEffect(() => {
+        dispatch(getAdminProfile());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (admin) {
+            setProfileData({
+                name: admin.name || '',
+                email: admin.email || '',
+            });
+        }
+    }, [admin]);
+
+    // Notification preferences (unused/removed)
+    // const [notifications, setNotifications] = useState(notificationSettings);
 
     // Active tab
     const [activeTab, setActiveTab] = useState('profile');
@@ -34,7 +49,8 @@ const SettingsPage = () => {
     // Saved indicator
     const [showSaved, setShowSaved] = useState(false);
 
-
+    // File input ref
+    const fileInputRef = React.useRef(null);
 
     // Handle profile change
     const handleProfileChange = (e) => {
@@ -52,26 +68,57 @@ const SettingsPage = () => {
         }));
     };
 
+    // Handle file selection
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Basic validation
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error('File size must be less than 2MB');
+            return;
+        }
+
+        if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+            toast.error('Invalid file type. Please upload an image.');
+            return;
+        }
+
+        try {
+            const result = await dispatch(uploadAdminAvatar(file));
+            if (uploadAdminAvatar.fulfilled.match(result)) {
+                toast.success('Profile picture updated successfully');
+            } else {
+                toast.error(result.payload || 'Failed to upload image');
+            }
+        } catch (error) {
+            toast.error('Failed to upload image');
+        }
+    };
+
     // Save settings
-    const handleSave = () => {
-        // Update Redux
-        dispatch(setNotificationSettings(notifications));
-        dispatch(saveSettings());
-
-        // Save to localStorage
-        localStorage.setItem('adminNotifications', JSON.stringify(notifications));
-        localStorage.setItem('adminProfile', JSON.stringify(profileData));
-
-        // Show saved indicator
-        setShowSaved(true);
-        setTimeout(() => setShowSaved(false), 3000);
+    const handleSave = async () => {
+        try {
+            // Only send allowed fields (name), exclude email
+            const payload = {
+                name: profileData.name
+            };
+            const result = await dispatch(updateAdminProfile(payload));
+            if (updateAdminProfile.fulfilled.match(result)) {
+                toast.success('Profile updated successfully');
+                setShowSaved(true);
+                setTimeout(() => setShowSaved(false), 3000);
+            } else {
+                toast.error(result.payload || 'Failed to update profile');
+            }
+        } catch (error) {
+            toast.error('An unexpected error occurred');
+        }
     };
 
     // Tabs configuration
     const tabs = [
         { id: 'profile', label: 'Profile', icon: 'user' },
-
-        { id: 'notifications', label: 'Notifications', icon: 'bell' },
     ];
 
     return (
@@ -131,13 +178,40 @@ const SettingsPage = () => {
                             <div className="space-y-6">
                                 {/* Avatar */}
                                 <div className="flex items-center gap-4">
-                                    <div className="w-20 h-20 bg-primary-100 rounded-xl flex items-center justify-center">
-                                        <span className="text-primary-700 font-bold text-2xl">
-                                            {profileData.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
-                                        </span>
+                                    <div className="w-20 h-20 bg-primary-100 rounded-xl flex items-center justify-center overflow-hidden">
+                                        {profileData.avatar ? (
+                                            <img 
+                                                src={profileData.avatar} 
+                                                alt="Profile" 
+                                                className="w-full h-full object-cover" 
+                                            />
+                                        ) : admin?.avatar || admin?.profileImage ? (
+                                            <img 
+                                                src={admin.avatar || admin.profileImage} 
+                                                alt="Profile" 
+                                                className="w-full h-full object-cover" 
+                                            />
+                                        ) : (
+                                            <span className="text-primary-700 font-bold text-2xl">
+                                                {profileData.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
+                                            </span>
+                                        )}
                                     </div>
                                     <div>
-                                        <Button variant="outline" size="sm">Change Avatar</Button>
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            accept="image/*"
+                                        />
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            Change Avatar
+                                        </Button>
                                         <p className="text-xs text-secondary-600 mt-1">JPG, PNG or GIF. Max 2MB.</p>
                                     </div>
                                 </div>
@@ -164,8 +238,8 @@ const SettingsPage = () => {
                                             type="email"
                                             name="email"
                                             value={profileData.email}
-                                            onChange={handleProfileChange}
-                                            className="w-full px-4 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                            disabled
+                                            className="w-full px-4 py-2 border border-secondary-200 rounded-lg bg-secondary-50 text-secondary-500 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -229,107 +303,7 @@ const SettingsPage = () => {
 
 
 
-            {/* Notifications Tab */}
-            {activeTab === 'notifications' && (
-                <Card>
-                    <Card.Header>
-                        <h2 className="text-lg font-semibold text-secondary-900">Notification Preferences</h2>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className="space-y-4">
-                            {/* Email Notifications */}
-                            <div className="flex items-center justify-between p-4 bg-secondary-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-secondary-900">Email Notifications</p>
-                                    <p className="text-sm text-secondary-600">Receive email updates about platform activity</p>
-                                </div>
-                                <button
-                                    onClick={() => handleNotificationToggle('emailNotifications')}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.emailNotifications ? 'bg-primary-600' : 'bg-secondary-300'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.emailNotifications ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-
-                            {/* Campaign Alerts */}
-                            <div className="flex items-center justify-between p-4 bg-secondary-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-secondary-900">Campaign Alerts</p>
-                                    <p className="text-sm text-secondary-600">Get notified about new campaigns and updates</p>
-                                </div>
-                                <button
-                                    onClick={() => handleNotificationToggle('campaignAlerts')}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.campaignAlerts ? 'bg-primary-600' : 'bg-secondary-300'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.campaignAlerts ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-
-                            {/* Emergency Alerts */}
-                            <div className="flex items-center justify-between p-4 bg-secondary-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-secondary-900">Emergency Alerts</p>
-                                    <p className="text-sm text-secondary-600">Critical notifications for emergency campaigns</p>
-                                </div>
-                                <button
-                                    onClick={() => handleNotificationToggle('emergencyAlerts')}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.emergencyAlerts ? 'bg-danger-600' : 'bg-secondary-300'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.emergencyAlerts ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-
-                            {/* Donation Alerts */}
-                            <div className="flex items-center justify-between p-4 bg-secondary-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-secondary-900">Donation Alerts</p>
-                                    <p className="text-sm text-secondary-600">Notifications for new donations and transactions</p>
-                                </div>
-                                <button
-                                    onClick={() => handleNotificationToggle('donationAlerts')}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.donationAlerts ? 'bg-primary-600' : 'bg-secondary-300'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.donationAlerts ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-
-                            {/* Weekly Reports */}
-                            <div className="flex items-center justify-between p-4 bg-secondary-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-secondary-900">Weekly Reports</p>
-                                    <p className="text-sm text-secondary-600">Receive weekly summary of platform analytics</p>
-                                </div>
-                                <button
-                                    onClick={() => handleNotificationToggle('weeklyReports')}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.weeklyReports ? 'bg-primary-600' : 'bg-secondary-300'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.weeklyReports ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-                        </div>
-                    </Card.Body>
-                </Card>
-            )}
+            {/* Notifications Tab Removed */}
 
             {/* Save Button */}
             <div className="flex justify-end">

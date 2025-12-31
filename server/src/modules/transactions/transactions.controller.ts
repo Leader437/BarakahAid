@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Param,
   Query,
@@ -22,8 +23,14 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
+  @Get()
+  @Roles(Role.ADMIN)
+  async findAll() {
+    return this.transactionsService.findAll();
+  }
+
   @Post()
-  @Roles(Role.DONOR)
+  @Roles(Role.DONOR, Role.VOLUNTEER)
   async create(
     @CurrentUser('id') userId: string,
     @Body() createDto: CreateTransactionDto,
@@ -43,9 +50,10 @@ export class TransactionsController {
     return this.transactionsService.findByCampaign(campaignId);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(id);
+  @Get('received')
+  @Roles(Role.NGO)
+  async getReceivedDonations(@CurrentUser('id') userId: string) {
+    return this.transactionsService.findReceivedByNgo(userId);
   }
 
   @Get('reports/yearly')
@@ -55,17 +63,53 @@ export class TransactionsController {
     @Query('year') year: number,
     @Res() response: Response,
   ) {
-    const pdfBuffer = await this.transactionsService.generateYearlyReport(
-      userId,
-      year,
-    );
+    try {
+      const pdfBuffer = await this.transactionsService.generateYearlyReport(
+        userId,
+        year,
+      );
+
+      response.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `inline; filename=donation-report-${year}.pdf`,
+        'Content-Length': pdfBuffer.length,
+      });
+
+      response.end(pdfBuffer);
+    } catch (error) {
+      response.status(500).json({ message: 'Failed to generate report', error: error.message });
+    }
+  }
+
+  @Get(':id/receipt')
+  @Roles(Role.DONOR)
+  async getReceipt(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+    @Res() response: Response,
+  ) {
+    const pdfBuffer = await this.transactionsService.generateReceipt(id, userId);
 
     response.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=donation-report-${year}.pdf`,
+      'Content-Disposition': `inline; filename=receipt-${id}.pdf`,
       'Content-Length': pdfBuffer.length,
     });
 
     response.end(pdfBuffer);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.transactionsService.findOne(id);
+  }
+
+  @Put(':id/status')
+  @Roles(Role.ADMIN)
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: any,
+  ) {
+    return this.transactionsService.updateStatus(id, status);
   }
 }

@@ -1,138 +1,184 @@
-// Requests Slice - Donation requests management
-import { createSlice } from '@reduxjs/toolkit';
-import { mockRequests } from '../utils/dummyData';
+// Requests Slice - Donation requests management (REAL API)
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../utils/api';
 
 const initialState = {
-  requests: [...mockRequests],
+  requests: [],
   currentRequest: null,
   loading: false,
   error: null,
   filters: {
     category: '',
     urgency: '',
-    status: 'active',
+    status: 'APPROVED',
     searchQuery: '',
   },
 };
+
+// Async Thunks
+export const fetchRequests = createAsyncThunk(
+  'requests/fetchRequests',
+  async (filters = {}, { rejectWithValue }) => {
+    try {
+      // Build query params
+      const params = new URLSearchParams();
+      if (filters.status) params.append('status', filters.status);
+      if (filters.category) params.append('categoryId', filters.category);
+      if (filters.search || filters.searchQuery) params.append('search', filters.search || filters.searchQuery);
+
+      const response = await api.get(`/donation-requests?${params.toString()}`);
+      let data = response.data;
+      if (data.data) data = data.data; // Unwrap if nested
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch requests');
+    }
+  }
+);
+
+export const fetchRequestById = createAsyncThunk(
+  'requests/fetchRequestById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/donation-requests/${id}`);
+      let data = response.data;
+      if (data.data) data = data.data;
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch request');
+    }
+  }
+);
+
+export const createRequest = createAsyncThunk(
+  'requests/createRequest',
+  async (requestData, { rejectWithValue }) => {
+    try {
+      const isFormData = requestData instanceof FormData;
+      const response = await api.post('/donation-requests', requestData, {
+        headers: {
+          'Content-Type': isFormData ? 'multipart/form-data' : 'application/json'
+        }
+      });
+      let data = response.data;
+      if (data.data) data = data.data;
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create request');
+    }
+  }
+);
 
 const requestsSlice = createSlice({
   name: 'requests',
   initialState,
   reducers: {
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
-    },
-    setRequests: (state, action) => {
-      state.requests = action.payload;
-    },
-    setCurrentRequest: (state, action) => {
-      state.currentRequest = action.payload;
-    },
-    addRequest: (state, action) => {
-      state.requests.unshift(action.payload);
-    },
-    updateRequest: (state, action) => {
-      const index = state.requests.findIndex((r) => r.id === action.payload.id);
-      if (index !== -1) {
-        state.requests[index] = { ...state.requests[index], ...action.payload };
-      }
-      if (state.currentRequest?.id === action.payload.id) {
-        state.currentRequest = { ...state.currentRequest, ...action.payload };
-      }
-    },
-    deleteRequest: (state, action) => {
-      state.requests = state.requests.filter((r) => r.id !== action.payload);
-    },
     setFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload };
     },
     clearFilters: (state) => {
       state.filters = initialState.filters;
     },
+    clearCurrentRequest: (state) => {
+      state.currentRequest = null;
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // fetchRequests
+      .addCase(fetchRequests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchRequests.fulfilled, (state, action) => {
+        state.loading = false;
+        // Map backend entity to frontend model with graceful fallbacks
+        state.requests = action.payload.map(req => ({
+          id: req.id,
+          title: req.title,
+          description: req.description,
+          category: req.category?.name || 'General',
+          categoryId: req.category?.id,
+          // These fields may not exist in backend - provide fallbacks
+          targetAmount: Number(req.targetAmount) || 0,
+          currentAmount: Number(req.currentAmount) || 0,
+          status: req.status?.toLowerCase() || 'pending',
+          urgency: req.urgency || 'medium',
+          createdBy: req.createdBy?.id,
+          createdByName: req.createdBy?.name || 'Anonymous',
+          media: req.media || [],
+          location: req.location?.address || req.location || null,
+          createdAt: req.createdAt,
+          updatedAt: req.updatedAt,
+          // Calculate daysLeft if deadline exists, else default
+          daysLeft: req.deadline ? Math.max(0, Math.ceil((new Date(req.deadline) - new Date()) / 86400000)) : 30,
+          beneficiaries: req.beneficiaries || 0
+        }));
+      })
+      .addCase(fetchRequests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // fetchRequestById
+      .addCase(fetchRequestById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchRequestById.fulfilled, (state, action) => {
+        state.loading = false;
+        const req = action.payload;
+        state.currentRequest = {
+          id: req.id,
+          title: req.title,
+          description: req.description,
+          category: req.category?.name || 'General',
+          categoryId: req.category?.id,
+          targetAmount: Number(req.targetAmount) || 0,
+          currentAmount: Number(req.currentAmount) || 0,
+          status: req.status?.toLowerCase() || 'active',
+          urgency: req.urgency || 'normal',
+          createdBy: req.createdBy?.id,
+          createdByName: req.createdBy?.name || 'Anonymous',
+          media: req.media || [],
+          createdAt: req.createdAt,
+          updatedAt: req.updatedAt,
+        };
+      })
+      .addCase(fetchRequestById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // createRequest
+      .addCase(createRequest.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createRequest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.requests.unshift(action.payload);
+      })
+      .addCase(createRequest.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-// Mock async actions
-export const fetchRequests = (filters = {}) => async (dispatch) => {
-  dispatch(setLoading(true));
-  
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  
-  let filtered = [...mockRequests];
-  
-  if (filters.category) {
-    filtered = filtered.filter((r) => r.category === filters.category);
-  }
-  if (filters.urgency) {
-    filtered = filtered.filter((r) => r.urgency === filters.urgency);
-  }
-  if (filters.status) {
-    filtered = filtered.filter((r) => r.status === filters.status);
-  }
-  if (filters.searchQuery) {
-    const query = filters.searchQuery.toLowerCase();
-    filtered = filtered.filter(
-      (r) =>
-        r.title.toLowerCase().includes(query) ||
-        r.description.toLowerCase().includes(query)
-    );
-  }
-  
-  dispatch(setRequests(filtered));
-  dispatch(setLoading(false));
-};
-
-export const fetchRequestById = (id) => async (dispatch) => {
-  dispatch(setLoading(true));
-  
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  
-  const request = mockRequests.find((r) => r.id === id);
-  dispatch(setCurrentRequest(request || null));
-  dispatch(setLoading(false));
-};
-
-export const createRequest = (requestData) => async (dispatch, getState) => {
-  dispatch(setLoading(true));
-  
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  
-  const { user } = getState().user;
-  const newRequest = {
-    id: `req-${Date.now()}`,
-    ...requestData,
-    createdBy: user.id,
-    createdByName: user.name,
-    currentAmount: 0,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-    donorCount: 0,
-  };
-  
-  dispatch(addRequest(newRequest));
-  dispatch(setLoading(false));
-  return { success: true, request: newRequest };
-};
-
 export const {
-  setLoading,
-  setError,
-  setRequests,
-  setCurrentRequest,
-  addRequest,
-  updateRequest,
-  deleteRequest,
   setFilters,
   clearFilters,
+  clearCurrentRequest,
+  clearError,
 } = requestsSlice.actions;
 
 // Selectors
 export const selectAllRequests = (state) => state.requests.requests;
 export const selectCurrentRequest = (state) => state.requests.currentRequest;
 export const selectRequestsLoading = (state) => state.requests.loading;
+export const selectRequestsError = (state) => state.requests.error;
 export const selectFilters = (state) => state.requests.filters;
 
 export default requestsSlice.reducer;

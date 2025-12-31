@@ -16,6 +16,8 @@ async function bootstrap() {
     origin: [
       configService.get('ADMIN_URL') || 'http://localhost:5173',
       configService.get('FRONTEND_URL') || 'http://localhost:5174',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
     ],
     credentials: true,
   });
@@ -30,7 +32,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const port = configService.get('PORT') || 5000;
+  const port = configService.get('PORT') || 5500;
   await app.listen(port);
 }
 

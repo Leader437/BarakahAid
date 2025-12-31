@@ -40,6 +40,15 @@ export class DonationRequest {
   @JoinColumn()
   createdBy: User;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  targetAmount: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  currentAmount: number;
+
+  @Column({ type: 'varchar', default: 'MEDIUM' })
+  urgency: string;
+
   @Column({
     type: 'enum',
     enum: DonationRequestStatus,

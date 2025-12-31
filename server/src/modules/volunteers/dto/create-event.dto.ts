@@ -6,8 +6,9 @@ import {
   IsInt,
   IsObject,
   Min,
+  IsOptional,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class CreateEventDto {
   @IsString()
@@ -19,6 +20,7 @@ export class CreateEventDto {
   description: string;
 
   @IsObject()
+  @Transform(({ value }) => typeof value === 'string' ? JSON.parse(value) : value)
   location: {
     address: string;
     coordinates?: [number, number];
@@ -30,9 +32,11 @@ export class CreateEventDto {
 
   @IsArray()
   @IsString({ each: true })
+  @Transform(({ value }) => typeof value === 'string' ? JSON.parse(value) : value)
   requiredSkills: string[];
 
   @IsInt()
+  @Transform(({ value }) => typeof value === 'string' ? parseInt(value, 10) : value)
   @Min(1)
   maxVolunteers: number;
 }

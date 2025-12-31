@@ -67,6 +67,18 @@ export class CampaignsController {
     return this.campaignsService.update(id, userId, userRole, updateDto);
   }
 
+  @Put(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.NGO, Role.ADMIN)
+  async updateStatus(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: string,
+    @CurrentUser('role') userRole: Role,
+    @Body('status') status: any, // Using any to avoid importing CampaignStatus enum if not needed, or better import it
+  ) {
+    return this.campaignsService.update(id, userId, userRole, { status });
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.NGO, Role.ADMIN)

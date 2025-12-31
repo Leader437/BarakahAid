@@ -53,7 +53,7 @@ const RequestDetails = () => {
         ? Math.min(Math.round((request.currentAmount / request.targetAmount) * 100), 100)
         : 0;
 
-    // Mock request history
+    // Request history derived from status
     const history = [
         { action: 'Request Created', date: request.createdAt, user: request.createdBy?.name },
         ...(request.status === 'APPROVED'
@@ -119,7 +119,7 @@ const RequestDetails = () => {
                         <Badge variant={getUrgencyVariant(request.urgency)}>{request.urgency} Priority</Badge>
                     </div>
                     <p className="text-secondary-700 mt-1">
-                        Submitted on {formatDate(request.createdAt)} • {request.location}
+                        Submitted on {formatDate(request.createdAt)} • {request.location?.address || 'Unknown'}
                     </p>
                 </div>
 
@@ -129,6 +129,7 @@ const RequestDetails = () => {
                         <>
                             <Button
                                 variant="success"
+                                className="!text-black"
                                 onClick={() => { setActionType('approve'); setShowActionModal(true); }}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,6 +139,7 @@ const RequestDetails = () => {
                             </Button>
                             <Button
                                 variant="danger"
+                                className="!text-black"
                                 onClick={() => { setActionType('reject'); setShowActionModal(true); }}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +177,7 @@ const RequestDetails = () => {
                             <div className="mt-6 grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-secondary-700">Category</p>
-                                    <p className="font-medium text-secondary-900">{request.category}</p>
+                                    <p className="font-medium text-secondary-900">{request.category?.name || 'Uncategorized'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-secondary-700">Beneficiaries</p>
@@ -187,33 +189,37 @@ const RequestDetails = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-secondary-700">Location</p>
-                                    <p className="font-medium text-secondary-900">{request.location}</p>
+                                    <p className="font-medium text-secondary-900">{request.location?.address || 'Unknown'}</p>
                                 </div>
                             </div>
                         </Card.Body>
                     </Card>
 
-                    {/* Mock Photos Gallery */}
+                    {/* Supporting Images */}
                     <Card>
                         <Card.Header>
                             <h2 className="text-lg font-semibold text-secondary-900">Supporting Images</h2>
                         </Card.Header>
                         <Card.Body>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {[1, 2, 3].map((i) => (
-                                    <div
-                                        key={i}
-                                        className="aspect-video bg-gradient-to-br from-secondary-200 to-secondary-300 rounded-lg flex items-center justify-center"
-                                    >
-                                        <svg className="w-12 h-12 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                ))}
-                            </div>
-                            <p className="text-sm text-secondary-700 mt-3 text-center">
-                                Images submitted by requester for verification
-                            </p>
+                            {request.media && request.media.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {request.media.map((url, i) => (
+                                        <div
+                                            key={i}
+                                            className="aspect-video bg-secondary-100 rounded-lg overflow-hidden"
+                                        >
+                                            <img src={url} alt={`Supporting image ${i + 1}`} className="w-full h-full object-cover" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-secondary-500">
+                                    <svg className="w-12 h-12 mx-auto mb-3 text-secondary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p className="text-sm">No images uploaded for this request</p>
+                                </div>
+                            )}
                         </Card.Body>
                     </Card>
 
@@ -353,6 +359,7 @@ const RequestDetails = () => {
                         <Button variant="outline" onClick={() => setShowActionModal(false)}>Cancel</Button>
                         <Button
                             variant={actionType === 'reject' ? 'danger' : 'success'}
+                            className="!text-black"
                             onClick={handleAction}
                         >
                             Confirm

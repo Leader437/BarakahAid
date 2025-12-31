@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   HiCalendar,
   HiClock,
@@ -13,95 +13,84 @@ import {
 import Card from "../../components/ui/Card";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import SecondaryButton from "../../components/ui/SecondaryButton";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchEvents, selectEvents, fetchVolunteerProfile, selectVolunteerProfile } from "../../store/volunteerSlice";
 
 const VolunteerDashboard = () => {
   const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const rawEvents = useSelector(selectEvents);
+  const profile = useSelector(selectVolunteerProfile);
 
-  // Mock data
+  useEffect(() => {
+    dispatch(fetchEvents());
+    dispatch(fetchVolunteerProfile());
+  }, [dispatch]);
+
+  const handleRegister = (eventId) => {
+    navigate(`/volunteer/events/${eventId}/register`);
+  };
+
+  // Map real events
+  const safeEvents = Array.isArray(rawEvents) ? rawEvents : [];
+  const now = new Date();
+  const upcomingEvents = safeEvents
+    .filter(e => new Date(e.eventDate) > now)
+    .slice(0, 3)
+    .map(e => {
+      const totalSpots = e.maxVolunteers || 10;
+      const spotsLeft = totalSpots - (e.volunteers?.length || 0);
+      return {
+        id: e.id,
+        title: e.title,
+        date: e.eventDate,
+        time: new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        location: e.location?.address || 'TBD',
+        spotsLeft: spotsLeft,
+        totalSpots: totalSpots,
+        isRegistered: e.volunteers?.some(v => v.user?.id === user?.id),
+        type: e.title.includes('Food') ? 'Food Relief' : (e.title.includes('Medical') ? 'Healthcare' : 'General'), // Simple inference
+      };
+    });
+
+  // Map real stats
   const stats = [
     {
       label: "Hours Contributed",
-      value: "124",
-      change: "+18 this month",
+      value: profile?.hoursLogged || 0,
+      change: "Lifetime", // Placeholder until we have monthly logic
       icon: HiClock,
       color: "primary",
     },
     {
       label: "Events Attended",
-      value: "15",
-      change: "3 upcoming",
+      // profile.events might be array of attended events
+      value: profile?.events?.length || 0,
+      change: "Total",
       icon: HiCalendar,
       color: "success",
     },
     {
       label: "People Helped",
-      value: "450+",
-      change: "Direct impact",
+      // Arbitrary calculation or mock for now as we don't track this exact metric backend side yet
+      value: (profile?.events?.length || 0) * 10 + "+",
+      change: "Estimated",
       icon: HiHeart,
       color: "error",
     },
   ];
 
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Food Distribution Drive",
-      date: "2025-12-15",
-      time: "09:00 AM",
-      location: "Community Center, Downtown",
-      spotsLeft: 5,
-      totalSpots: 20,
-      type: "Food Relief",
-    },
-    {
-      id: 2,
-      title: "Winter Clothing Collection",
-      date: "2025-12-18",
-      time: "02:00 PM",
-      location: "City Plaza",
-      spotsLeft: 8,
-      totalSpots: 15,
-      type: "Clothing",
-    },
-    {
-      id: 3,
-      title: "Educational Workshop for Kids",
-      date: "2025-12-20",
-      time: "10:00 AM",
-      location: "Learning Center",
-      spotsLeft: 3,
-      totalSpots: 10,
-      type: "Education",
-    },
-  ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      title: "Emergency Relief Package Assembly",
-      date: "2025-12-10",
-      hours: 6,
-      status: "completed",
-      badge: "Team Leader",
-    },
-    {
-      id: 2,
-      title: "Community Meal Preparation",
-      date: "2025-12-08",
-      hours: 4,
-      status: "completed",
-      badge: null,
-    },
-    {
-      id: 3,
-      title: "Fundraising Event Support",
-      date: "2025-12-05",
-      hours: 5,
-      status: "completed",
-      badge: "Outstanding",
-    },
-  ];
+
+  const recentActivity = (profile?.events || []).map(e => ({
+    id: e.id,
+    title: e.title,
+    date: e.eventDate,
+    hours: 4, // Placeholder
+    status: "registered", // Since we only have signups
+    badge: null,
+  }));
 
   const achievements = [
     {
@@ -237,7 +226,16 @@ const VolunteerDashboard = () => {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <PrimaryButton>Register</PrimaryButton>
+                        <PrimaryButton 
+                          onClick={() => handleRegister(event.id)}
+                          disabled={event.isRegistered || event.spotsLeft <= 0}
+                        >
+                          {event.isRegistered 
+                            ? 'Registered' 
+                            : event.spotsLeft <= 0 
+                              ? 'Full' 
+                              : 'Register'}
+                        </PrimaryButton>
                       </div>
                     </div>
                   </div>
@@ -314,71 +312,10 @@ const VolunteerDashboard = () => {
               </div>
             </Card>
 
-            {/* Achievements */}
-            <Card padding="lg">
-              <h2 className="mb-4 text-lg font-bold text-secondary-900">
-                Achievements
-              </h2>
-              <div className="space-y-3">
-                {achievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className={`p-3 rounded-lg border ${
-                      achievement.earned
-                        ? "bg-primary-50 border-primary-200"
-                        : "bg-secondary-50 border-secondary-200 opacity-50"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <achievement.icon
-                        className={`w-6 h-6 ${
-                          achievement.earned
-                            ? "text-primary-600"
-                            : "text-secondary-400"
-                        }`}
-                      />
-                      <div>
-                        <h3 className="font-semibold text-secondary-900">
-                          {achievement.title}
-                        </h3>
-                        <p className="text-xs text-secondary-600">
-                          {achievement.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Impact Summary */}
-            <Card padding="lg" className="bg-primary-50">
-              <h2 className="mb-4 text-lg font-bold text-secondary-900">
-                Your Impact
-              </h2>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-primary-600" />
-                  <span className="text-secondary-700">
-                    Helped feed 120 families
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-primary-600" />
-                  <span className="text-secondary-700">
-                    Distributed clothes to 80 people
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <HiCheckCircle className="w-5 h-5 text-primary-600" />
-                  <span className="text-secondary-700">Taught 45 children</span>
-                </div>
-              </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

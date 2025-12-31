@@ -1,22 +1,30 @@
 // Requests List Page - Donation Requests Management
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Badge, Modal } from '../../components/ui';
+import { Card, Button, Badge, Modal, Avatar } from '../../components/ui';
+import { useToast } from '../../components/ui/Toast';
 import {
     selectFilteredRequests,
     selectRequestsFilters,
     setFilters,
     approveRequest,
     rejectRequest,
+    deleteRequest,
+    fetchRequests,
 } from '../../store/requestsSlice';
 import usePagination from '../../hooks/usePagination';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 
 const RequestsList = () => {
     const dispatch = useDispatch();
+    const toast = useToast();
     const requests = useSelector(selectFilteredRequests);
     const filters = useSelector(selectRequestsFilters);
+
+    useEffect(() => {
+        dispatch(fetchRequests());
+    }, [dispatch]);
 
     // Local state
     const [selectedRequest, setSelectedRequest] = useState(null);
@@ -72,6 +80,24 @@ const RequestsList = () => {
             setShowActionModal(false);
             setSelectedRequest(null);
             setRejectReason('');
+        }
+    };
+
+    // Handle delete
+    const handleDelete = async () => {
+        if (selectedRequest) {
+            try {
+                const result = await dispatch(deleteRequest(selectedRequest.id));
+                if (deleteRequest.fulfilled.match(result)) {
+                    toast.success('Request deleted successfully');
+                } else {
+                    toast.error(result.payload || 'Failed to delete request');
+                }
+            } catch (error) {
+                toast.error('An error occurred while deleting');
+            }
+            setShowActionModal(false);
+            setSelectedRequest(null);
         }
     };
 
@@ -255,17 +281,18 @@ const RequestsList = () => {
                                         {/* Requester */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 bg-accent-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-accent-700 font-semibold text-xs">
-                                                        {request.createdBy?.name?.substring(0, 2).toUpperCase() || 'NA'}
-                                                    </span>
-                                                </div>
+                                                <Avatar
+                                                    src={request.createdBy?.profileImage || request.createdBy?.avatar}
+                                                    name={request.createdBy?.name || 'Unknown'}
+                                                    size="sm"
+                                                    shape="circle"
+                                                />
                                                 <span className="text-secondary-700">{request.createdBy?.name || 'Unknown'}</span>
                                             </div>
                                         </td>
 
                                         {/* Category */}
-                                        <td className="px-6 py-4 text-secondary-700">{request.category}</td>
+                                        <td className="px-6 py-4 text-secondary-700">{request.category?.name || 'Uncategorized'}</td>
 
                                         {/* Progress */}
                                         <td className="px-6 py-4">
@@ -318,6 +345,16 @@ const RequestsList = () => {
                                                         </Button>
                                                     </>
                                                 )}
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-danger-500 hover:text-danger-700 hover:bg-danger-50"
+                                                    onClick={() => openActionModal(request, 'delete')}
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
@@ -349,7 +386,7 @@ const RequestsList = () => {
             <Modal
                 isOpen={showActionModal}
                 onClose={() => setShowActionModal(false)}
-                title={actionType === 'approve' ? 'Approve Request' : 'Reject Request'}
+                title={actionType === 'approve' ? 'Approve Request' : actionType === 'delete' ? 'Delete Request' : 'Reject Request'}
                 size="sm"
                 footer={
                     <>
@@ -358,9 +395,9 @@ const RequestsList = () => {
                         </Button>
                         <Button
                             variant={actionType === 'approve' ? 'success' : 'danger'}
-                            onClick={actionType === 'approve' ? handleApprove : handleReject}
+                            onClick={actionType === 'approve' ? handleApprove : actionType === 'delete' ? handleDelete : handleReject}
                         >
-                            {actionType === 'approve' ? 'Approve' : 'Reject'}
+                            {actionType === 'approve' ? 'Approve' : actionType === 'delete' ? 'Delete' : 'Reject'}
                         </Button>
                     </>
                 }
@@ -400,6 +437,22 @@ const RequestsList = () => {
                                 rows={3}
                                 placeholder="Enter reason..."
                             />
+                        </div>
+                    )}
+                    
+                    {actionType === 'delete' && (
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-danger-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-danger-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </div>
+                            <p className="text-secondary-600">
+                                Are you sure you want to delete <strong>{selectedRequest?.title}</strong>?
+                            </p>
+                            <p className="text-sm text-secondary-500 mt-2">
+                                This action cannot be undone.
+                            </p>
                         </div>
                     )}
                 </div>

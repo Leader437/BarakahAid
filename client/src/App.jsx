@@ -1,7 +1,9 @@
 // Main App Component with Routing
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import api from './utils/api';
+import { updateProfile } from './store/userSlice';
 
 
 
@@ -10,6 +12,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ScrollToTop from './components/ScrollToTop';
+import { getDashboardPath } from './utils/helpers';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -37,12 +40,22 @@ import DonationHistory from './pages/donor/DonationHistory';
 import VolunteerDashboard from './pages/volunteer/Dashboard';
 import BrowseEvents from './pages/volunteer/BrowseEvents';
 import MyActivities from './pages/volunteer/MyActivities';
+import EventRegistration from './pages/volunteer/EventRegistration';
 
 // NGO Pages
 import NgoDashboard from './pages/ngo/Dashboard';
 import ManageCampaigns from './pages/ngo/ManageCampaigns';
+import CreateCampaign from './pages/ngo/CreateCampaign';
 import DonationsReceived from './pages/ngo/DonationsReceived';
 import OrganizationProfile from './pages/ngo/OrganizationProfile';
+import CreateRequest from './pages/ngo/CreateRequest';
+import CampaignDetails from './pages/ngo/CampaignDetails';
+import EditCampaign from './pages/ngo/EditCampaign';
+import Reports from './pages/ngo/Reports';
+import ManageRequests from './pages/ngo/ManageRequests';
+import ManageEvents from './pages/ngo/ManageEvents';
+import CreateEvent from './pages/ngo/CreateEvent';
+import EditEvent from './pages/ngo/EditEvent';
 
 // Browse Requests and Campaigns
 import BrowseRequests from './pages/BrowseRequests';
@@ -63,9 +76,13 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role?.toLowerCase())) {
-    console.warn('🚫 Access denied. User role:', user?.role, 'Allowed roles:', allowedRoles);
-    return <Navigate to="/" replace />;
+  if (allowedRoles.length > 0) {
+    const userRole = user?.role?.toLowerCase();
+    const isAllowed = allowedRoles.some(role => role.toLowerCase() === userRole);
+    
+    if (!isAllowed) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;
@@ -154,6 +171,24 @@ const ngoMenuItems = [
     ),
   },
   {
+    path: '/ngo/requests',
+    label: 'Manage Requests',
+    icon: () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+    ),
+  },
+  {
+    path: '/ngo/events',
+    label: 'Manage Events',
+    icon: () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
     path: '/ngo/donations',
     label: 'Donations Received',
     icon: () => (
@@ -174,23 +209,26 @@ const ngoMenuItems = [
 ];
 
 function App() {
+  const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.user);
 
-  const getDashboardPath = (role) => {
-    switch (role) {
-      case 'donor':
-        return '/donor/dashboard';
-      case 'volunteer':
-        return '/volunteer/dashboard';
-      case 'recipient':
-        return '/recipient/dashboard';
-      case 'ngo':
-        return '/ngo/dashboard';
+  // Fetch user profile on app load to ensure we have the latest data including profileImage
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await api.get('/users/profile');
+          const profileData = response.data?.data || response.data;
+          dispatch(updateProfile(profileData));
+        } catch (error) {
+          // Silent fail - user will see stale data
+        }
+      }
+    };
+    fetchUserProfile();
+  }, [isAuthenticated, dispatch]);
 
-      default:
-        return '/donor/dashboard';
-    }
-  };
+  /* Shared getDashboardPath used from utils */
 
   return (
     <Router>
@@ -221,8 +259,8 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/login" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Login />} />
-          <Route path="/register" element={isAuthenticated ? <Navigate to={getDashboardPath(user?.role)} /> : <Register />} />
+          <Route path="/login" element={isAuthenticated && user ? <Navigate to={getDashboardPath(user?.role)} /> : <Login />} />
+          <Route path="/register" element={isAuthenticated && user ? <Navigate to={getDashboardPath(user?.role)} /> : <Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/select-role" element={<RoleSelection />} />
@@ -267,6 +305,7 @@ function App() {
             <Route path="dashboard" element={<VolunteerDashboard />} />
             <Route path="browse-events" element={<BrowseEvents />} />
             <Route path="my-activities" element={<MyActivities />} />
+            <Route path="events/:id/register" element={<EventRegistration />} />
           </Route>
 
           {/* NGO Routes */}
@@ -281,7 +320,16 @@ function App() {
             <Route index element={<Navigate to="/ngo/dashboard" replace />} />
             <Route path="dashboard" element={<NgoDashboard />} />
             <Route path="campaigns" element={<ManageCampaigns />} />
+            <Route path="campaigns/new" element={<CreateCampaign />} />
+            <Route path="campaigns/:id" element={<CampaignDetails />} />
+            <Route path="campaigns/:id/edit" element={<EditCampaign />} />
+            <Route path="requests/new" element={<CreateRequest />} />
+            <Route path="requests" element={<ManageRequests />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="donations" element={<DonationsReceived />} />
+            <Route path="events" element={<ManageEvents />} />
+            <Route path="events/new" element={<CreateEvent />} />
+            <Route path="events/:id/edit" element={<EditEvent />} />
             <Route path="profile" element={<OrganizationProfile />} />
           </Route>
 

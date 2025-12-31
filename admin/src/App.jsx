@@ -10,7 +10,7 @@ function App() {
 
   // Extract admin info from existing JWT on app load
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminAccessToken') || localStorage.getItem('token');
 
     if (token) {
       try {

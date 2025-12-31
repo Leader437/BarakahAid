@@ -33,12 +33,38 @@ export class PaymentService {
    * Demo mode uses Stripe test cards that don't require real payment
    */
   async createPaymentIntent(data: PaymentIntentData) {
+    // Check if using demo/test key that shouldn't actually hit Stripe
+    const apiKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+    const isDemoMode = !apiKey || apiKey === 'sk_test_51234567890abcdefghijklmnopqrstuvwxyz' || apiKey.startsWith('sk_test_demo');
+    
+    if (isDemoMode) {
+        this.logger.log('⚠️ DEMO MODE: Skipping real Stripe call, returning mock success');
+        return {
+            clientSecret: 'pi_demo_secret_123456789',
+            paymentIntentId: 'pi_demo_' + Math.random().toString(36).substring(7),
+            status: 'succeeded',
+            amount: data.amount,
+            currency: data.currency,
+            demo: {
+                testCards: {
+                    success: '4242 4242 4242 4242',
+                    declined: '4000 0000 0000 0002',
+                    requiresAuth: '4000 0025 0000 3155',
+                },
+                expiryDate: 'Any future date',
+                cvc: 'Any 3 digits',
+            },
+        };
+    }
+
     try {
       this.logger.log(`Creating payment intent for campaign ${data.campaignId} by donor ${data.donorId}`);
 
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount: data.amount,
         currency: data.currency.toLowerCase(),
+        // description: `Donation via BarakahAid`, // removed to match original lines to be safe? no, lines 39-52 are inside the try.
+
         description: `Donation via BarakahAid`,
         metadata: {
           campaignId: data.campaignId,

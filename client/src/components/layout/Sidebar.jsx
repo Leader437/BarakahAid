@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Avatar from '../ui/Avatar';
 
 /**
  * Dashboard sidebar navigation component
@@ -18,11 +19,14 @@ const Sidebar = ({ menuItems, onClose }) => {
     <aside className="flex flex-col h-full overflow-hidden bg-white border-r w-70 border-secondary-200">
       <div className="p-6">
         {/* User Info */}
-        <div className="mb-6">
-          <h3 className="mb-2 text-sm font-semibold tracking-wider uppercase text-secondary-500">
-            {user?.role} Dashboard
-          </h3>
-          <p className="font-medium text-secondary-900">{user?.name}</p>
+        <div className="flex items-center gap-3 mb-6">
+          <Avatar src={user?.profileImage || user?.avatar} name={user?.name} size="md" />
+          <div className="overflow-hidden">
+            <h3 className="text-xs font-semibold tracking-wider text-secondary-500 uppercase truncate">
+              {user?.role} Dashboard
+            </h3>
+            <p className="font-medium truncate text-secondary-900">{user?.name}</p>
+          </div>
         </div>
 
         {/* Navigation Menu */}

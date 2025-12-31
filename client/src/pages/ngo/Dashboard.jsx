@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  HiTrendingUp, 
-  HiCash, 
-  HiUserGroup, 
+import {
+  HiTrendingUp,
+  HiCash,
+  HiUserGroup,
   HiChartBar,
   HiCheckCircle,
   HiClock,
@@ -14,126 +14,76 @@ import Card from '../../components/ui/Card';
 import ProgressBar from '../../components/ui/ProgressBar';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import SecondaryButton from '../../components/ui/SecondaryButton';
-import { useSelector } from 'react-redux';
-import { formatCurrency } from '../../utils/helpers';
+import { useSelector, useDispatch } from 'react-redux';
+import { formatCurrency, formatDate } from '../../utils/helpers';
+import {
+  fetchMyCampaigns,
+  fetchNgoDonations,
+  fetchMyRequests,
+  selectMyCampaigns,
+  selectNgoDonations,
+  selectNgoRequests,
+  selectNgoLoading
+} from '../../store/ngoSlice';
 
 const NgoDashboard = () => {
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
+  const myCampaigns = useSelector(selectMyCampaigns);
+  const donations = useSelector(selectNgoDonations);
+  const requests = useSelector(selectNgoRequests);
+  const loading = useSelector(selectNgoLoading);
 
-  // Mock data
+  useEffect(() => {
+    dispatch(fetchMyCampaigns());
+    dispatch(fetchNgoDonations());
+    dispatch(fetchMyRequests());
+  }, [dispatch]);
+
+  // Derived Stats
+  const totalRaised = donations.reduce((sum, d) => sum + Number(d.amount), 0);
+  const activeCampaignsCount = myCampaigns.filter(c => c.status === 'ACTIVE').length;
+  const totalDonors = new Set(donations.map(d => d.donor?.id)).size;
+
+  // Recent 5 donations
+  const recentDonations = [...donations].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
+  // Active Campaigns List (Top 3)
+  const dashboardCampaigns = myCampaigns
+    .filter(c => c.status === 'ACTIVE' || !c.status || c.status === 'active')
+    .slice(0, 3);
+
+  // Pending requests from state
+  const pendingRequests = requests.filter(r => r.status === 'PENDING').slice(0, 5);
+
   const stats = [
     {
       label: 'Total Raised',
-      value: '$245,75',
-      change: '+22% this month',
+      value: formatCurrency(totalRaised),
+      change: 'Lifetime',
       icon: HiCash,
       color: 'primary'
     },
     {
       label: 'Active Campaigns',
-      value: '12',
-      change: '3 ending soon',
+      value: activeCampaignsCount,
+      change: `${myCampaigns.length} total`,
       icon: HiChartBar,
       color: 'success'
     },
     {
       label: 'Total Donors',
-      value: '3,420',
-      change: '+156 this month',
+      value: totalDonors,
+      change: 'Unique donors',
       icon: HiUserGroup,
       color: 'warning'
     },
     {
-      label: 'People Helped',
-      value: '8,450+',
-      change: 'Direct impact',
+      label: 'Recent Donations',
+      value: donations.length,
+      change: 'Total received',
       icon: HiTrendingUp,
       color: 'error'
-    }
-  ];
-
-  const activeCampaigns = [
-    {
-      id: 1,
-      title: 'Emergency Food Relief - Gaza',
-      currentAmount: 45000,
-      targetAmount: 100000,
-      donors: 1250,
-      daysLeft: 15,
-      status: 'active',
-      category: 'Emergency Relief'
-    },
-    {
-      id: 2,
-      title: 'Winter Clothing Drive',
-      currentAmount: 15000,
-      targetAmount: 40000,
-      donors: 320,
-      daysLeft: 25,
-      status: 'active',
-      category: 'Clothing'
-    },
-    {
-      id: 3,
-      title: 'Education Support for Orphans',
-      currentAmount: 28000,
-      targetAmount: 50000,
-      donors: 450,
-      daysLeft: 30,
-      status: 'active',
-      category: 'Education'
-    }
-  ];
-
-  const recentDonations = [
-    {
-      id: 1,
-      donor: 'Anonymous',
-      amount: 500,
-      campaign: 'Emergency Food Relief',
-      date: '2025-12-12',
-      time: '2h ago'
-    },
-    {
-      id: 2,
-      donor: 'John Smith',
-      amount: 250,
-      campaign: 'Winter Clothing Drive',
-      date: '2025-12-12',
-      time: '5h ago'
-    },
-    {
-      id: 3,
-      donor: 'Sarah Ahmed',
-      amount: 1000,
-      campaign: 'Education Support',
-      date: '2025-12-11',
-      time: '1d ago'
-    },
-    {
-      id: 4,
-      donor: 'Anonymous',
-      amount: 150,
-      campaign: 'Emergency Food Relief',
-      date: '2025-12-11',
-      time: '1d ago'
-    }
-  ];
-
-  const pendingRequests = [
-    {
-      id: 1,
-      title: 'Medical Supplies Request',
-      status: 'pending',
-      amount: 25000,
-      requestedDate: '2025-12-10'
-    },
-    {
-      id: 2,
-      title: 'School Supplies Approval',
-      status: 'pending',
-      amount: 15000,
-      requestedDate: '2025-12-09'
     }
   ];
 
@@ -188,7 +138,7 @@ const NgoDashboard = () => {
               </div>
 
               <div className="space-y-4">
-                {activeCampaigns.map((campaign) => (
+                {dashboardCampaigns.map((campaign) => (
                   <div
                     key={campaign.id}
                     className="p-4 transition-colors border rounded-lg border-secondary-200 hover:bg-secondary-50"
@@ -200,7 +150,7 @@ const NgoDashboard = () => {
                             {campaign.title}
                           </h3>
                           <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-success-100 text-success-700">
-                            Active
+                            {campaign.status || 'Active'}
                           </span>
                         </div>
                         <p className="text-sm text-secondary-600">{campaign.category}</p>
@@ -213,19 +163,19 @@ const NgoDashboard = () => {
                       </Link>
                     </div>
                     <ProgressBar
-                      value={campaign.currentAmount}
-                      max={campaign.targetAmount}
+                      value={Number(campaign.raisedAmount || 0)}
+                      max={Number(campaign.goalAmount || campaign.targetAmount || 1)}
                       className="mb-3"
                     />
                     <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
                         <span className="font-semibold text-secondary-900">
-                          {formatCurrency(campaign.currentAmount)}
+                          {formatCurrency(Number(campaign.raisedAmount || 0))}
                         </span>
-                        <span className="text-secondary-600"> raised of {formatCurrency(campaign.targetAmount)}</span>
+                        <span className="text-secondary-600"> raised of {formatCurrency(Number(campaign.goalAmount || campaign.targetAmount))}</span>
                       </div>
                       <div className="text-secondary-600 whitespace-nowrap">
-                        {campaign.donors} donors • {campaign.daysLeft} days left
+                        {(campaign.endDate) ? `${Math.ceil((new Date(campaign.endDate) - new Date()) / (1000 * 60 * 60 * 24))} days left` : 'Ongoing'}
                       </div>
                     </div>
                   </div>
@@ -253,13 +203,13 @@ const NgoDashboard = () => {
                         <HiCheckCircle className="w-5 h-5 text-success-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate text-secondary-900">{donation.donor}</p>
-                        <p className="text-sm truncate text-secondary-600">{donation.campaign}</p>
+                        <p className="font-semibold truncate text-secondary-900">{donation.donor?.name || 'Anonymous'}</p>
+                        <p className="text-sm truncate text-secondary-600">{donation.campaign?.title}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-bold text-primary-600">{formatCurrency(donation.amount)}</p>
-                      <p className="text-xs text-secondary-500">{donation.time}</p>
+                      <p className="font-bold text-primary-600">{formatCurrency(Number(donation.amount))}</p>
+                      <p className="text-xs text-secondary-500">{new Date(donation.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))}
@@ -314,15 +264,28 @@ const NgoDashboard = () => {
                     key={request.id}
                     className="p-3 border rounded-lg border-warning-200 bg-warning-50"
                   >
-                    <div className="flex items-start gap-2 mb-2">
-                      <HiClock className="w-4 h-4 mt-1 text-warning-600 shrink-0" />
+                    <div className="flex items-start gap-3 mb-2">
+                      {/* Thumbnail */}
+                      {request.media && request.media.length > 0 ? (
+                        <img 
+                          src={request.media[0]} 
+                          alt={request.title}
+                          className="w-12 h-12 rounded-lg object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center shrink-0">
+                          <span className="text-lg font-bold text-primary-400">
+                            {request.title?.charAt(0)?.toUpperCase() || 'R'}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-secondary-900 wrap-break-word">{request.title}</h3>
                         <p className="text-sm text-secondary-600">
-                          {formatCurrency(request.amount)}
+                          {request.targetAmount ? formatCurrency(Number(request.targetAmount)) : 'See details'}
                         </p>
                         <p className="text-xs text-secondary-500">
-                          Requested: {new Date(request.requestedDate).toLocaleDateString()}
+                          Requested: {new Date(request.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -331,32 +294,10 @@ const NgoDashboard = () => {
               </div>
             </Card>
 
-            {/* Impact Summary */}
-            <Card padding="lg" className="bg-primary-50">
-              <h2 className="mb-4 text-lg font-bold text-secondary-900">This Month's Impact</h2>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Families Fed</span>
-                  <span className="font-semibold text-secondary-900">450</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Children Educated</span>
-                  <span className="font-semibold text-secondary-900">120</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Medical Treatments</span>
-                  <span className="font-semibold text-secondary-900">85</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-secondary-700">Clothing Distributed</span>
-                  <span className="font-semibold text-secondary-900">300+</span>
-                </div>
-              </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

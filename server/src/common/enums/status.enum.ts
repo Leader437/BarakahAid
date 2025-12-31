@@ -9,6 +9,7 @@ export enum DonationRequestStatus {
 export enum CampaignStatus {
   DRAFT = 'DRAFT',
   ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
 }
@@ -49,4 +50,7 @@ export enum PaymentGateway {
   JAZZCASH = 'JAZZCASH',
   EASYPAISA = 'EASYPAISA',
   CARD = 'CARD',
+  STRIPE = 'STRIPE',
+  PAYPAL = 'PAYPAL',
+  GOOGLEPAY = 'GOOGLEPAY',
 }

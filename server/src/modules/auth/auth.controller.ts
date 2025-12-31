@@ -31,9 +31,13 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    const user = await this.authService.register(registerDto);
-    const { password, refreshToken, ...result } = user;
-    return result;
+    const { user, accessToken, refreshToken } = await this.authService.register(registerDto);
+    // Remove sensitive fields from user before returning
+    const { password, refreshToken: _, ...safeUser } = user as any;
+    return { 
+      user: safeUser, 
+      accessToken 
+    };
   }
 
   @Post('login')
@@ -125,9 +129,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const oauthUser = req.user as any;
-    console.log('🔍 OAuth User Data from Google:', JSON.stringify(oauthUser, null, 2));
     const { user, accessToken, refreshToken } = await this.authService.validateOAuthLogin(oauthUser);
-    console.log('✅ User saved to database:', JSON.stringify({ id: user.id, name: user.name, email: user.email, avatar: user.avatar, googleId: user.googleId }, null, 2));
 
     // Set refresh token cookie
     response.cookie('refreshToken', refreshToken, {

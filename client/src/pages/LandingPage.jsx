@@ -8,9 +8,11 @@ import StatCounter from "../components/ui/StatCounter";
 import Footer from "../components/layout/Footer";
 import useTextAnimation from "../hooks/useTextAnimation";
 import heroBg from "../assets/hero-bg.png";
+import { useToast } from '../components/ui/Toast';
 
 const LandingPage = () => {
   const [email, setEmail] = useState("");
+  const toast = useToast();
   
   // Initialize text animations
   useTextAnimation();
@@ -165,7 +167,7 @@ const LandingPage = () => {
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
     if (email) {
-      alert(`Thank you for subscribing with ${email}!`);
+      toast.success(`Thank you for subscribing with ${email}!`);
       setEmail("");
     }
   };
