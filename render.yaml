@@ -1,0 +1,82 @@
+# Render Blueprint - BarakahAid
+# Auto-deploys on any push to main/master branch
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ----------------------------------------
+  # Backend API Server (NestJS)
+  # ----------------------------------------
+  - type: web
+    name: barakahaid-server
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    region: oregon
+    plan: free
+    branch: main
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: NODE_ENV
+        value: production
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLIC_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CALLBACK_URL
+        sync: false
+
+  # ----------------------------------------
+  # Client Application (React/Vite)
+  # ----------------------------------------
+  - type: web
+    name: barakahaid-client
+    runtime: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    region: oregon
+    plan: free
+    branch: main
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+
+  # ----------------------------------------
+  # Admin Panel (React/Vite)
+  # ----------------------------------------
+  - type: web
+    name: barakahaid-admin
+    runtime: docker
+    dockerfilePath: ./admin/Dockerfile
+    dockerContext: ./admin
+    region: oregon
+    plan: free
+    branch: main
+    envVars:
+      - key: VITE_API_URL
+        sync: false
