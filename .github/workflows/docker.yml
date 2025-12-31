@@ -142,5 +142,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_CLIENT_URL=${{ secrets.VITE_CLIENT_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
