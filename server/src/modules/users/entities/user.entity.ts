@@ -83,10 +83,10 @@ export class User {
   refreshToken: string | null;
 
   @Column({ type: 'varchar', nullable: true })
-  resetPasswordToken: string | null;
+  resetPasswordOtp: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  resetPasswordExpiry: Date | null;
+  resetPasswordOtpExpiry: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;

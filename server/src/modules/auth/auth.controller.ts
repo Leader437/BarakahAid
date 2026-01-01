@@ -20,7 +20,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetPasswordDto, VerifyOtpDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -100,7 +100,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await this.authService.forgotPassword(forgotPasswordDto);
-    return { message: 'Password reset email sent' };
+    return { message: 'OTP sent to your email' };
+  }
+
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    await this.authService.verifyOtp(verifyOtpDto.email, verifyOtpDto.otp);
+    return { message: 'OTP verified successfully', verified: true };
   }
 
   @Post('reset-password')

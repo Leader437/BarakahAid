@@ -1,8 +1,21 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength, IsEmail, Length } from 'class-validator';
+
+export class VerifyOtpDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @Length(6, 6)
+  otp: string;
+}
 
 export class ResetPasswordDto {
+  @IsEmail()
+  email: string;
+
   @IsString()
-  token: string;
+  @Length(6, 6)
+  otp: string;
 
   @IsString()
   @MinLength(6)

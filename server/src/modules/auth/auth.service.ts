@@ -2,7 +2,6 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
-  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,6 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { TokenUtil } from '../../utils/token.util';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +23,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
@@ -105,35 +106,53 @@ export class AuthService {
       where: { email: forgotPasswordDto.email },
     });
 
+    // Don't reveal if user exists or not for security (prevent email enumeration)
     if (!user) {
-      throw new NotFoundException('User not found');
+      return;
     }
 
-    const resetToken = TokenUtil.generateResetToken();
-    const hashedToken = TokenUtil.hashToken(resetToken);
+    const otp = TokenUtil.generateOtp();
+    const hashedOtp = TokenUtil.hashOtp(otp);
 
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpiry = TokenUtil.getResetTokenExpiry();
+    user.resetPasswordOtp = hashedOtp;
+    user.resetPasswordOtpExpiry = TokenUtil.getOtpExpiry();
 
     await this.userRepository.save(user);
+
+    // Send OTP email
+    await this.emailService.sendPasswordResetOtp(user.email, otp);
+  }
+
+  async verifyOtp(email: string, otp: string): Promise<boolean> {
+    const hashedOtp = TokenUtil.hashOtp(otp);
+
+    const user = await this.userRepository.findOne({
+      where: { email, resetPasswordOtp: hashedOtp },
+    });
+
+    if (!user || !user.resetPasswordOtpExpiry || user.resetPasswordOtpExpiry < new Date()) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    return true;
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<void> {
-    const hashedToken = TokenUtil.hashToken(resetPasswordDto.token);
+    const hashedOtp = TokenUtil.hashOtp(resetPasswordDto.otp);
 
     const user = await this.userRepository.findOne({
-      where: { resetPasswordToken: hashedToken },
+      where: { email: resetPasswordDto.email, resetPasswordOtp: hashedOtp },
     });
 
-    if (!user || !user.resetPasswordExpiry || user.resetPasswordExpiry < new Date()) {
-      throw new BadRequestException('Invalid or expired reset token');
+    if (!user || !user.resetPasswordOtpExpiry || user.resetPasswordOtpExpiry < new Date()) {
+      throw new BadRequestException('Invalid or expired OTP');
     }
 
     const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
 
     user.password = hashedPassword;
-    user.resetPasswordToken = null;
-    user.resetPasswordExpiry = null;
+    user.resetPasswordOtp = null;
+    user.resetPasswordOtpExpiry = null;
 
     await this.userRepository.save(user);
   }
