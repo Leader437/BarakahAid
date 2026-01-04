@@ -22,6 +22,8 @@ import { EmergencyModule } from './modules/emergency/emergency.module';
 import { PaymentModule } from './modules/payments/payment.module';
 import { EmailModule } from './modules/email/email.module';
 import { NotificationsGateway } from './modules/notifications/notifications.gateway';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -49,7 +51,9 @@ import { NotificationsGateway } from './modules/notifications/notifications.gate
     PaymentModule,
     EmailModule,
   ],
+  controllers: [AppController],
   providers: [
+    AppService,
     CloudinaryProvider,
     NotificationsGateway,
     {
