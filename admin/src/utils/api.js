@@ -22,16 +22,50 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Response interceptor with silent token refresh
 api.interceptors.response.use(
   (response) => response.data, // Return data directly from API responses
-  (error) => {
-    // If 401, maybe logout admin
-    if (error.response?.status === 401) {
-      // dispatch logout action if we had access to store, or just clear storage
-      // localStorage.removeItem('adminAccessToken');
-      // localStorage.removeItem('adminUser');
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // Get admin user ID from localStorage for refresh request
+        const userData = localStorage.getItem('adminUser');
+        const user = userData ? JSON.parse(userData) : null;
+
+        if (user?.id) {
+          // Attempt to refresh the token using the refresh token cookie
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+            { userId: user.id },
+            { withCredentials: true }
+          );
+
+          const newAccessToken = response.data?.accessToken || response.data?.data?.accessToken;
+
+          if (newAccessToken) {
+            // Store new token and retry the original request
+            localStorage.setItem('adminAccessToken', newAccessToken);
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return api(originalRequest);
+          }
+        }
+      } catch (refreshError) {
+        // Refresh failed - fall through to logout
+      }
+
+      // Clear admin auth data and redirect to login
+      localStorage.removeItem('adminAccessToken');
+      localStorage.removeItem('adminUser');
+
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/admin/login';
+      }
     }
+
     return Promise.reject(error);
   }
 );

@@ -30,15 +30,39 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Optional: Handle token refresh logic here if you decide to implement silent refresh on the client
-    // For now, just rejecting.
-
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Auto-logout on 401
+      originalRequest._retry = true;
+
+      try {
+        // Get user ID from localStorage for refresh request
+        const userData = localStorage.getItem('user');
+        const user = userData ? JSON.parse(userData) : null;
+
+        if (user?.id) {
+          // Attempt to refresh the token using the refresh token cookie
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+            { userId: user.id },
+            { withCredentials: true }
+          );
+
+          const newAccessToken = response.data?.accessToken || response.data?.data?.accessToken;
+
+          if (newAccessToken) {
+            // Store new token and retry the original request
+            localStorage.setItem('accessToken', newAccessToken);
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return api(originalRequest);
+          }
+        }
+      } catch (refreshError) {
+        // Refresh failed - fall through to logout
+      }
+
+      // Clear auth data and redirect to login
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
 
-      // Only redirect if not already on login page to avoid loops
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';
       }

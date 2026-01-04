@@ -1,45 +1,34 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private transporter: Transporter | null = null;
+  private resend: Resend | null = null;
+  private fromEmail: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.initializeTransporter();
+    this.initializeResend();
   }
 
-  private initializeTransporter() {
-    const smtpHost = this.configService.get<string>('SMTP_HOST');
-    const smtpPort = this.configService.get<number>('SMTP_PORT', 587);
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-    const smtpPass = this.configService.get<string>('SMTP_PASS');
+  private initializeResend() {
+    const resendApiKey = this.configService.get<string>('RESEND_API_KEY');
+    this.fromEmail = this.configService.get<string>('RESEND_FROM_EMAIL', 'BarakahAid <noreply@barakahaid.org>');
 
-    if (smtpHost && smtpUser && smtpPass) {
-      this.transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
-      this.logger.log('Email transporter initialized with SMTP configuration');
+    if (resendApiKey) {
+      this.resend = new Resend(resendApiKey);
+      this.logger.log('Resend email client initialized');
     } else {
-      // Use ethereal for development/testing if no SMTP configured
-      this.logger.warn('SMTP not configured. Emails will be logged but not sent.');
-      this.transporter = null;
+      this.logger.warn('RESEND_API_KEY not configured. Emails will be logged but not sent.');
+      this.resend = null;
     }
   }
 
   async sendPasswordResetOtp(email: string, otp: string): Promise<void> {
-    const mailOptions = {
-      from: this.configService.get<string>('SMTP_FROM', '"BarakahAid" <noreply@barakahaid.org>'),
-      to: email,
+    const emailContent = {
+      from: this.fromEmail,
+      to: [email],
       subject: 'Your Password Reset OTP - BarakahAid',
       html: `
         <!DOCTYPE html>
@@ -91,29 +80,35 @@ export class EmailService {
       `,
       text: `
         Password Reset OTP - BarakahAid
-        
+
         We received a request to reset your password.
-        
+
         Your OTP is: ${otp}
-        
+
         Enter this OTP on the password reset page to continue.
-        
+
         This OTP will expire in 10 minutes. If you didn't request a password reset, please ignore this email.
-        
+
         © ${new Date().getFullYear()} BarakahAid. All rights reserved.
       `,
     };
 
-    if (this.transporter) {
+    if (this.resend) {
       try {
-        const info = await this.transporter.sendMail(mailOptions);
-        this.logger.log(`Password reset OTP sent to ${email}: ${info.messageId}`);
+        const { data, error } = await this.resend.emails.send(emailContent);
+        
+        if (error) {
+          this.logger.error(`Failed to send password reset OTP to ${email}:`, error);
+          throw new Error(`Email sending failed: ${error.message}`);
+        }
+        
+        this.logger.log(`Password reset OTP sent to ${email}: ${data?.id}`);
       } catch (error) {
         this.logger.error(`Failed to send password reset OTP to ${email}:`, error);
         throw error;
       }
     } else {
-      // Log the OTP for development purposes
+      // Log the OTP for development purposes when Resend is not configured
       this.logger.log(`[DEV] Password reset OTP for ${email}: ${otp}`);
     }
   }
